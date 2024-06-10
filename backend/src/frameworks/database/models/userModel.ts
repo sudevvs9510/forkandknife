@@ -40,7 +40,7 @@ const userSchema = new Schema<UserDocument> ({
    role:{
       type:String,
       enum:["user", "seller"],
-      default: "user"
+      default: ""
    },
    isBlocked:{
       type: Boolean,

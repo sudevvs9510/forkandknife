@@ -23,6 +23,7 @@ userRouter.post('/verify-otp',controller.verifyOTP.bind(controller))
 userRouter.post('/google-login', controller.googleLogin.bind(controller))
 
 userRouter.post('/resend-otp', controller.ResendOtp.bind(controller));
+userRouter.post('/logout', controller.Logout.bind(controller))
 
 
 export default userRouter;

@@ -1,14 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import background from '../../assets/images/pexels-photo-776538.webp';
-
 import { useFormik } from 'formik';
-
 import { Register } from '../../api/api';
 import { validateSignup } from "../../helpers/validation"
 import { setStorageItem } from '../../util/localStorage';
 
-const SignupForm: React.FC = () => {
+const RestaurantSignup: React.FC = () => {
     const navigate = useNavigate();
 
     const formik = useFormik({
@@ -55,15 +53,15 @@ const SignupForm: React.FC = () => {
                         <div className="w-full flex-1 mt-8">
                             <div className="mx-auto max-w-xs">
 
-                                <h3 className="text-2xl mb-6 font-bold  text-[#00655B]">User Signup</h3>
+                                <h3 className="text-2xl mb-6 font-bold  text-[#00655B]">Restaurant Signup</h3>
 
                                 <form id="signupForm" onSubmit={formik.handleSubmit}>
                                     <input
                                         className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                                         {...formik.getFieldProps("username")}
                                         type="text"
-                                        name="username"
-                                        placeholder="Username"
+                                        name="restaurant"
+                                        placeholder="Restaurant name"
                                     />
                                     {formik.touched.username && formik.errors.username && (
                                         <div className="text-red-500">{formik.errors.username}</div>
@@ -156,7 +154,7 @@ const SignupForm: React.FC = () => {
                                 </form>
 
                                 <div className='flex  justify-center rounded-md py-3 text-white text-xl mt-3 bg-[#008376]'> 
-                                   <p className=''><Link to="/restaurant/signup">Restaurant singup </Link> </p>
+                                   <p className=''><Link to="/signup">User singup </Link> </p>
                                 </div>
 
                             </div>
@@ -169,4 +167,7 @@ const SignupForm: React.FC = () => {
     );
 };
 
-export default SignupForm;
+
+
+
+export default RestaurantSignup

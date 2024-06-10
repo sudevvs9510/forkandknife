@@ -4,7 +4,7 @@ import Button from "../../layouts/Buttons";
 
 const About: React.FC =  () => {
   return (
-    <div className="flex flex-col sm:flex-row  lg:flex-row  justify-center items-center lg:px-32 px-5">
+    <div id="About" className="flex flex-col sm:flex-row  lg:flex-row  justify-center items-center lg:px-32 px-5">
       <div className="flex justify-center items-center mr-4">
       <img className="max-w-full max-h-full" src={img} alt="img" />
       </div>

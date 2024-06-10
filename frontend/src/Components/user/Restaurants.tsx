@@ -1,9 +1,8 @@
 import React from "react";
 import { BsStarFill, BsStarHalf } from "react-icons/bs";
 import Button from "../../layouts/Buttons";
-
-
-import img from "../../assets/images/about.jpg"
+import { Shimmer } from "react-shimmer";
+import img from "../../assets/images/about.jpg";
 
 interface RestaurantDetails {
   img: string;
@@ -23,10 +22,20 @@ const restaurantData: RestaurantDetails[] = [
 ];
 
 const RestaurantCards: React.FC<RestaurantDetails> = (props) => {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+
   return (
-    <div className="w-full p-3  bg-[#00CCB8] bg-opacity-15 rounded-lg">
-      <img className="rounded-xl" src={props.img} alt="Restaurant" />
-      <div className="space-y-4 ">
+    <div className="w-full p-3 bg-[#00CCB8] bg-opacity-15 rounded-lg">
+      {!imageLoaded && (
+        <Shimmer width={300} height={200} className="rounded-xl" />
+      )}
+      <img
+        className={`rounded-xl ${!imageLoaded ? 'hidden' : ''}`}
+        src={props.img}
+        alt="Restaurant"
+        onLoad={() => setImageLoaded(true)}
+      />
+      <div className="space-y-4">
         <h3 className="font-semibold text-center text-xl pt-6">{props.title}</h3>
         <div className="flex flex-row justify-center">
           <BsStarFill className="text-[#008376]" />
@@ -41,13 +50,12 @@ const RestaurantCards: React.FC<RestaurantDetails> = (props) => {
         </div>
       </div>
     </div>
-
-
   );
 };
+
 const RestaurantList: React.FC = () => {
   return (
-    <div className="px-4 md:px-8 lg:px-16 xl:px-32 py-4 mb-10">
+    <div id="Restaurants" className="px-4 md:px-8 lg:px-16 xl:px-32 py-4 mb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {restaurantData.map((restaurant, index) => (
           <RestaurantCards

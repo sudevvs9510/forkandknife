@@ -18,6 +18,11 @@ interface Item {
 
 const sections: Section[] = [
    {
+      title: "Restaurant signup",
+      items: [""],
+      link: '/restaurant/signup'
+   },
+   {
       title: "About",
       items: ['Marketing', 'Analytics', 'Commerce', 'Data', 'Cloud'],
       link: '/about'
@@ -37,6 +42,7 @@ const sections: Section[] = [
       items: ["Claims", "Privacy", "Policies", 'Conditions'],
       link: '/policies'
    }
+
 ]
 
 const items: Item[] = [
@@ -66,7 +72,7 @@ const Footer: React.FC = () => {
          </div>
          <div className='max-w-[1240px] mx-auto flex flex-wrap justify-center text-center border-b-2 border-gray-600 py-8'>
             {sections.map((section, index) => (
-               <div className='w-full sm:w-1/4 md:w-1/4 px-2' key={index}>
+               <div className='w-full sm:w-1/5 md:w-1/5 px-2' key={index}>
                   <ul>
                      <li className="text-lg pt-2 cursor-pointer hover:text-[#00CCB8]">
                         <Link to={section.link}>
@@ -119,7 +125,7 @@ const Footer: React.FC = () => {
          </div>
 
 
-         
+
          <div className='mt-2'>
             <p className='px-2 pt-3 text-center'>
                2024 <span className='text-[#00CCB8]'> Fork and Knife. </span> All rights reserved

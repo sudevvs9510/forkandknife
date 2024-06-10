@@ -37,8 +37,9 @@ export class UserInteractorImpl implements UserInteractor {
 
          let refreshToken = ""
          if (user) {
-            refreshToken = await generateRefreshToken(user.id as string)
+            refreshToken = generateRefreshToken(user.id as string)
          }
+         console.log(token, user);
          return { user, message, token, refreshToken }
       } catch (err) {
          console.error("Error during login:", err);

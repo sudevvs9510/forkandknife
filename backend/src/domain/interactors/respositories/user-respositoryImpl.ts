@@ -50,15 +50,16 @@ export class UserRepositoryImpl implements UserRepository {
   
 
    async createUser(user: UserType): Promise<{ user: UserType | null; message: string }> {
-      const { username, email, password } = user;
+      const { username, email, password, role } = user;
       console.log(password)
       const otp = otpGenerator.generateOtp()
       createNodemailerOtp(user.email as string, otp)
       const newUser = new userModel({
          username,
          email,
-         password ,
-         otp
+         password,
+         otp,
+         role
       })
       console.log(newUser)
       await newUser.save()
@@ -91,7 +92,7 @@ export class UserRepositoryImpl implements UserRepository {
 
    async createGoogleUser(user: {email: string; username: string; password: string}):Promise<{ user: UserType | null, message: string}> {
       const { username, email, password} = user
-      const newUser = new userModel({username, email, password, isVerified: true})
+      const newUser = new userModel({username, email, password, isVerified: true, role: "user"})
       await newUser.save()
       return {
          user: newUser as UserType,
@@ -112,11 +113,6 @@ export class UserRepositoryImpl implements UserRepository {
          token = await generateAccessToken(user.id as string)
          console.log(token);
       }
-      // if (user && !message) {
-      //    return { user: user.id, message, token }
-      // } else {
-      //    return { user: null, message, token }
-      // }
       return { userData: user, message, token }
    }
 

@@ -9,9 +9,9 @@ export class userController {
 
    async signup(req: Request, res: Response, next: NextFunction) {
       try {
-         const { username, email, phone, password } = req.body
+         const { username, email, phone, password, role } = req.body
          console.log('Signup', req.body);
-         let credentials: UserType = { email, username, password }
+         let credentials: UserType = { email, username, phone, password, role }
 
          const { user, message } = await this.interactor.signup(credentials)
          if (!user) {
@@ -33,22 +33,51 @@ export class userController {
          console.log('Login Controller');
          console.log('loginData ', req.body);
 
-         const { email, password } = req.body
-         console.log(email, password)
+         const { email, password, role } = req.body
+         console.log(email, password, role)
 
-         if(!email || !password){
-            return res.status(400).json({ message: "Email and password are required"})
+         if (!email || !password || !role) {
+            return res.status(400).json({ message: "Email, password & role are required" })
          }
 
-         const { user, message, token, refreshToken } = await this.interactor.login({ email, password })
+         const { user, message, token, refreshToken } = await this.interactor.login({ email, password, role })
 
          if (!user) {
             console.log("User not found or incorrect password")
             return res.status(401).json({ message: message, token: null })
-         } else {
-            console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
-           return res.status(200).json({ message: 'Login Successful', user, token, refreshToken });
          }
+         console.log(token)
+         
+         if (user.role === 'user') {
+            res.cookie('auth_token', token as string, {
+               // httpOnly: true,
+               secure: process.env.NODE_ENV === "production",
+         
+            });
+         } else {
+            console.log('seller......')
+           res.cookie('seller_auth' , token as string , {
+            // httpOnly : true,
+            secure : process.env.NODE_ENV === 'production'
+           })
+         }
+
+      //    const cookieOptions = {
+      //       httpOnly: true,
+      //       secure: process.env.NODE_ENV === "production",
+      //       sameSite: 'strict' as const,
+      //   };
+
+      //   if (user.role === 'user') {
+      //       res.cookie('auth_token', token as string, cookieOptions);
+      //   } else if (user.role === "seller") {
+      //       res.cookie('seller_auth', token as string, cookieOptions);
+      //   }
+
+
+         console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
+         return res.status(200).json({ message: 'Login Successful', user, token, refreshToken });
+
       } catch (err) {
          console.error('Error login:', err);
          res.status(500).send("Internal server error")
@@ -58,11 +87,12 @@ export class userController {
    async verifyOTP(req: Request, res: Response, next: NextFunction) {
       console.log("OTP- controller verification")
       try {
-         const { otp: {otp}, userId } = req.body
+         const { otp: { otp }, userId } = req.body
+         console.log("otp verify",otp)
          const { message, status } = await this.interactor.verifyotp(otp, userId)
 
          if (!status) {
-            res.status(401).json({ message , status})
+            res.status(401).json({ message, status })
          } else {
             res.status(200).json({ message, status })
          }
@@ -78,7 +108,7 @@ export class userController {
       try {
          console.log("google login controller");
          const { email, given_name, sub } = req.body
-         console.log(email, given_name,sub );
+         console.log(email, given_name, sub);
          const { user, message, token, refreshToken } = await this.interactor.googlelogin({ email, given_name, sub })
          if (user) {
             console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
@@ -102,9 +132,9 @@ export class userController {
          const { userId } = req.body
          console.log("userId", userId)
          const { message, status } = await this.interactor.resendOtp(userId)
-         if(!status){
+         if (!status) {
             return res.status(401).json({ message, status })
-         } 
+         }
          return res.status(201).json({ message, status })
       } catch (error) {
          console.error("Error during resend otp service", error);
@@ -121,6 +151,20 @@ export class userController {
 
       }
    }
+
+
+   async Logout(req: Request, res: Response, next: NextFunction) {
+      console.log("Logout user");
+      try {
+         res.cookie("auth_token","",{
+          expires: new Date(0),
+         })
+         res.send()
+      } catch (error) {
+        console.error(" OOps ! error during resend otp service:", error);
+        res.status(500).send("Internal server error");
+      }
+    }
 
 
 }

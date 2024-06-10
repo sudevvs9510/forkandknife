@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // import { Contstants } from '../../config'
-
+axios.defaults.withCredentials = true
 
 const authAxios = axios.create({
    baseURL: 'http://localhost:4000',

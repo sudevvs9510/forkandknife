@@ -7,6 +7,7 @@ import routes from "./presentation/routes/routes"
 import cors from 'cors'
 import { corsConfig } from "./config"
 import morgan from 'morgan'
+import cookieParser from "cookie-parser"
 
 config()   
 
@@ -14,6 +15,7 @@ const app: Application = express()
 
 const server = http.createServer(app)
 
+app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(cors(corsConfig))

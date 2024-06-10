@@ -1,8 +1,5 @@
 import React from 'react'
-
-
 import { useGoogleLogin } from '@react-oauth/google';
-import authAxios from '../../redux/api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { googleLogin } from '../../api/api';
 import { setStorageItem } from '../../util/localStorage';
@@ -19,38 +16,69 @@ import { setStorageItem } from '../../util/localStorage';
 const GoogleLoginAuth :React.FC = () => {
 const navigate = useNavigate()
 
+// const handleGoogleLogin = useGoogleLogin({
+//    onSuccess: async (response) => {
+//       try {
+//          const res = await authAxios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`)
+//          const userData = res.data;
+
+//          const backendData = await googleLogin({
+//             email: userData.email,
+//             given_name: userData.given_name,
+//             sub: userData.sub
+//          })
+//             console.log(backendData)
+//              // Store JWT token in local storage
+//       if (backendData.data.token) {
+//          setStorageItem('jwtToken', backendData.data.token);
+//       } else {
+//         console.log('No token received');
+//       }
+            
+//          navigate('/home')
+//       } catch (error  ) {
+         
+//          console.log(error + 'kkkkkkkkk');
+//       }
+//    },
+// })
+
 const handleGoogleLogin = useGoogleLogin({
    onSuccess: async (response) => {
       try {
-         const res = await authAxios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`)
-         const userData = res.data;
-         console.log(userData)
+         const res = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`);
+         if (!res.ok) {
+            throw new Error('Failed to fetch user data from Google');
+         }
+         const userData = await res.json();
 
          const backendData = await googleLogin({
             email: userData.email,
             given_name: userData.given_name,
-            sub: userData.sub})
-            console.log(backendData)
+            sub: userData.sub
+         });
+         console.log(backendData);
 
-
-             // Store JWT token in local storage
-      if (backendData.data.token) {
-         setStorageItem('jwtToken', backendData.data.token);
-      } else {
-        console.log('No token received');
-      }
+         // Store JWT token in local storage
+         if (backendData.data.token) {
+            setStorageItem('jwtToken', backendData.data.token);
+         } else {
+            console.log('No token received');
+         }
             
-         navigate('/home')
+         navigate('/home');
       } catch (error) {
-         console.error(error);
+         console.error('Error during Google login:', error);
       }
    }
-})
+});
+
 
 
 return (
       <>
          <button
+         type='submit'
             onClick={()=>handleGoogleLogin()} className="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-[#008376] text-white flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline">
             <div className="bg-white p-2 rounded-full">
                <svg className="w-4" viewBox="0 0 533.5 544.3">

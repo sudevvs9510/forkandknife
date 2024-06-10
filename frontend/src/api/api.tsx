@@ -1,11 +1,13 @@
 import authAxios from "../redux/api/authApi";
 import { UserType } from "../helpers/validation"
 
+
 interface credentials {
    username: string;
    email: string;
    phone: string;
    password: string;
+   role: string
 }
 
 // interface otpResponse {
@@ -20,9 +22,10 @@ interface credentials {
 export interface APIresponse {
    data: {
       message?: string,
-      user?: UserType,
-      token?: string,
-      refreshToken?: string
+      user: UserType,
+      token: string,
+      refreshToken?: string,
+      // otp?: string
    },
 }
 
@@ -40,6 +43,8 @@ export const Register = async (credentials: credentials): Promise<{ user: {email
       throw new Error()
    }
 }
+
+
 
 export const loginUser = async (data: Partial<credentials>): Promise<APIresponse> => {
    try {
@@ -90,6 +95,7 @@ export const googleLogin = async (credentials: { email: string; given_name: stri
 }
 
 
+
 export const adminLogin = async (data: Partial<credentials>): Promise<APIresponse> =>{
    try{
       const {data:{message, user, token}} =  await authAxios.post("/admin/login", data)
@@ -98,5 +104,22 @@ export const adminLogin = async (data: Partial<credentials>): Promise<APIrespons
       console.error(error);
       throw error
       
+   }  
+}
+
+export const Logout = async () =>{
+   const response = await authAxios.post("/logout")
+   if(response.status !==200){
+      throw new Error("Logout Failed")
    }
 }
+
+export const validateToken = async () => {
+   const response = await authAxios.get("/validate-token");
+   console.log(response.data);
+   if (response.status !== 200) {
+     throw new Error("Token invalid");
+   }
+   return response;
+};
+
