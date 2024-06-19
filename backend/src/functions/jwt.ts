@@ -4,18 +4,14 @@ import jwt from 'jsonwebtoken';
 
 // JWT GENERATE TOKEN 
 export const generateAccessToken = (userId:string): string =>{
-   const payload = {
-      userId: userId,
-   }
-   return jwt.sign(payload, "xyZiopasf89asfaj", {expiresIn: "20h"});
+   const payload = { userId: userId }
+   return jwt.sign(payload, "xyZiopasf89asfaj", {expiresIn: "24h"});
 }
 
 // JWT REFRESH TOKEN 
 export const generateRefreshToken = (userId: string): string =>{
-   const payload = {
-      userId : userId
-   }
-   return jwt.sign(payload,"lkgakjdo09asfka", { expiresIn: "1d" })
+   const payload = { userId : userId }
+   return jwt.sign(payload,"lkgakjdo09asfka", { expiresIn: "30d" })
 }
 
 
@@ -29,3 +25,12 @@ export const jwtVerifyToken = (accessToken : string, SECRET_KEY :string) =>{
       }
    })
 }
+
+// export const jwtVerifyToken = (accessToken: string, SECRET_KEY: string): { message: string, decode: any | null } => {
+//    try {
+//        const decoded = jwt.verify(accessToken, SECRET_KEY);
+//        return { message: "Successfully verified", decode: decoded };
+//    } catch (err) {
+//        return { message: "Invalid Token", decode: null };
+//    }
+// }

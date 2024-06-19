@@ -12,6 +12,12 @@ const controller = new adminController(interactor)
 const adminRouter = express.Router()
 
 adminRouter.post('/login',controller.adminLogins.bind(controller))
+adminRouter.get('/restaurant-lists', controller.getRestaurants.bind(controller))
+adminRouter.get('/restaurants-approval-lists',controller.approveRestaurantList.bind(controller))
+
+
+adminRouter.get("/restaurant-approval/:id",controller.approveRestaurant.bind(controller))
+adminRouter.put("/restaurant-approval/:id", controller.restaurantApprovalConfirmation.bind(controller))
 
 
 export default adminRouter

@@ -6,8 +6,16 @@ import { generateAccessToken } from '../../../functions/jwt'
 import { otpGenerator } from '../../../functions/OTP-Generator'
 import { createNodemailerOtp } from '../../../functions/sendMail';
 import { OTPModel } from '../../../frameworks/database/models/otpModel'
+import reset_PasswordMailer from  "../../../functions/sendMailResetPassword"
+import { hashedPasswordFunction } from "../../../functions/bcryptFunctions"
+import { RestaurantType } from '../../entities/restaurant';
+import restaurantModel from '../../../frameworks/database/models/restaurantModel';
+
+
 
 export class UserRepositoryImpl implements UserRepository {
+   
+   
    async findByCredentials(email: string, password: string): Promise<{ user: UserType | null; message: string; token: string | null }> {
       try {
           console.log("s REPOSITORY ----");
@@ -110,7 +118,7 @@ export class UserRepositoryImpl implements UserRepository {
       if (!user) {
          message = " User not found"
       } else {
-         token = await generateAccessToken(user.id as string)
+         token = generateAccessToken(user.id as string)
          console.log(token);
       }
       return { userData: user, message, token }
@@ -130,6 +138,58 @@ export class UserRepositoryImpl implements UserRepository {
       }      
       return { status: false, message: "Incorrect OTP"}
    }
+
+
+   async resetPassword(email: string): Promise<{ message: string; success: boolean; }> {
+      console.log("Reset password repopsitory")
+      try {
+         const user = await userModel.findOne({email})
+         if(!user){
+            console.log("User not found");
+            return { message:"User not found", success: false }
+         }
+
+         reset_PasswordMailer(user.email, user._id as string)
+         return { message: "User exists", success: true }
+      } catch (error) {
+         console.log("Error in reset password repository",error)
+         throw error
+      }
+   }
+
+   async confirmResetPassword(id: string, password: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         console.log("Confirm reset password repository",id)
+         const hashedPassword = await hashedPasswordFunction(password)
+         console.log("Passswordsds..",password, hashedPassword)
+         const user = await userModel.findByIdAndUpdate(id, {password: hashedPassword})
+         if(!user){
+            console.log("failed to update password")
+            return { message: "Somethinf went wrong", status:false }
+         }
+         return { message: "Succesfully reseted password", status: true }
+      }catch(error){
+         console.log("Error occured in reset password repository",error)
+         throw error
+      }
+   }
+
+
+
+   async getApprovedRestaurants(): Promise<{ approvedRestaurants: RestaurantType[]; }> {
+      try{
+         const approvedRestaurants : RestaurantType[] = await restaurantModel.aggregate([
+            {$match: {isApproved: true }},
+            {$sort: { createdAt: -1}}
+         ])
+         return { approvedRestaurants : approvedRestaurants}
+      } catch(error){
+         console.log("Error occured in get approved restaurants:",error)
+         throw error
+      }
+   }
+
+
 }
 
 

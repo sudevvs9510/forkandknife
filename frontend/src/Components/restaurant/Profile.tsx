@@ -52,6 +52,7 @@ const RestaurantDetails = () => {
   };
 
   return (
+    
     <div className="bg-white p-8 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Restaurant Details</h2>
       <form onSubmit={handleSubmit}>

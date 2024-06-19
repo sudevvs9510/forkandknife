@@ -7,8 +7,15 @@ import AdminLogin from "../Components/admin/AdminLoginForm"
 import Dashboard from "../pages/Admin/Dashboard"
 import RestaurantDash from '../pages/Seller/ReservationDash'
 import Menu from "../pages/Seller/RestaurantMenu"
-import RestaurantSignup from "../Components/restaurant/RestaurantSignup"
-
+import RestaurantSignup from "../Components/auth/RestaurantSignup"
+import RestaurantManagement from "../Components/admin/RestaurantManagement"
+import RestaurantApproval from "../Components/admin/RestaurantApproval"
+import RestoRegisterManagement from "../Components/admin/RestoRegisterManagement"
+import UserProfile from "../Components/user/UserProfile"
+import RestaurantLogin from "../Components/auth/RestaurantLogin"
+import ForgotPasswordMailPage from "../Components/user/EmailForgotPassword"
+import ForgotNewPassword from "../Components/user/NewPassword"
+import Profile from "../pages/Seller/RestaurantProfile"
 
 
 const MainRouter = () => {
@@ -23,19 +30,28 @@ const MainRouter = () => {
 
       <Route path="/home" element={<Home />} />
       <Route path="/verify-otp" element={<Otp />} />
+      <Route path="/profile" element={ < UserProfile/>}/>
 
+      <Route path="/reset-password" element={ < ForgotPasswordMailPage/>} />
+      <Route path="/reset-password/:id" element= { <ForgotNewPassword /> } />
 
 
       {/* Admin Routes  */}
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<Dashboard />} />
+      <Route path="/admin/restaurant-lists" element={<RestaurantManagement />} />
+      <Route path = "/admin/restaurant-approval/:id" element={< RestaurantApproval />} />
+      <Route path ="/admin/new-registrations" element={< RestoRegisterManagement />} />
+
 
 
       {/* Restaurant Routes  */}
       <Route path="restaurant/signup" element={<RestaurantSignup/>} />
+      <Route path="restaurant/login" element={<RestaurantLogin />} />
       <Route path="restaurant/dashboard" element={<RestaurantDash />} />
       <Route path="restaurant/reservations" element={<RestaurantDash/>} />
       <Route path="restaurant/menu" element={<Menu />} />
+      <Route path="restaurant/profile" element={<Profile />} />
 
 
     </Routes>

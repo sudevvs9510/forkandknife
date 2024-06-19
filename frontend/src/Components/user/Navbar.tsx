@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
   const handleClick = () => setClick(!click);
 
   const content = (
-    <div className={`lg:hidden block absolute top-16 w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
+    <div className={`lg:hidden block absolute top-16 w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform z-50 ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
       <ul className='text-center text-xl p-20'>
         <ScrollLink spy={true} smooth={true} to='Home' onClick={handleClick}>
           <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Home</li>
@@ -32,7 +32,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="bg-[#008376] text-white">
+    <nav className="bg-[#008376] text-white relative z-40">
       <div className="flex justify-between items-center h-10vh lg:py-5 px-4 lg:px-20 py-4 transition-all duration-300 ease-in-out">
         <div className='flex items-center flex-1'>
           <span className='text-2xl font-bold text-white'>Fork & Knife</span>
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
-        <button className='block lg:hidden transition duration-300 ease-in-out ml-auto' onClick={handleClick}>
+        <button className='block lg:hidden transition duration-300 ease-in-out ml-auto z-50' onClick={handleClick}>
           {click ? <FaTimes style={{ color: "#ffff" }} /> : <CiMenuBurger style={{ color: "#ffff" }} />}
         </button>
       </div>

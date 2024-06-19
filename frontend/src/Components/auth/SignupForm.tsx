@@ -1,48 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import background from '../../assets/images/pexels-photo-776538.webp';
-
 import { useFormik } from 'formik';
-
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Register } from '../../api/api';
-import { validateSignup } from "../../helpers/validation"
+import { validateSignup } from '../../helpers/validation';
 import { setStorageItem } from '../../util/localStorage';
+import background from '../../assets/images/pexels-photo-776538.webp';
 
 const SignupForm: React.FC = () => {
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
     const formik = useFormik({
         initialValues: {
-            username: "",
-            email: "",
-            password: "",
-            phone: "",
-            role: "user", // Default role
+            username: '',
+            email: '',
+            password: '',
+            phone: '',
+            role: 'user',
         },
         validate: validateSignup,
         onSubmit: async (values) => {
             try {
                 const { user, message } = await Register(values);
-                console.log(message)
-                setStorageItem("otpSession", user._id as string)
-                setStorageItem("remainingSeconds", "30")
-                setStorageItem("Email", user._id)
-                navigate('/verify-otp')
+                console.log(message);
+                setStorageItem('otpSession', user._id as string);
+                setStorageItem('remainingSeconds', '30');
+                setStorageItem('Email', user._id);
+                navigate('/verify-otp');
             } catch (err) {
-                console.log(err)
+                console.log(err);
             }
-        }
+        },
     });
 
-    // const toggleRole = () => {
-    //     if (formik.values.role === 'user') {
-    //         formik.setFieldValue('role', 'seller');
-    //         navigate('/home');
-    //     } else {
-    //         formik.setFieldValue('role', 'user');
-    //     }
-    // };
-
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     return (
         <div className="h-screen bg-gray-100 overflow-hidden text-gray-900 flex justify-center">
@@ -54,111 +48,81 @@ const SignupForm: React.FC = () => {
                     <div className="mt-12 flex flex-col items-center">
                         <div className="w-full flex-1 mt-8">
                             <div className="mx-auto max-w-xs">
-
-                                <h3 className="text-2xl mb-6 font-bold  text-[#00655B]">User Signup</h3>
-
+                                <h3 className="text-2xl mb-6 font-bold text-[#00655B]">User Signup</h3>
                                 <form id="signupForm" onSubmit={formik.handleSubmit}>
                                     <input
                                         className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                                        {...formik.getFieldProps("username")}
+                                        {...formik.getFieldProps('username')}
                                         type="text"
-                                        name="username"
                                         placeholder="Username"
                                     />
                                     {formik.touched.username && formik.errors.username && (
                                         <div className="text-red-500">{formik.errors.username}</div>
                                     )}
-
                                     <input
                                         className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                                        {...formik.getFieldProps('email')}
                                         type="email"
-                                        {...formik.getFieldProps("email")}
-                                        name="email"
                                         placeholder="Email"
                                     />
                                     {formik.touched.email && formik.errors.email && (
                                         <div className="text-red-500">{formik.errors.email}</div>
                                     )}
-
                                     <input
                                         className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                        type="text"
-                                        {...formik.getFieldProps("phone")}
-                                        name="phone"
-                                        placeholder="Phone number"
+                                        {...formik.getFieldProps('phone')}
+                                        type="tel"
+                                        placeholder="Phone"
                                     />
                                     {formik.touched.phone && formik.errors.phone && (
                                         <div className="text-red-500">{formik.errors.phone}</div>
                                     )}
-
-                                    <input
-                                        className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                                        type="password"
-                                        {...formik.getFieldProps("password")}
-                                        name="password"
-                                        placeholder="Password"
-                                    />
+                                    <div className="relative mt-5">
+                                        <input
+                                            className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                            type={showPassword ? 'text' : 'password'}
+                                            id="password"
+                                            placeholder="Password"
+                                            {...formik.getFieldProps('password')}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                                            onClick={togglePasswordVisibility}
+                                        >
+                                            {showPassword ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
+                                        </button>
+                                    </div>
                                     {formik.touched.password && formik.errors.password && (
                                         <div className="text-red-500">{formik.errors.password}</div>
                                     )}
-
-                                    {/* <div className="flex items-center mb-6 mt-5">
-                                        <p className='text-red-600'> Click to choose User or Seller </p>
-                                        <button
-                                            type="button"
-                                            className={`px-3 py-1 rounded-lg font-medium ${
-                                                formik.values.role === 'user'
-                                                    ? 'bg-green-600 text-white'
-                                                    : 'bg-gray-100 border border-gray-200 text-gray-700'
-                                            }`}
-                                            onClick={toggleRole}
-                                        >
-                                            {formik.values.role === 'user' ? (
-                                                <>
-                                                    <svg className="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                                        <circle cx="8.5" cy="7" r="4" />
-                                                    </svg>
-                                                    User
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <svg className="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-
-                                                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                                        <circle cx="8.5" cy="7" r="4" />
-                                                    </svg>
-                                                    Seller
-                                                </>
-                                            )}
-                                        </button>
-                                    </div> */}
-
-
-
                                     <button
-                                        className="mt-5 tracking-wide font-semibold bg-[#008376] text-white-500 w-full py-4 rounded-lg hover:bg-[#008376] transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                         type="submit"
+                                        className="mt-5 tracking-wide font-semibold bg-[#00655B] text-white-500 w-full py-4 rounded-lg hover:bg-[#00655B] transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                                     >
-                                        <svg className="w-6 h-6 -ml-2 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <svg
+                                            className="w-6 h-6 -ml-2 text-white"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
                                             <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
                                             <circle cx="8.5" cy="7" r="4" />
                                             <path d="M20 8v6M23 11h-6" />
                                         </svg>
-                                        <span className="ml-2 text-white">Register</span>
+                                        <span className="ml-3 text-white">Sign Up</span>
                                     </button>
-
-                                    <div className="flex flex-col items-center">
-                                        <p className="mt-4">
-                                            Already have an account? <Link to="/login" className="text-green-700 hover:text-green-500">Login</Link>
-                                        </p>
-                                    </div>
                                 </form>
-
-                                <div className='flex  justify-center rounded-md py-3 text-white text-xl mt-3 bg-[#008376]'> 
-                                   <p className=''><Link to="/restaurant/signup">Restaurant singup </Link> </p>
+                                <div className="flex flex-col items-center mt-5">
+                                    <p className="mt-4">
+                                        Already have an account?{' '}
+                                        <Link to="/login" className="text-green-700 hover:text-green-500">
+                                            Login
+                                        </Link>
+                                    </p>
                                 </div>
-
                             </div>
                         </div>
                     </div>

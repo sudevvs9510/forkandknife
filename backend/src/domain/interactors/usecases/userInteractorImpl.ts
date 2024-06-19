@@ -5,14 +5,14 @@ import { UserRepository } from "../../interfaces/repositories/user-repository";
 import { UserInteractor } from "../../interfaces/usecases/userInteractor";
 import { IMailer } from '../../../Config/mailer'
 import userModel from "../../../frameworks/database/models/userModel";
+import { RestaurantType } from "../../entities/restaurant";
 
 
 
 export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
-
-
+   
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
          console.log("Signup ----");
@@ -29,9 +29,6 @@ export class UserInteractorImpl implements UserInteractor {
    async login(credentials: { email: string, password: string }): Promise<{ user: UserType | null, message: string, token: string | null, refreshToken: string | null }> {
       try {
          console.log("userInteractor: LOGIN")
-         console.log("email:", credentials.email);
-         console.log("Password:", credentials.password)
-
          const { user, message, token } = await this.Repository.findByCredentials(credentials.email, credentials.password)
          console.log("Usecase", user, token, message);
 
@@ -73,13 +70,13 @@ export class UserInteractorImpl implements UserInteractor {
          //  user = { user: newUser, message: "User created and logged in", token: null };
          message = createMessage;
          if(user){
-            token = await generateAccessToken(user.id as string)
+            token = generateAccessToken(user.id as string)
          }
          return { user , message, token , refreshToken : null};
       }
 
   
-      const refreshToken = userData ? await generateRefreshToken(userData.id as string) : null;
+      const refreshToken = userData ? generateRefreshToken(userData.id as string) : null;
       return { user : userData , message, token, refreshToken };
       } catch (err) {
         console.error(err);
@@ -95,6 +92,37 @@ export class UserInteractorImpl implements UserInteractor {
          console.log(error);
          throw error
        }
+   }
+
+   async resetPasswordInteractor(email: string): Promise<{ message: string; success: boolean; }> {
+      try {
+         const { message, success } = await this.Repository.resetPassword(email)
+         return { message, success } 
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async  resetPasswordUpdateItneractor(id: string, password: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.Repository.confirmResetPassword(id,password)
+         return { message, status }
+      }catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+   async getApprovedRestaurantsInteractor(): Promise<{ approvedRestaurants: RestaurantType[]; }> {
+      try{
+         const { approvedRestaurants } = await this.Repository.getApprovedRestaurants()
+         return { approvedRestaurants }
+      } catch(error){
+         console.log(error)
+         throw error
+      }
    }
 
 }

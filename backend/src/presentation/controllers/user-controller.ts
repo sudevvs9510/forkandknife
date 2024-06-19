@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import { UserInteractor } from '../../domain/interfaces/usecases/userInteractor'
 import { UserType } from '../../domain/entities/User';
+import { setCookieAuthToken } from "../../functions/cookieFun"
+import { stat } from 'fs';
+import { NetConnectOpts } from 'net';
 
 export class userController {
 
@@ -33,48 +36,25 @@ export class userController {
          console.log('Login Controller');
          console.log('loginData ', req.body);
 
-         const { email, password, role } = req.body
-         console.log(email, password, role)
+         const { email, password} = req.body
+         console.log(email, password)
 
-         if (!email || !password || !role) {
+         if (!email || !password ) {
             return res.status(400).json({ message: "Email, password & role are required" })
          }
 
-         const { user, message, token, refreshToken } = await this.interactor.login({ email, password, role })
+         const { user, message, token, refreshToken } = await this.interactor.login({ email, password })
 
          if (!user) {
             console.log("User not found or incorrect password")
-            return res.status(401).json({ message: message, token: null })
+            return res.status(401).json({ message: "Failed to login user", token: null })
          }
          console.log(token)
          
-         if (user.role === 'user') {
-            res.cookie('auth_token', token as string, {
-               // httpOnly: true,
-               secure: process.env.NODE_ENV === "production",
-         
-            });
-         } else {
-            console.log('seller......')
-           res.cookie('seller_auth' , token as string , {
-            // httpOnly : true,
-            secure : process.env.NODE_ENV === 'production'
-           })
+         if(token){
+            setCookieAuthToken(res,"UserAuth_token",token);
          }
-
-      //    const cookieOptions = {
-      //       httpOnly: true,
-      //       secure: process.env.NODE_ENV === "production",
-      //       sameSite: 'strict' as const,
-      //   };
-
-      //   if (user.role === 'user') {
-      //       res.cookie('auth_token', token as string, cookieOptions);
-      //   } else if (user.role === "seller") {
-      //       res.cookie('seller_auth', token as string, cookieOptions);
-      //   }
-
-
+ 
          console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
          return res.status(200).json({ message: 'Login Successful', user, token, refreshToken });
 
@@ -112,6 +92,7 @@ export class userController {
          const { user, message, token, refreshToken } = await this.interactor.googlelogin({ email, given_name, sub })
          if (user) {
             console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
+            setCookieAuthToken(res, "google_auth", token as string)
             res.status(200).json({ user, message, token, refreshToken })
          } else {
             console.log(message)
@@ -152,6 +133,54 @@ export class userController {
       }
    }
 
+
+   async resetPasswordGetUser (req: Request, res: Response, next: NextFunction){
+      console.log("Reset password controller")
+      const { email } = req.body
+      try{
+         const { message, success } = await this.interactor.resetPasswordInteractor(email)
+         if(!success) return res.status(401).json({ message , success })
+         return res.status(200).json({ message: "Password reset link sent to your email", success })
+      }catch(error){
+         console.error(error);
+         return res.status(500).json({message: "Internal server error"})
+      }
+   }
+
+   async resetPasswordUpdate(req:Request, res:Response, next: NextFunction){
+      console.log("Reset password update controller")
+      console.log(req.body)
+
+      const  { password } = req.body
+      const { id } = req.params
+
+      if (!password) {
+         return res.status(400).json({ message: "Password is required", status: false });
+     }
+
+      try {
+         console.log("userId:",id);
+         const { message, status} = await this.interactor.resetPasswordUpdateItneractor(id, password)
+         if(!status) return res.status(401).json({ message, status })
+            return res.status(200).json({ message,status })
+      } catch (error) {
+         console.log("Error during reset password service",error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+
+   async getRestaurants (req:Request, res: Response, next: NextFunction){
+      console.log("Get Restaurant controller")
+      try{
+         const { approvedRestaurants } = await this.interactor.getApprovedRestaurantsInteractor()
+         console.log("")
+         return res.status(200).json({ restaurant : approvedRestaurants, messgae: "successfull"})
+      } catch(error){
+         console.log(error);
+         return res.status(500).json({ message: "Internal server error"})
+      }
+   }
 
    async Logout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout user");

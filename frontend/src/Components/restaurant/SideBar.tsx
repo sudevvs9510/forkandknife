@@ -20,9 +20,9 @@ const Sidebar: React.FC = () => {
                <FaCalendarAlt className="h-6 w-6" />
                {isOpen && <span className="hidden md:block">Reservations</span>}
             </Link>
-            <Link to="/restaurant/restaurants" className="flex items-center space-x-2 py-2 px-4 bg-white rounded shadow hover:bg-gray-200">
+            <Link to="/restaurant/profile" className="flex items-center space-x-2 py-2 px-4 bg-white rounded shadow hover:bg-gray-200">
                <FaUtensils className="h-6 w-6" />
-               {isOpen && <span className="hidden md:block">Restaurants</span>}
+               {isOpen && <span className="hidden md:block">Restaurant Profile</span>}
             </Link>
             <Link to="/restaurant/menu" className="flex items-center space-x-2 py-2 px-4 bg-white rounded shadow hover:bg-gray-200">
                <FaConciergeBell className="h-6 w-6" />

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import configKeys  from "../../config.ts"
+import configKeys  from "../../config"
 import jwt,{ JwtPayload } from "jsonwebtoken"
 
 

@@ -4,7 +4,6 @@ export interface UserType {
    email: string;
    phone: string;
    password: string;
-   role: string;
 }
 
 // export interface ErrorType {
@@ -19,10 +18,15 @@ export interface UserType {
 export interface RestaurantType{
     restaurantName: string;
     email: string;
-    phone: string;
+    contact: string;
     password: string;
     
 }
+
+export type ResetPasswordValues = {
+    password: string;
+    confirmPassword: string;
+};
 
 // user validation 
 
@@ -37,10 +41,6 @@ export const validateLogin = (values: Partial<UserType>) => {
        errors.password = "Password is required"
    } else if (values.password.length < 6) {
        errors.password = "Password length must be 8 characters";
-   }
-
-   if(!values.role){
-    errors.role = "Role is required"
    }
    return errors
 }
@@ -77,9 +77,6 @@ export const validateSignup = (values: Partial<UserType>) => {
    } else if (values.password.length < 6) {
        newErrors.password = "Password length must be at least 6 characters";
    }
-   if(!values.role){
-    newErrors.role = "Role is required"
-   }
    return newErrors
 
 
@@ -89,4 +86,57 @@ export const validateSignup = (values: Partial<UserType>) => {
 
 // Restaurant validation 
 
+export const validateRestaurantSignup = (values: Partial<RestaurantType>) => {
+    const newErrors: Partial<RestaurantType> = {};
+ 
+    if (!values.restaurantName) {
+        newErrors.restaurantName = "restaurant name is required";
+    }
+    if (!values.email) {
+        newErrors.email = "Email is required";
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+        newErrors.email = "Please enter a valid email address";
+    }
+    if (!values.contact) {
+        newErrors.contact = "Phone number is required";
+    } else if (values.contact.length < 10) {
+        newErrors.contact = "Phone number length must be 10";
+    }
+    if (!values.password) {
+        newErrors.password = "Password is required";
+    } else if (values.password.length < 6) {
+        newErrors.password = "Password length must be at least 6 characters";
+    }
+    return newErrors
+ 
+ };
+ export const validateResetPassword = (values: ResetPasswordValues) => {
+    const errors: Partial<ResetPasswordValues> = {};
 
+    if (!values.password) {
+        errors.password = 'Please enter the password!';
+    } else {
+        if (values.password.length > 20) {
+            errors.password = 'Please enter a password less than 20 characters';
+        }
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(values.password)) {
+            errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character!';
+        }
+    }
+
+    if (!values.confirmPassword) {
+        errors.confirmPassword = 'Confirm password is required!';
+    } else {
+        if (values.confirmPassword.length < 8) {
+            errors.confirmPassword = 'Password must be 8 characters long!';
+        }
+        if (values.confirmPassword.length > 20) {
+            errors.confirmPassword = 'Please enter a password less than 20 characters';
+        }
+        if (values.confirmPassword !== values.password) {
+            errors.confirmPassword = 'Passwords must match';
+        }
+    }
+
+    return errors;
+};

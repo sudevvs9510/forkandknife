@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { googleLogin } from '../../api/api';
 import { setStorageItem } from '../../util/localStorage';
 
+// import authAxios from '../../redux/api/authApi';
+
 
 // interface GoogleLoginresponse {
 //    name: string;
@@ -19,7 +21,7 @@ const navigate = useNavigate()
 // const handleGoogleLogin = useGoogleLogin({
 //    onSuccess: async (response) => {
 //       try {
-//          const res = await authAxios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`)
+//          const res = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`)
 //          const userData = res.data;
 
 //          const backendData = await googleLogin({

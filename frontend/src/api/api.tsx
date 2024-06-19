@@ -7,7 +7,7 @@ interface credentials {
    email: string;
    phone: string;
    password: string;
-   role: string
+   // role: string
 }
 
 // interface otpResponse {
@@ -48,6 +48,7 @@ export const Register = async (credentials: credentials): Promise<{ user: {email
 
 export const loginUser = async (data: Partial<credentials>): Promise<APIresponse> => {
    try {
+      console.log(data)
       const { data: { token, message, user } } = await authAxios.post('/login', data);
 
       return { data: { token, message, user } }
