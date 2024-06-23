@@ -1,45 +1,41 @@
+// src/redux/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import userSignupSlice from '../reducers/auth/user/userSignupSlice';
+import { combineReducers } from 'redux';
+import storage from 'redux-persist/lib/storage';
+import { persistReducer, persistStore } from 'redux-persist';
+import userAuthReducer from '../reducers/auth/UserAuthSlice';
+import restaurantAuthReducer from '../reducers/auth/RestaurantAuthSlice';
 
-// import  from '../reducers/auth/user/userSignupSlice'
+const persistConfig = {
+   key: 'root',
+   storage,
+};
 
-// const loadState = () =>{
-//    try{
-//       const serializedState = localStorage.getItem("reduxState");
-//       if(serializedState === null){
-//          return undefined
-//       }
-//       return JSON.parse(serializedState)
-//    }catch(err){
-//       return undefined
-//    }
-// };
-
-
-// //save state to localStorage
-// const saveState = (state) =>{
-//    try{
-//       const serializedState = JSON.stringify(state)
-//       localStorage.setItem("reduxState", serializedState)
-//    }catch (err){
-//       console.log(err);
-//    }
-// }
-
-// const persistedState = loadState();
-
-
-const store = configureStore({
-   reducer:{
-      signup: userSignupSlice,
-      
-   },
-   // preloadedState:persistedState
-})
-
-export type AppDispatch = typeof store.dispatch
-
-store.subscribe(()=>{(store.getState())
+const rootReducer = combineReducers({
+   userAuth: userAuthReducer,
+   restaurantAuth: restaurantAuthReducer,
 });
 
-export default store
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+   reducer: persistedReducer,
+   middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+         serializableCheck: {
+            // Ignore these action types
+            ignoredActions: [
+               'persist/PERSIST',
+               'persist/REHYDRATE',
+               'persist/REGISTER',
+            ],
+            // Ignore these field paths in all actions
+            ignoredPaths: ['payload'],
+         },
+      }),
+});
+
+export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

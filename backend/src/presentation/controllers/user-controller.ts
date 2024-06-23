@@ -4,6 +4,7 @@ import { UserType } from '../../domain/entities/User';
 import { setCookieAuthToken } from "../../functions/cookieFun"
 import { stat } from 'fs';
 import { NetConnectOpts } from 'net';
+import { generateAccessToken, jwtVerifyToken } from '../../functions/jwt';
 
 export class userController {
 
@@ -52,7 +53,7 @@ export class userController {
          console.log(token)
          
          if(token){
-            setCookieAuthToken(res,"UserAuth_token",token);
+            setCookieAuthToken(res,"userAuthToken",token);
          }
  
          console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
@@ -90,6 +91,9 @@ export class userController {
          const { email, given_name, sub } = req.body
          console.log(email, given_name, sub);
          const { user, message, token, refreshToken } = await this.interactor.googlelogin({ email, given_name, sub })
+         if(token){
+            setCookieAuthToken(res,"userAuthToken",token);
+         }
          if (user) {
             console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
             setCookieAuthToken(res, "google_auth", token as string)
@@ -181,6 +185,24 @@ export class userController {
          return res.status(500).json({ message: "Internal server error"})
       }
    }
+
+   async refreshToken(req: Request, res: Response, next: NextFunction) {
+      try {
+         const { refreshToken } = req.body
+
+         if(!refreshToken){
+            return res.status(401).json({ message: " Refresh token is required"})
+         }
+
+         const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
+
+         return res.status(200).json({ accessToken: newAccessToken });
+      } catch (error) {
+         console.error('Error refreshing token:', error);
+         res.status(500).json({ message: 'Internal server error' });
+      }
+   }
+
 
    async Logout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout user");

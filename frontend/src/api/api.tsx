@@ -46,18 +46,32 @@ export const Register = async (credentials: credentials): Promise<{ user: {email
 
 
 
+// export const loginUser = async (data: Partial<credentials>): Promise<APIresponse> => {
+//    try {
+//       console.log(data)
+//       const { data: { token, message, user } } = await authAxios.post('/login', data);
+
+//       return { data: { token, message, user } }
+
+//    } catch (error) {
+//       console.log(error)
+//       throw error
+//    }
+// }
+
 export const loginUser = async (data: Partial<credentials>): Promise<APIresponse> => {
    try {
-      console.log(data)
-      const { data: { token, message, user } } = await authAxios.post('/login', data);
-
-      return { data: { token, message, user } }
-
+      console.log(data);
+      const response = await authAxios.post('/login', data);
+      const { token, message, user } = response.data;
+      console.log(response.data); 
+      return { data: { token, message, user } };
    } catch (error) {
-      console.log(error)
-      throw error
+      console.error(error);
+      throw error;
    }
 }
+
 
 
 export const verifyOtp = async (otp: OtpType, userId: string)=> {

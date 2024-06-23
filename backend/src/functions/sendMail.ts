@@ -10,6 +10,9 @@ export const createNodemailerOtp = async (email: string, otp: number): Promise<{
          user: "sudevvs1999@gmail.com",
          pass: 'vgqa lnmt ssyq ivrk',
       },
+      tls: {
+         rejectUnauthorized: false
+      }
    });
 
    const mailOptions = {

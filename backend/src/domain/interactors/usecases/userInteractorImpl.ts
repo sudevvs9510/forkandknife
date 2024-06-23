@@ -1,17 +1,19 @@
 
-import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt";
+import { generateAccessToken, generateRefreshToken, jwtVerifyToken } from "../../../functions/jwt";
 import { UserType } from "../../entities/User";
 import { UserRepository } from "../../interfaces/repositories/user-repository";
 import { UserInteractor } from "../../interfaces/usecases/userInteractor";
 import { IMailer } from '../../../Config/mailer'
 import userModel from "../../../frameworks/database/models/userModel";
 import { RestaurantType } from "../../entities/restaurant";
+import { Error } from "mongoose";
 
 
 
 export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
+   
    
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
@@ -122,6 +124,26 @@ export class UserInteractorImpl implements UserInteractor {
       } catch(error){
          console.log(error)
          throw error
+      }
+   }
+
+
+   async refreshAccessToken(refreshToken: string): Promise<string> {
+      try{
+         const REFRESH_TOKEN_SECRET = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
+         const verified = jwtVerifyToken(refreshToken, REFRESH_TOKEN_SECRET)
+         if(verified.decode === null){
+            throw new Error("Invalid refresh token")
+         }
+
+         const userId = verified.decode.userId 
+         const newAccessToken = generateAccessToken(userId)
+
+         return newAccessToken
+
+      }catch(error){
+         console.error('Error refreshing access token:', error);
+         throw new Error('Failed to refresh access token');
       }
    }
 

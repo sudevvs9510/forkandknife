@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
 import { Link } from 'react-router-dom';
 import { FaTimes } from "react-icons/fa";
@@ -6,7 +6,19 @@ import { CiMenuBurger } from 'react-icons/ci';
 
 const Navbar: React.FC = () => {
   const [click, setClick] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLoggedIn(!!token);
+  }, []);
+
   const handleClick = () => setClick(!click);
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    setIsLoggedIn(false);
+  };
 
   const content = (
     <div className={`lg:hidden block absolute top-16 w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform z-50 ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
@@ -21,11 +33,19 @@ const Navbar: React.FC = () => {
           <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Restaurant</li>
         </ScrollLink>
         <li className='my-4 py-4'>
-          <Link to="/login">
-            <button className='border bg-[#00655B] rounded px-4 py-1 hover:bg-[#008376] border-white'>
-              Login
+          { isLoggedIn ? 
+            <button 
+              onClick={handleLogout} 
+              className='border bg-[#00655B] rounded px-4 py-1 hover:bg-[#008376] border-white'>
+              Logout
             </button>
-          </Link>
+            : 
+            <Link to="/login">
+              <button className='border bg-[#00655B] rounded px-4 py-1 hover:bg-[#008376] border-white'>
+                Login
+              </button>
+            </Link>
+          }
         </li>
       </ul>
     </div>
@@ -53,11 +73,19 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className='hidden lg:block'>
-          <Link to="/login">
-            <button className='border rounded px-4 py-1 hover:bg-[#00CCB8] border-white'>
-              Login
+          { isLoggedIn ? 
+            <button 
+              onClick={handleLogout} 
+              className='border rounded px-4 py-1 hover:bg-[#00CCB8] border-white'>
+              Logout
             </button>
-          </Link>
+            : 
+            <Link to="/login">
+              <button className='border rounded px-4 py-1 hover:bg-[#00CCB8] border-white'>
+                Login
+              </button>
+            </Link>
+          }
         </div>
 
         <button className='block lg:hidden transition duration-300 ease-in-out ml-auto z-50' onClick={handleClick}>

@@ -18,19 +18,21 @@ userRouter.get('/',()=>console.log("Home Page"));
 
 
 userRouter.post('/login',controller.login.bind(controller))
-userRouter.post('/signup',verifyToken, userExists, controller.signup.bind(controller))
+userRouter.post('/signup', userExists, controller.signup.bind(controller))
 
 userRouter.post('/google-login', controller.googleLogin.bind(controller))
 
-userRouter.post('/verify-otp',verifyToken,controller.verifyOTP.bind(controller))
-userRouter.post('/resend-otp',verifyToken, controller.ResendOtp.bind(controller));
+userRouter.post('/verify-otp',controller.verifyOTP.bind(controller))
+userRouter.post('/resend-otp', controller.ResendOtp.bind(controller));
 
 userRouter.post('/reset-password',verifyToken, controller.resetPasswordGetUser.bind(controller))
 userRouter.put('/reset-password/:id', controller.resetPasswordUpdate.bind(controller))
 
 userRouter.get('/restaurants',verifyToken,controller.getRestaurants.bind(controller))
 
-userRouter.post('/logout',verifyToken, controller.Logout.bind(controller))
 
+userRouter.post('/refresh-token', controller.refreshToken.bind(controller));
+
+userRouter.post('/logout',verifyToken, controller.Logout.bind(controller))
 
 export default userRouter;

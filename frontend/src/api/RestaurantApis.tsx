@@ -4,6 +4,7 @@ import authAxios from "../redux/api/authApi";
 export interface credentials {
    restaurantName: string;
    email: string;
+   password: string
    contact: string;
    address: string;
    description: string;
@@ -25,6 +26,17 @@ export const RestaurantRegister = async (datas: credentials) => {
    }
 }
 
+export const RestaurantLoginApi = async (data: Partial<credentials>) =>{
+   try {
+      console.log(data)
+      const {data: {message, user, token}} = await authAxios.post('/restaurant/login',data)
+      return {data: { message, user, token }}
+   } catch (error) {
+      console.log("Error in login", error)
+      throw error
+   }
+}
+
 export const RestaurantFullDetails = async (datas: credentials) =>{
    try{
       const { data: {message} } = await authAxios.put("/restaurant/restaurant-updation",{datas})
@@ -36,13 +48,3 @@ export const RestaurantFullDetails = async (datas: credentials) =>{
 }
 
 
-export const RestaurantLoginApi = async (data: Partial<credentials>) =>{
-   try {
-      console.log(data)
-      const {data: {message, user, token}} = await authAxios.post('/restaurant/login',data)
-      return {data: { message, user, token }}
-   } catch (error) {
-      console.log("Error in login", error)
-      throw error
-   }
-}
