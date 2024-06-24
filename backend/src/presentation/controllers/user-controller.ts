@@ -196,6 +196,11 @@ export class userController {
 
          const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
 
+         if (!newAccessToken) {
+            console.log("newAccessToken")
+            return res.status(401).json({ message: "Invalid refresh token" });
+          }
+
          return res.status(200).json({ accessToken: newAccessToken });
       } catch (error) {
          console.error('Error refreshing token:', error);

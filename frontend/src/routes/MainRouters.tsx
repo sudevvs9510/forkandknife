@@ -17,7 +17,9 @@ import ForgotPasswordMailPage from "../Components/user/EmailForgotPassword"
 import ForgotNewPassword from "../Components/user/NewPassword"
 import Profile from "../pages/Seller/RestaurantProfile"
 
+//protected routes
 import ProtectedRoute from "../routes/ProtectedRoute"
+import RestaurantProtectedRoute from "./RestaurantProtectedRoute"
 
 const MainRouter = () => {
 
@@ -50,10 +52,11 @@ const MainRouter = () => {
       {/* Restaurant Routes  */}
       <Route path="restaurant/signup" element={<RestaurantSignup />} />
       <Route path="restaurant/login" element={<RestaurantLogin />} />
-      <Route path="restaurant/dashboard" element={<RestaurantDash />} />
-      <Route path="restaurant/reservations" element={<RestaurantDash />} />
-      <Route path="restaurant/menu" element={<Menu />} />
-      <Route path="restaurant/profile" element={<Profile />} />
+
+      <Route path="restaurant/dashboard" element={<RestaurantProtectedRoute element={<RestaurantDash />} />} />
+      <Route path="restaurant/reservations" element={<RestaurantProtectedRoute element={<RestaurantDash />} />} />
+      <Route path="restaurant/menu" element={<RestaurantProtectedRoute element={<Menu />} />} />
+      <Route path="restaurant/profile" element={<RestaurantProtectedRoute element={<Profile />} />}/>
 
 
     </Routes>

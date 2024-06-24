@@ -4,6 +4,7 @@ import { useFormik } from 'formik';
 import 'react-toastify/dist/ReactToastify.css';
 import { RestaurantValues, sellerRegistrationValidation } from "../../helpers/validation";
 import GoogleMap from '../GoogleMap';
+import authAxios from '../../redux/api/authApi';
 
 const RestaurantDetails: React.FC = () => {
   const formik = useFormik<RestaurantValues>({
@@ -24,10 +25,38 @@ const RestaurantDetails: React.FC = () => {
       featuredImage: "",
     },
     validate: sellerRegistrationValidation,
-    onSubmit: (values) => {
-      console.log('Form data', values);
-      toast.success('Restaurant details saved successfully!');
-    },
+    // onSubmit: (values) => {
+    //   console.log('Form data', values);
+    //   toast.success('Restaurant details saved successfully!');
+    // },
+
+    onSubmit:async (values)=>{
+      try{
+        //prepare form data
+        const formData = new FormData()
+        formData.append('datas', JSON.stringify(values))
+
+        //upload featured image
+        if(values.featuredImage){
+          formData.append('featuredImage', values.featuredImage)
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        values.secondaryImages.forEach((image:any)=>{
+          formData.append('secondaryImages', image)
+        })
+
+        const response = await authAxios.put("/restaurant/restaurant-updation", formData,{
+          headers:{
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        toast.success(response.data.message)
+      } catch(error){
+        console.log("Error",error)
+        toast.error('Failed to update restaurant details')
+      }
+    }
   });
 
   return (

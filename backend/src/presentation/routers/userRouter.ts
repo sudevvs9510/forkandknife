@@ -25,10 +25,10 @@ userRouter.post('/google-login', controller.googleLogin.bind(controller))
 userRouter.post('/verify-otp',controller.verifyOTP.bind(controller))
 userRouter.post('/resend-otp', controller.ResendOtp.bind(controller));
 
-userRouter.post('/reset-password',verifyToken, controller.resetPasswordGetUser.bind(controller))
+userRouter.post('/reset-password', controller.resetPasswordGetUser.bind(controller))
 userRouter.put('/reset-password/:id', controller.resetPasswordUpdate.bind(controller))
 
-userRouter.get('/restaurants',verifyToken,controller.getRestaurants.bind(controller))
+userRouter.get('/restaurants',controller.getRestaurants.bind(controller))
 
 
 userRouter.post('/refresh-token', controller.refreshToken.bind(controller));

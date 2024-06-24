@@ -28,20 +28,11 @@ export const generateRefreshToken = (userId: string): string =>{
 //    })
 // }
 
-export const jwtVerifyToken = (token: string, secretKey: string): { message: string, decode: any | null } => {
+export const jwtVerifyToken = (accessToken: string, SECRET_KEY: string): { message: string, decode: any | null } => {
    try {
-      const decoded = jwt.verify(token, secretKey);
-      return { message: "Successfully verified", decode: decoded };
+       const decoded = jwt.verify(accessToken, SECRET_KEY);
+       return { message: "Successfully verified", decode: decoded };
    } catch (err) {
-      return { message: "Invalid Token", decode: null };
+       return { message: "Invalid Token", decode: null };
    }
 }
-
-// export const jwtVerifyToken = (accessToken: string, SECRET_KEY: string): { message: string, decode: any | null } => {
-//    try {
-//        const decoded = jwt.verify(accessToken, SECRET_KEY);
-//        return { message: "Successfully verified", decode: decoded };
-//    } catch (err) {
-//        return { message: "Invalid Token", decode: null };
-//    }
-// }

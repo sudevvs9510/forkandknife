@@ -132,7 +132,8 @@ export class UserInteractorImpl implements UserInteractor {
       try{
          const REFRESH_TOKEN_SECRET = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
          const verified = jwtVerifyToken(refreshToken, REFRESH_TOKEN_SECRET)
-         if(verified.decode === null){
+         
+         if(!verified.decode || !verified.decode.userId){
             throw new Error("Invalid refresh token")
          }
 

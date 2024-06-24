@@ -58,7 +58,7 @@ const RestaurantManagement: React.FC = () => {
                      <tr className="border-b">
                         <th className="text-left p-3 px-5">Name</th>
                         <th className="text-left p-3 px-5">Email</th>
-                        <th className="text-left p-3 px-5">Phone</th>
+                        <th className="text-left p-3 px-5">Contact</th>
                         <th className="text-left p-3 px-5 flex justify-end">Status</th>
                         <th></th>
                      </tr>
