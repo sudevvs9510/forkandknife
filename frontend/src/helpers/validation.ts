@@ -174,12 +174,13 @@ export interface RestaurantValues {
   closingTime: string;
   openingTime: string;
   TableRate: string;
-  secondaryImages: string[];
-  featuredImage: string;
+  secondaryImages: (File | string)[];  
+  featuredImage: File | string; 
 }
 
 
 export const sellerRegistrationValidation = (values: RestaurantValues) => {
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
 
@@ -207,7 +208,7 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
     errors.description = "Description is required!";
   }
   if (!values.location.type) {
-    errors.location = { type: "Location type is required!" };
+    errors.location = { types: "Location type is required!" };
   }
   if (!values.location.coordinates[0] || !values.location.coordinates[1]) {
     errors.location = { ...errors.location, coordinates: "Location coordinates are required!" };
@@ -227,14 +228,14 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
   // Validate featuredImage
   if (!values.featuredImage) {
     errors.featuredImage = "Featured image is required!";
-  } else if (!isValidImageUrl(values.featuredImage)) {
+  } else if (typeof values.featuredImage === 'string' && !isValidImageUrl(values.featuredImage)) {
     errors.featuredImage = "Invalid image URL for featured image!";
   }
 
   // Validate secondaryImages
   if (!values.secondaryImages || values.secondaryImages.length === 0) {
     errors.secondaryImages = "Secondary images are required!";
-  } else if (!values.secondaryImages.every(isValidImageUrl)) {
+  } else if (!values.secondaryImages.every(image => typeof image === 'string' ? isValidImageUrl(image) : true)) {
     errors.secondaryImages = "Invalid image URL in secondary images!";
   }
 

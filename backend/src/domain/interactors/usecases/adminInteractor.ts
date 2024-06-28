@@ -15,7 +15,7 @@ export class AdminInteractorImpl implements AdminInteractor {
          const { admin, message } = await this.repository.adminLoginRepo(credentials);
          let token: string = ""
          if(admin){
-            token = generateAccessToken(admin.id as string);
+            token = generateAccessToken(admin.id as string, 'admin');
          }
          return { admin, message, token }
       } catch(error){

@@ -9,14 +9,14 @@ export interface credentials {
 }
 
 
-interface AuthState {
+interface restoAuthState {
   restaurant: null
   token: string | null;
   error: string | null;
   loading: boolean;
 }
 
-const initialState : AuthState = {
+const initialState : restoAuthState = {
   restaurant: null,
   token: null,
   error: null,
@@ -29,7 +29,7 @@ export const login = createAsyncThunk(
   async (credentials: credentials, { rejectWithValue}) =>{
     try{
       const response = await RestaurantLoginApi(credentials)
-      setStorageItem('restaurantAccessToken', response.data.token)
+      setStorageItem('AuthToken', response.data.token)
       return response.data
     } catch(error){
       return rejectWithValue("Invalid email or password")
@@ -47,7 +47,7 @@ const restaurantAuthSlice = createSlice ({
       state.token = null
       state.error = null 
       state.loading = false
-      removeStorageItem("restaurantAccessToken")
+      removeStorageItem("AuthToken")
     }
   },
   extraReducers: (builder) =>{

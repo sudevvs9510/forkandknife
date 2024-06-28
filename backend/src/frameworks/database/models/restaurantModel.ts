@@ -46,7 +46,7 @@ const restaurantSchema = new mongoose.Schema(
     },
     openingTime: String,
     closingTime: String,
-    qrCode: String,
+    // qrCode: String,
     isListed: {
       type: Boolean,
       default: false,
@@ -63,7 +63,7 @@ const restaurantSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    primaryImage: String,
+    featuredImage: String,
 
     secondaryImages: [
       {

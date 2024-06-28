@@ -39,7 +39,7 @@ export class UserRepositoryImpl implements UserRepository {
                   console.log('Invalid password');
                   message = "Invalid password";
               } else {
-                  token = generateAccessToken(user._id as string);
+                  token = generateAccessToken(user._id as string, 'user');
                   console.log('Token generated:', token);
               }
           }
@@ -118,7 +118,7 @@ export class UserRepositoryImpl implements UserRepository {
       if (!user) {
          message = " User not found"
       } else {
-         token = generateAccessToken(user.id as string)
+         token = generateAccessToken(user.id as string, 'user')
          console.log(token);
       }
       return { userData: user, message, token }

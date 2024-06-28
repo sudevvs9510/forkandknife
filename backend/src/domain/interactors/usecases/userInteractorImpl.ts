@@ -36,7 +36,7 @@ export class UserInteractorImpl implements UserInteractor {
 
          let refreshToken = ""
          if (user) {
-            refreshToken = generateRefreshToken(user.id as string)
+            refreshToken = generateRefreshToken(user.id as string, 'user')
          }
          console.log(token, user);
          return { user, message, token, refreshToken }
@@ -72,13 +72,13 @@ export class UserInteractorImpl implements UserInteractor {
          //  user = { user: newUser, message: "User created and logged in", token: null };
          message = createMessage;
          if(user){
-            token = generateAccessToken(user.id as string)
+            token = generateAccessToken(user.id as string, 'user')
          }
          return { user , message, token , refreshToken : null};
       }
 
   
-      const refreshToken = userData ? generateRefreshToken(userData.id as string) : null;
+      const refreshToken = userData ? generateRefreshToken(userData.id as string, 'user') : null;
       return { user : userData , message, token, refreshToken };
       } catch (err) {
         console.error(err);
@@ -138,7 +138,7 @@ export class UserInteractorImpl implements UserInteractor {
          }
 
          const userId = verified.decode.userId 
-         const newAccessToken = generateAccessToken(userId)
+         const newAccessToken = generateAccessToken(userId, 'user')
 
          return newAccessToken
 

@@ -6,7 +6,7 @@ import { generateAccessToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
 
 export class sellerRepository implements restaurantRepository {
-
+   
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
       try {
@@ -55,7 +55,7 @@ export class sellerRepository implements restaurantRepository {
                   console.log('Password is not match');
                   message = 'Invalid password'
                } else {
-                  token = generateAccessToken(restaurant.email as string)
+                  token = generateAccessToken(restaurant.email as string, 'restaurant')
                   console.log(token)
                }
             } else {
@@ -100,6 +100,18 @@ export class sellerRepository implements restaurantRepository {
          return { restaurant: restaurantDetails.toObject(), message:"restaurant details updated."}
       } catch (error) {
          console.error("Error in seller repository", error);
+         throw error
+      }
+   }
+
+
+   async getRestaurant(email: string): Promise<{ restaurant: any; message: string; }> {
+      try{
+         const restaurant = await restaurantModel.findOne({ email })
+         console.log(restaurant)
+         return { restaurant, message: "" }
+      } catch(error){
+         console.log("Error occured in get restaurant: ",error)
          throw error
       }
    }

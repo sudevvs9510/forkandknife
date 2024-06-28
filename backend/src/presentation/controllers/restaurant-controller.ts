@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { restaurantInteractor } from "../../domain/interfaces/usecases/restaurantInteractor"
-import cloudinary from 'cloudinary';
+
 
 export class restaurantController {
    constructor(private readonly interactor: restaurantInteractor) { }
@@ -48,21 +48,7 @@ export class restaurantController {
       console.log(req.body)
       console.log(datas)
       try {
-
-         // Handle image uploads to Cloudinary
-         const { featuredImage, secondaryImages } = datas;
-         const uploadedFeaturedImage = await cloudinary.v2.uploader.upload(featuredImage, { folder: 'restaurant_images' });
-         const uploadedSecondaryImages = await Promise.all(secondaryImages.map((image: string) => cloudinary.v2.uploader.upload(image, { folder: 'restaurant_images' })));
-
-         // const { message, restaurant } = await this.interactor.restaurantDetailsUpdateInteractor(datas)
-        
-         const { message, restaurant } = await this.interactor.restaurantDetailsUpdateInteractor({
-            ...datas,
-            featuredImage: uploadedFeaturedImage.secure_url,
-            secondaryImages: uploadedSecondaryImages.map(image => image.secure_url),
-          });
-
-
+         const { message, restaurant } = await this.interactor.restaurantDetailsUpdateInteractor(datas);
          if (!restaurant) {
             return res.status(401).json({ message: "Restaurant Registration failed" })
          }
@@ -73,6 +59,17 @@ export class restaurantController {
       }
    }
 
+   async restaurant_details (req: Request, res: Response, next: NextFunction){
+      console.log("restaurant full Details")
+      const email = req.userId
+      try{
+         const { restaurant } = await this.interactor.restaurantGetProfileInteractor(email)
+         return res.status(200).json({ restaurantDetails: restaurant})
+      } catch(error){
+         console.log("Error occured during get restaurant controller",error)
+         res.status(500).send("Internal server error") 
+      }
+   }
 
 
 

@@ -16,6 +16,7 @@ import RestaurantLogin from "../Components/auth/RestaurantLogin"
 import ForgotPasswordMailPage from "../Components/user/EmailForgotPassword"
 import ForgotNewPassword from "../Components/user/NewPassword"
 import Profile from "../pages/Seller/RestaurantProfile"
+import RestaurantProfile from "../Components/user/RestaurantProfile"
 
 //protected routes
 import ProtectedRoute from "../routes/ProtectedRoute"
@@ -35,6 +36,7 @@ const MainRouter = () => {
       {/* <Route path="/home" element={<Home />} /> */}
       <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
       <Route path="/profile" element={<ProtectedRoute element={< UserProfile />} />} />
+      <Route path="/restaurant" element={ < RestaurantProfile/> } />
 
       <Route path="/reset-password" element={< ForgotPasswordMailPage />} />
       <Route path="/reset-password/:id" element={<ForgotNewPassword />} />

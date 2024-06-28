@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
-import Navbar from './Navbar';
+import MainNavBar from '../../Components/user/MainNavBar';
 
 const UserProfile: React.FC = () => {
     const [name, setName] = useState('Sudev');
@@ -26,7 +26,7 @@ const UserProfile: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 relative z-10">
-            <Navbar />
+            <MainNavBar />
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 p-6">
                 <div className="w-full md:w-1/3 bg-white shadow-md rounded-lg p-6">
                     <div className="flex flex-col items-center mb-6">

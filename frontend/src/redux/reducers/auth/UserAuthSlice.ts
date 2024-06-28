@@ -6,14 +6,14 @@ import { setStorageItem, removeStorageItem } from "../../../util/localStorage";
 
 
 
-interface AuthState {
+interface userAuthState {
    user: any;
    token: string | null;
    error: string | null
    loading: boolean
 }
 
-const initialState: AuthState = {
+const initialState: userAuthState = {
    user: null,
    token: null,
    error: null,
@@ -26,7 +26,7 @@ export const login = createAsyncThunk(
       try {
 
          const response = await loginUser(credentials)
-         setStorageItem('userAuthToken', response.data.token)
+         setStorageItem('AuthToken', response.data.token)
          return response.data
       } catch (error) {
          return rejectWithValue("Invalid email or password")
@@ -56,7 +56,7 @@ export const googleLoginAction = createAsyncThunk(
    async (credentials: { email: string; given_name: string; sub: string }, { rejectWithValue }) => {
       try {
          const response = await googleLogin(credentials)
-         setStorageItem('userAuthToken', response.data.token)
+         setStorageItem('AuthToken', response.data.token)
          return response.data
       } catch (error) {
          return rejectWithValue("Google login failed")
@@ -74,7 +74,7 @@ const authSlice = createSlice({
          state.token = null
          state.loading = false;
          state.error = null;
-         removeStorageItem('userAuthToken')
+         removeStorageItem('AuthToken')
       },
 
    },

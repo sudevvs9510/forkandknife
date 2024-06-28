@@ -1,38 +1,28 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 // import configKeys   from "../config";
 
 
 // JWT GENERATE TOKEN 
-export const generateAccessToken = (userId:string): string =>{
-   const payload = { userId: userId }
-   const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "xyZiopasf89asfaj"; // Use environment variable
+export const generateAccessToken = (userId:string, role: 'user' | 'restaurant' | 'admin'): string =>{
+   const payload = { userId, role }
+   const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "xyZiopasf89asfaj"; 
    return jwt.sign(payload, accessTokenSecret, {expiresIn: "24h"});
 }
 
 // JWT REFRESH TOKEN 
-export const generateRefreshToken = (userId: string): string =>{
-   const payload = { userId : userId }
-   const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "lkgakjdo09asfka" ;
-   return jwt.sign(payload, refreshTokenSecret , { expiresIn: "30d" })
-}
-
+export const generateRefreshToken = (userId: string, role: 'user' | 'restaurant' | 'admin'): string => {
+   const payload = { userId, role };
+   const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "lkgakjdo09asfka";
+   return jwt.sign(payload, refreshTokenSecret, { expiresIn: "30d" });
+ };
 
 // JWT VERIFICATION
-// export const jwtVerifyToken = (token : string, SECRET_KEY :string) =>{
-//    jwt.verify(token, SECRET_KEY ,(err: any, decode: any) =>{
-//       if(err){
-//          return  { message: "Invalid Token", decode: null };
-//       } else {
-//          return { message: "Successfully verified", decode };
-//       }
-//    })
-// }
-
-export const jwtVerifyToken = (accessToken: string, SECRET_KEY: string): { message: string, decode: any | null } => {
+export const jwtVerifyToken = (accessToken: string, SECRET_KEY: string) => {
    try {
-       const decoded = jwt.verify(accessToken, SECRET_KEY);
-       return { message: "Successfully verified", decode: decoded };
+       const decode = jwt.verify(accessToken, SECRET_KEY) as { userId: string, role: 'user' | 'restaurant' | 'admin' };
+      return { message: "Successfully verified", decode: decode };
    } catch (err) {
        return { message: "Invalid Token", decode: null };
    }
 }
+

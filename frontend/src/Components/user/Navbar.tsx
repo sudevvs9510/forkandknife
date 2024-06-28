@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
           <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Restaurant</li>
         </ScrollLink>
         <li className='my-4 py-4'>
-          { isLoggedIn ? 
+          {isLoggedIn ? 
             <button 
               onClick={handleLogout} 
               className='border bg-[#00655B] rounded px-4 py-1 hover:bg-[#008376] border-white'>
@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="bg-[#008376] text-white relative z-40">
+    <nav className="bg-[#008376] text-white fixed top-0 w-full z-40">
       <div className="flex justify-between items-center h-10vh lg:py-5 px-4 lg:px-20 py-4 transition-all duration-300 ease-in-out">
         <div className='flex items-center flex-1'>
           <span className='text-2xl font-bold text-white'>Fork & Knife</span>
@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className='hidden lg:block'>
-          { isLoggedIn ? 
+          {isLoggedIn ? 
             <button 
               onClick={handleLogout} 
               className='border rounded px-4 py-1 hover:bg-[#00CCB8] border-white'>
@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
             </button>
             : 
             <Link to="/login">
-              <button className='border rounded px-4 py-1 hover:bg-[#00CCB8] border-white'>
+              <button className='border rounded px-4 py-1 hover:bg-[#00CCB8] hover:text-black border-white'>
                 Login
               </button>
             </Link>

@@ -5,6 +5,7 @@ import { UserInteractorImpl } from '../../domain/interactors/usecases/userIntera
 import { MailerImpl } from '../../domain/lib/mailerImp'
 import {userExists} from '../middlewares/userExists'
 import verifyToken from "../middlewares/userAuth"
+import authenticateToken from "../middlewares/authenticateToken"
 
 const repository =  new UserRepositoryImpl()
 const mailer = new MailerImpl()
