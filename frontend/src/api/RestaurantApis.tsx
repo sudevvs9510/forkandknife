@@ -54,7 +54,7 @@ export const RestaurantFullDetails = async (datas: RestaurantValues) => {
    try {
      console.log("response")
      const response = await authAxios.put("/restaurant/restaurant-updation", { datas });
-     console.log(response)
+     console.log(response) 
      return response.data;
    } catch (error) {
      console.error(error);

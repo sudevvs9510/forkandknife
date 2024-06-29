@@ -6,18 +6,19 @@ import { generateAccessToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
 
 export class sellerRepository implements restaurantRepository {
-   
+
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
       try {
          console.log("inside create restaurant repo")
-         const { restaurantName, email, password, contact, address, description, openingTime, closingTime, TableRate, featuredImage, secondaryImages } = restaurant;
+         const { restaurantName, email, password, contact, address, place, description, openingTime, closingTime, TableRate, featuredImage, secondaryImages } = restaurant;
          const newRestaurant = new restaurantModel({
             restaurantName,
             email,
             contact,
             password,
             address,
+            place,
             description,
             openingTime,
             closingTime,
@@ -75,29 +76,47 @@ export class sellerRepository implements restaurantRepository {
 
 
    async restaurantAllDetails(restaurant: RestaurantType): Promise<{ restaurant: Partial<RestaurantType>; message: string; }> {
+      console.log("restaurantAllDetails")
       try {
          const { restaurantName, email, contact,
-            address, description, location, openingTime,
+            address, description, location, place, openingTime,
             closingTime, TableRate, featuredImage, secondaryImages } = restaurant
 
-         const coordinates : [number, number] = [
+         const coordinates: [number, number] = [
             parseFloat(location.coordinates[0]),
             parseFloat(location.coordinates[1]),
          ]
          console.log(restaurant)
+
+         const existingRestaurantDetails = await restaurantModel.findOne({ email });
+
+         let updatedSecondaryImages = existingRestaurantDetails?.secondaryImages || [];
+
+
+         if (restaurant.secondaryImages.length > 0) {
+            for (let i = 0; i < restaurant.secondaryImages.length; i++) {
+               updatedSecondaryImages.push(restaurant.secondaryImages[i]);
+            }
+         }
+
+
+
+
+
          const restaurantDetails = await restaurantModel.findOneAndUpdate({ email }, {
             restaurantName,
             contact,
             address,
             description,
+            place,
             location: { type: location.type, coordinates },
             openingTime,
             closingTime,
             TableRate,
             featuredImage,
-            secondaryImages
-         },{upsert: true, new: true})
-         return { restaurant: restaurantDetails.toObject(), message:"restaurant details updated."}
+            secondaryImages: updatedSecondaryImages
+         }, { upsert: true, new: true })
+         return { restaurant: restaurantDetails.toObject(), message: "restaurant details updated." }
       } catch (error) {
          console.error("Error in seller repository", error);
          throw error
@@ -106,12 +125,12 @@ export class sellerRepository implements restaurantRepository {
 
 
    async getRestaurant(email: string): Promise<{ restaurant: any; message: string; }> {
-      try{
+      try {
          const restaurant = await restaurantModel.findOne({ email })
          console.log(restaurant)
          return { restaurant, message: "" }
-      } catch(error){
-         console.log("Error occured in get restaurant: ",error)
+      } catch (error) {
+         console.log("Error occured in get restaurant: ", error)
          throw error
       }
    }

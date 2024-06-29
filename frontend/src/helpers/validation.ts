@@ -1,3 +1,4 @@
+import { FormikErrors } from "formik";
 import { credentials } from "../redux/reducers/auth/RestaurantAuthSlice";
 
 export interface UserType {
@@ -170,19 +171,82 @@ export interface RestaurantValues {
     type: string;
     coordinates: [string, string];
   };
+  place: string,
   description: string;
   closingTime: string;
   openingTime: string;
   TableRate: string;
-  secondaryImages: (File | string)[];  
-  featuredImage: File | string; 
+  secondaryImages: (File | string)[];
+  featuredImage: File | string;
 }
 
 
-export const sellerRegistrationValidation = (values: RestaurantValues) => {
+// export const sellerRegistrationValidation = (values: RestaurantValues) => {
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors: any = {};
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   const errors: any = {};
+
+//   const isValidImageUrl = (url: string): boolean => {
+//     return /\.(jpg|jpeg|png)$/i.test(url);
+//   };
+
+//   if (!values.restaurantName) {
+//     errors.restaurantName = "Restaurant name is required!";
+//   }
+//   if (!values.email) {
+//     errors.email = "Email is required!";
+//   } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+//     errors.email = "Invalid Email Format";
+//   }
+//   if (!values.contact) {
+//     errors.contact = "Contact is required!";
+//   } else if (values.contact.length !== 10) {
+//     errors.contact = "Contact must be 10 digits";
+//   }
+//   if (!values.address) {
+//     errors.address = "Address is required!";
+//   }
+//   if (!values.description) {
+//     errors.description = "Description is required!";
+//   }
+//   if (!values.location.type) {
+//     errors.location = { types: "Location type is required!" };
+//   }
+//   if (!values.location.coordinates[0] || !values.location.coordinates[1]) {
+//     errors.location = { ...errors.location, coordinates: "Location coordinates are required!" };
+//   }
+//   if (!values.openingTime) {
+//     errors.openingTime = "Opening time is required!";
+//   }
+//   if (!values.closingTime) {
+//     errors.closingTime = "Closing time is required!";
+//   }
+//   if (!values.TableRate) {
+//     errors.TableRate = "Table rate is required!";
+//   } else if (isNaN(Number(values.TableRate)) || Number(values.TableRate) < 1 || Number(values.TableRate) > 1000) {
+//     errors.TableRate = "Table rate must be between 1 and 1000";
+//   }
+
+//   // Validate featuredImage
+//   if (!values.featuredImage) {
+//     errors.featuredImage = "Featured image is required!";
+//   } else if (typeof values.featuredImage === 'string' && !isValidImageUrl(values.featuredImage)) {
+//     errors.featuredImage = "Invalid image URL for featured image!";
+//   }
+
+//   // Validate secondaryImages
+//   if (!values.secondaryImages || values.secondaryImages.length === 0) {
+//     errors.secondaryImages = "Secondary images are required!";
+//   } else if (!values.secondaryImages.every(image => typeof image === 'string' ? isValidImageUrl(image) : true)) {
+//     errors.secondaryImages = "Invalid image URL in secondary images!";
+//   }
+
+//   return errors;
+// };
+
+
+export const sellerRegistrationValidation = (values: RestaurantValues) => {
+  const errors: Partial<FormikErrors<RestaurantValues>> = {};
 
   const isValidImageUrl = (url: string): boolean => {
     return /\.(jpg|jpeg|png)$/i.test(url);
@@ -208,10 +272,13 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
     errors.description = "Description is required!";
   }
   if (!values.location.type) {
-    errors.location = { types: "Location type is required!" };
+    errors.location = { type: "Location type is required!" };
   }
   if (!values.location.coordinates[0] || !values.location.coordinates[1]) {
-    errors.location = { ...errors.location, coordinates: "Location coordinates are required!" };
+    errors.location = {
+      ...errors.location,
+      coordinates: "Location coordinates are required!"
+    };
   }
   if (!values.openingTime) {
     errors.openingTime = "Opening time is required!";
@@ -221,21 +288,32 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
   }
   if (!values.TableRate) {
     errors.TableRate = "Table rate is required!";
-  } else if (isNaN(Number(values.TableRate)) || Number(values.TableRate) < 1 || Number(values.TableRate) > 1000) {
+  } else if (
+    isNaN(Number(values.TableRate)) ||
+    Number(values.TableRate) < 1 ||
+    Number(values.TableRate) > 1000
+  ) {
     errors.TableRate = "Table rate must be between 1 and 1000";
   }
 
   // Validate featuredImage
   if (!values.featuredImage) {
     errors.featuredImage = "Featured image is required!";
-  } else if (typeof values.featuredImage === 'string' && !isValidImageUrl(values.featuredImage)) {
+  } else if (
+    !(values.featuredImage instanceof File) &&
+    !isValidImageUrl(values.featuredImage)
+  ) {
     errors.featuredImage = "Invalid image URL for featured image!";
   }
 
   // Validate secondaryImages
   if (!values.secondaryImages || values.secondaryImages.length === 0) {
     errors.secondaryImages = "Secondary images are required!";
-  } else if (!values.secondaryImages.every(image => typeof image === 'string' ? isValidImageUrl(image) : true)) {
+  } else if (
+    !values.secondaryImages.every(
+      image => image instanceof File || isValidImageUrl(image)
+    )
+  ) {
     errors.secondaryImages = "Invalid image URL in secondary images!";
   }
 

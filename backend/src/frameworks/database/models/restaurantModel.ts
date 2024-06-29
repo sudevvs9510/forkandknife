@@ -29,9 +29,9 @@ const restaurantSchema = new mongoose.Schema(
     },
     address: String,
     description: String,
-    tableRatePerPerson: {
-      type: Number,
-      default: 200,
+    TableRate: {
+      type: String,
+      default : "100"
     },
     location: {
       type: {
@@ -43,6 +43,10 @@ const restaurantSchema = new mongoose.Schema(
         type: [Number],
         default: [0, 0],
       },
+    },
+    place: {
+      type: String,
+      // required: true,
     },
     openingTime: String,
     closingTime: String,

@@ -25,13 +25,14 @@ const RestaurantSignup: React.FC = () => {
         onSubmit: async (values) => {
             const fullValues = {
                 ...values,
-                address: "default address",
-                description: "default description",
+                address: "",
+                description: "",
                 openingTime: "00:00",
-                closingTime: "23:59",
-                TableRate: "default rate",
-                featuredImage: "default image",
-                secondaryImages: "default images"
+                closingTime: "00:00",
+                TableRate: "100",
+                place: "",
+                featuredImage: "",
+                secondaryImages: ""
             };
             try {
                 console.log(fullValues);
