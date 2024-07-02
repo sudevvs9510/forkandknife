@@ -89,7 +89,7 @@ restaurantSchema.pre("save", async function(next){
  next();
 })
 
-restaurantSchema.index({ location: "2dsphere" }); 
+// restaurantSchema.index({ location: "2dsphere" }); 
 
  const restaurantModel = mongoose.model("Restaurant", restaurantSchema);
  export default restaurantModel;

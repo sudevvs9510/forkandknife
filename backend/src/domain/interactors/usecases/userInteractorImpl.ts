@@ -15,6 +15,7 @@ export class UserInteractorImpl implements UserInteractor {
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
    
    
+   
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
          console.log("Signup ----");
@@ -147,5 +148,36 @@ export class UserInteractorImpl implements UserInteractor {
          throw new Error('Failed to refresh access token');
       }
    }
+
+
+
+
+
+
+   async searchRestaurantInteractor(query: string, location?: { type: string; coordinates: number[]; }): Promise<{ restaurants: RestaurantType[]; }> {
+      try{
+         return this.Repository.searchRestaurants(query, location)
+      } catch (error){
+         console.error(error);
+         throw error
+      }
+   }
+
+
+
+//     async getRestaurantsInteractor(query?: string, location?: { type: string; coordinates: number[]; }): Promise<{ restaurants: RestaurantType[]; }> {
+//     try {
+//       if (query) {
+//         const { restaurants } = await this.searchRestaurantInteractor(query, location);
+//         return { restaurants };
+//       } else {
+//         const { approvedRestaurants } = await this.getApprovedRestaurantsInteractor();
+//         return { restaurants: approvedRestaurants };
+//       }
+//     } catch (error) {
+//       console.error('Error in getRestaurantsInteractor:', error);
+//       throw error;
+//     }
+//   }
 
 }

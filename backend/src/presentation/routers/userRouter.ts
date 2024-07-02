@@ -30,6 +30,7 @@ userRouter.post('/reset-password', controller.resetPasswordGetUser.bind(controll
 userRouter.put('/reset-password/:id', controller.resetPasswordUpdate.bind(controller))
 
 userRouter.get('/restaurants',controller.getRestaurants.bind(controller))
+userRouter.get('/search-restaurants', controller.searchRestaurants.bind(controller))
 
 
 userRouter.post('/refresh-token', controller.refreshToken.bind(controller));

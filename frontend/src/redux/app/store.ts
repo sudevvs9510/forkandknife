@@ -3,8 +3,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
-import userAuthReducer from '../reducers/auth/UserAuthSlice';
-import restaurantAuthReducer from '../reducers/auth/RestaurantAuthSlice';
+import userAuthReducer from '../reducers/userSlices/UserAuthSlice';
+import restaurantAuthReducer from '../reducers/restaurantSlices/RestaurantAuthSlice';
+import restaurantsReducer from '../reducers/userSlices/RestaurantSearchSlice'
+import { useDispatch } from 'react-redux';
 
 const persistConfig = {
    key: 'root',
@@ -14,6 +16,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
    userAuth: userAuthReducer,
    restaurantAuth: restaurantAuthReducer,
+   restaurantSearch : restaurantsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -21,21 +24,18 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
    reducer: persistedReducer,
    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-         serializableCheck: {
-            // Ignore these action types
-            ignoredActions: [
-               'persist/PERSIST',
-               'persist/REHYDRATE',
-               'persist/REGISTER',
-            ],
-            // Ignore these field paths in all actions
-            ignoredPaths: ['payload'],
-         },
-      }),
+      getDefaultMiddleware({ serializableCheck: false}),
 });
 
 export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+
+export default store
+
+
+
+

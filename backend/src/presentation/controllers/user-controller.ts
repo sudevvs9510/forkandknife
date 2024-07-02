@@ -6,6 +6,7 @@ import { stat } from 'fs';
 import { NetConnectOpts } from 'net';
 import { generateAccessToken, jwtVerifyToken } from '../../functions/jwt';
 
+
 export class userController {
 
    constructor(private readonly interactor: UserInteractor) { }
@@ -178,7 +179,7 @@ export class userController {
       console.log("Get Restaurant controller")
       try{
          const { approvedRestaurants } = await this.interactor.getApprovedRestaurantsInteractor()
-         console.log("")
+         console.log(approvedRestaurants)
          return res.status(200).json({ restaurant : approvedRestaurants, messgae: "successfull"})
       } catch(error){
          console.log(error);
@@ -221,6 +222,29 @@ export class userController {
         res.status(500).send("Internal server error");
       }
     }
+
+
+
+
+    async searchRestaurants(req: Request, res: Response, next: NextFunction){
+      try{
+            const { query, location } = req.body;
+
+            // if(!query){
+            //    return res.status(400).json({ message: "Query is required" })
+            // }
+            const parsedLocation = location ? JSON.parse(location as string) : undefined;
+            const { restaurants } = await this.interactor.searchRestaurantInteractor(query, parsedLocation );
+            return res.status(200).json({ restaurants, message: "Search successful" });
+      } catch(error){
+         console.log("Error occured in search Restaurants controller:", error)
+         return res.status(500).send(" internal server error")
+      }
+    }
+
+
+
+
 
 
 }

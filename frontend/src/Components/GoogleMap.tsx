@@ -180,7 +180,7 @@
 // GoogleMap.tsx
 import React, { useEffect, useState } from 'react';
 import ReactMapGl, { Marker } from 'react-map-gl';
-// import './MapBox.css';
+import './MapBox.css';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { HiLocationMarker } from 'react-icons/hi';
 
@@ -207,7 +207,6 @@ const [ viewport, setViewport] = useState({
   longitude,
   zoom: 16,
 })
-
 
 
 useEffect(() => {

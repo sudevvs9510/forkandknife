@@ -6,5 +6,6 @@ export interface AdminRepositories{
    approve(): Promise<{restaurants: object | null, message:string}>
    getApprovalRestaurant(restaurantId: string): Promise<{restaurants: object | null, message: string}>
    confirmRestaurantApproval(restaurantId: string): Promise<{ success: boolean; message: string }>
+   confirmRestaurantRejection(restaurantId: string) : Promise<{ success: boolean; message: string}>
    
 }

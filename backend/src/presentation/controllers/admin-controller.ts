@@ -64,13 +64,26 @@ export class adminController {
       try {
          const restaurantId = id.split(":");
          console.log(restaurantId[1])
-         const { message, success } = await this.interactor.confirmRestaurantInteractor(restaurantId[1])
+         const { message, success } = await this.interactor.approvalRestaurantInteractor(restaurantId[1])
          return res.status(200).json({ message, success })
       } catch (error) {
-         console.log("Error during admin get restaurant controller", error)
+         console.log("Error during admin- restaurant approval controller", error)
          res.status(500).json("Internal server error")
       }
    }
+
+   async restaurantRejection(req: Request, res:Response, next: NextFunction) {
+      console.log("Restaurant rejection controller")
+      const id = req.params.id
+      try{
+         const restaurantId = id.split(":");
+         console.log(restaurantId[1])
+         const { message, success } = await this.interactor.rejectRestaurantInteractor(restaurantId[1])
+         return res.status(200).json({ message, success })
+      } catch(error){
+         console.log("Error during admin-restaurant rejection controller ",error)
+      }
+   } 
 
 
 

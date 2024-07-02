@@ -5,6 +5,7 @@ const getLocations = async(query : string) =>{
           import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN 
         }`)
         const data = await  res.json();
+        console.log(data)
         return data.features;
   }catch(error){
       console.log("Error in Get Location",error );

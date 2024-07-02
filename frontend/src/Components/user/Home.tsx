@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Components/user/Navbar';
 import MainNavBar from '../../Components/user/MainNavBar'; 
@@ -15,6 +16,7 @@ const Home: React.FC = () => {
     setShowMainNavBar(scrollTop > headerHeight);
   };
 
+  
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -26,7 +28,7 @@ const Home: React.FC = () => {
       <div id="header">
         <Header />
       </div>
-      <Restaurants />
+      <Restaurants  />
       <About />
       <Footer />
     </div>
@@ -34,3 +36,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+
+
+

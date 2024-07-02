@@ -41,12 +41,12 @@ const RestaurantManagement: React.FC = () => {
          <div className="flex-1 p-4">
             <div className="flex w-full justify-between items-center">
                <h1 className="text-3xl font-bold">Restaurant Management</h1>
-               <div className="relative flex-shrink-0 w-full md:w-auto mt-4 md:mt-0">
+               <div className="relative flex-shrink-0  w-full md:w-auto mt-4 md:mt-0">
                   <HiOutlineSearch fontSize={24} className="text-gray-400 absolute top-1/2 -translate-y-1/2 left-3" />
                   <input
                      type="text"
                      placeholder="Search restaurants..."
-                     className="text-sm focus:outline-none border active:outline-none border-gray-300 h-14 w-full md:w-96 pl-10 pr-4 rounded-sm"
+                     className="text-sm focus:outline-none border active:outline-none border-gray-300 h-14 w-full md:w-96 pl-10 pr-4 rounded-lg"
                      value={searchItem}
                      onChange={handleSearchInput}
                   />

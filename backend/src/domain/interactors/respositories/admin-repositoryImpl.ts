@@ -4,8 +4,11 @@ import UserModel from "../../../frameworks/database/models/userModel"
 import bcrypt from "bcryptjs"
 import restaurantModel from "../../../frameworks/database/models/restaurantModel";
 import nodeMailerRestaurantApprovalMail from "../../../functions/sendMailApproval"
+import nodeMailerRestaurantRejectMail  from "../../../functions/restoRejectMail"
+import { model } from "mongoose";
 
 export class adminRepositoryImpl implements AdminRepositories {
+   
    
 
    async adminLoginRepo(credentials: { email: string; password: string; }): Promise<{ admin: UserType | null; message: string; }> {
@@ -72,6 +75,19 @@ export class adminRepositoryImpl implements AdminRepositories {
          return { success: true, message: "Success"}
       } catch(error){
          console.log("Error occured in restaurant approval/confirmation", error)
+         throw error
+      }
+   }
+
+
+   async confirmRestaurantRejection(restaurantId: string): Promise<{ success: boolean; message: string; }> {
+      try{
+         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, {isApproved: false})
+         console.log(restaurant)
+         nodeMailerRestaurantRejectMail(restaurant?.email as string)
+         return { success: true, message: "Success"}
+      } catch(error){
+         console.log("Error occured in restaurant rejection",error)
          throw error
       }
    }

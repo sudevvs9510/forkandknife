@@ -386,7 +386,7 @@
              </div>
  
              <div className="mt-5 h-80 w-full rounded-lg overflow-hidden">
-               <GoogleMap latitude={lat} longitude={lng} />
+               <GoogleMap  latitude={lat} longitude={lng} />
              </div>
  
              <div className="text-center pt-5">

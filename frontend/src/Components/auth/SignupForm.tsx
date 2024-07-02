@@ -163,7 +163,7 @@ import { useFormik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/app/store';
-import { signup } from '../../redux/reducers/auth/UserAuthSlice';
+import { signup } from '../../redux/reducers/userSlices/UserAuthSlice';
 import { validateSignup } from '../../helpers/validation';
 import { setStorageItem } from '../../util/localStorage';
 import background from '../../assets/images/pexels-photo-776538.webp';

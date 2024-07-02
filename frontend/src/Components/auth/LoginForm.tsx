@@ -5,7 +5,7 @@ import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/app/store';
-import { login } from '../../redux/reducers/auth/UserAuthSlice';
+import { login } from '../../redux/reducers/userSlices/UserAuthSlice';
 import { validateLogin } from '../../helpers/validation';
 import { removeStorageItem, setStorageItem } from '../../util/localStorage';
 import GoogleLoginAuth from './GoogleLoginAuth';

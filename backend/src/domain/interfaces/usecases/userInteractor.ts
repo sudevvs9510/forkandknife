@@ -13,7 +13,10 @@ export interface UserInteractor{
 
    getApprovedRestaurantsInteractor() : Promise<{ approvedRestaurants:RestaurantType[]}>
    refreshAccessToken (refreshToken: string): Promise<string>;
-   
+
+
+   searchRestaurantInteractor(query: string, location?: { type: string, coordinates: number[] }): Promise<{ restaurants: RestaurantType[] }>;
+   // getRestaurantsInteractor(query?: string, location?: {type: string; coordinates: number[]}): Promise<{restaurants: RestaurantType[]}>
 }
 
 

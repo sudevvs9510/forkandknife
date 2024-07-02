@@ -11,6 +11,11 @@ export interface UserRepository {
    resend(userId: string): Promise<{ message: string, status: boolean}>
    resetPassword(email: string):Promise<{message: string; success: boolean}>
    confirmResetPassword(id: string, password:string): Promise<{message: string, status: boolean}>
-
    getApprovedRestaurants() : Promise<{approvedRestaurants: RestaurantType[]}>
+
+
+   searchRestaurants(query: string, location?: { type: string, coordinates: number[]}) : Promise<{ restaurants: RestaurantType[]}>
+
+
+
 }

@@ -5,6 +5,8 @@ export interface AdminInteractor {
    getRestaurants(): Promise<{restaurants: object | null, message:string}>
    restaurantApprove(): Promise<{restaurants : object | null, message: string}>
    getRestaurantDetailsInteractor(restaurantId: string): Promise<{restaurants: object | null, message: string}>
-   confirmRestaurantInteractor(restaurantId: string): Promise<{success: boolean; message: string }>
+   approvalRestaurantInteractor(restaurantId: string): Promise<{success: boolean; message: string }>
+   rejectRestaurantInteractor(restaurantId: string): Promise<{ success: boolean ; message: string }>
+
    
 }

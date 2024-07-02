@@ -9,6 +9,7 @@ import { generateAccessToken } from "../../../functions/jwt"
 export class AdminInteractorImpl implements AdminInteractor {
    constructor (private readonly repository : AdminRepositories) { }
    
+   
    async adminLogin(credentials: { email: string; password: string; }): Promise<{ message: string; token: string | null; admin: UserType | null; }> {
       console.log(" adminLogin interactor impl")
       try{
@@ -57,12 +58,22 @@ export class AdminInteractorImpl implements AdminInteractor {
    }
    
 
-   async confirmRestaurantInteractor(restaurantId: string): Promise<{ success: boolean; message: string }> {
+   async approvalRestaurantInteractor(restaurantId: string): Promise<{ success: boolean; message: string }> {
       try {
          const { message, success } = await this.repository.confirmRestaurantApproval(restaurantId)
          return { message, success }
       } catch (error) {
          console.log("Error in confirm restaurant interactorimpl:",error)
+         throw error
+      }
+   }
+
+   async rejectRestaurantInteractor(restaurantId: string): Promise<{ success: boolean; message: string; }> {
+      try{
+         const { message, success} = await this.repository.confirmRestaurantRejection(restaurantId)
+         return { message, success }
+      } catch(error){
+         console.log("Error in reject restaurant interactorImpl",error)
          throw error
       }
    }

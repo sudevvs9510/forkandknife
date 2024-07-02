@@ -19,5 +19,7 @@ adminRouter.get('/restaurants-approval-lists',controller.approveRestaurantList.b
 adminRouter.get("/restaurant-approval/:id",controller.approveRestaurant.bind(controller))
 adminRouter.put("/restaurant-approval/:id", controller.restaurantApprovalConfirmation.bind(controller))
 
+adminRouter.put('/restaurant-reject/:id',controller.restaurantRejection.bind(controller))
+
 
 export default adminRouter

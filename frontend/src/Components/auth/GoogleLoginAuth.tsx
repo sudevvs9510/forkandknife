@@ -116,7 +116,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/app/store';
-import { googleLoginAction } from '../../redux/reducers/auth/UserAuthSlice';
+import { googleLoginAction } from '../../redux/reducers/userSlices/UserAuthSlice';
 
 const GoogleLoginAuth: React.FC = () => {
   const navigate = useNavigate();

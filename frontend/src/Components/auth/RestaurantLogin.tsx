@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import background from "../../assets/images/pexels-photo-776538.webp";
 import { useAppDispatch } from "../../hooks/hooks";
-import { login } from "../../redux/reducers/auth/RestaurantAuthSlice";
+import { login } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
 
 const RestaurantLoginForm: React.FC = () => {
   const navigate = useNavigate();
