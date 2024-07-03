@@ -22,7 +22,7 @@ const LoginForm: React.FC = () => {
 
   useEffect(() => {
     if (token) {
-      navigate('/home');
+      navigate('/');
     }
   }, [token, navigate]);
 
@@ -35,7 +35,7 @@ const LoginForm: React.FC = () => {
     onSubmit: async (credentials) => {
       try {
         const response = await dispatch(login(credentials)).unwrap();
-        setStorageItem("userAuthToken", response.token);
+        setStorageItem("AuthToken", response.token);
       } catch (error) {
         if (axios.isAxiosError(error)) {
           if (error.response && error.response.status === 401) {

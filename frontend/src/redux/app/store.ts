@@ -6,7 +6,8 @@ import { persistReducer, persistStore } from 'redux-persist';
 import userAuthReducer from '../reducers/userSlices/UserAuthSlice';
 import restaurantAuthReducer from '../reducers/restaurantSlices/RestaurantAuthSlice';
 import restaurantsReducer from '../reducers/userSlices/RestaurantSearchSlice'
-import { useDispatch } from 'react-redux';
+import adminAuthReducer from "../reducers/adminSlices/AdminAuthSlice"
+import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
 const persistConfig = {
    key: 'root',
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
    userAuth: userAuthReducer,
    restaurantAuth: restaurantAuthReducer,
    restaurantSearch : restaurantsReducer,
+   adminAuth: adminAuthReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -33,6 +35,7 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default store
 

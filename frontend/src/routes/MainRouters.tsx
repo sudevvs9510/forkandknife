@@ -19,8 +19,9 @@ import Profile from "../pages/Seller/RestaurantProfile"
 import RestaurantProfile from "../Components/user/RestaurantProfile"
 
 //protected routes
-import ProtectedRoute from "../routes/ProtectedRoute"
-import RestaurantProtectedRoute from "./RestaurantProtectedRoute"
+import UserProtected from "./UserProtected"
+import RestaurantProtected from "./RestaurantProtected"
+import AdminProtected from "./AdminProtected"
 
 const MainRouter = () => {
 
@@ -33,9 +34,9 @@ const MainRouter = () => {
       <Route path="/signup" element={<Signup />} />
       <Route path="/verify-otp" element={<Otp />} />
 
-      {/* <Route path="/home" element={<Home />} /> */}
-      <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
-      <Route path="/profile" element={<ProtectedRoute element={< UserProfile />} />} />
+      {/* <Route path="/" element={<Home />} /> */}
+      <Route path="/" element={<UserProtected element={<Home />} allowedRoles={['user']}  />} />
+      <Route path="/profile" element={<UserProtected element={< UserProfile />} allowedRoles={['user']} />} />
       <Route path="/restaurant" element={ < RestaurantProfile/> } />
 
       <Route path="/reset-password" element={< ForgotPasswordMailPage />} />
@@ -44,10 +45,10 @@ const MainRouter = () => {
 
       {/* Admin Routes  */}
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<Dashboard />} />
-      <Route path="/admin/restaurant-lists" element={<RestaurantManagement />} />
-      <Route path="/admin/restaurant-approval/:id" element={< RestaurantApproval />} />
-      <Route path="/admin/new-registrations" element={< RestoRegisterManagement />} />
+      <Route path="/admin/dashboard" element={<AdminProtected element={<Dashboard />} allowedRoles={['admin']} />} /> 
+      <Route path="/admin/restaurant-lists"  element={<AdminProtected element={<RestaurantManagement />} allowedRoles={['admin']} />} /> 
+      <Route path="/admin/restaurant-approval/:id"  element={<AdminProtected element={<RestaurantApproval />} allowedRoles={['admin']} />} />  
+      <Route path="/admin/new-registrations" element={<AdminProtected element={<RestoRegisterManagement />} allowedRoles={['admin']} />} /> 
 
 
 
@@ -55,10 +56,10 @@ const MainRouter = () => {
       <Route path="restaurant/signup" element={<RestaurantSignup />} />
       <Route path="restaurant/login" element={<RestaurantLogin />} />
 
-      <Route path="restaurant/dashboard" element={<RestaurantProtectedRoute element={<RestaurantDash />} />} />
-      <Route path="restaurant/reservations" element={<RestaurantProtectedRoute element={<RestaurantDash />} />} />
-      <Route path="restaurant/menu" element={<RestaurantProtectedRoute element={<Menu />} />} />
-      <Route path="restaurant/profile" element={<RestaurantProtectedRoute element={<Profile />} />}/>
+      <Route path="restaurant/dashboard" element={<RestaurantProtected element={<RestaurantDash />} allowedRoles={['restaurant']}  />} />
+      <Route path="restaurant/reservations" element={<RestaurantProtected element={<RestaurantDash />} allowedRoles={['restaurant']}  />} />
+      <Route path="restaurant/menu" element={<RestaurantProtected element={<Menu />} allowedRoles={['restaurant']}  />} />
+      <Route path="restaurant/profile" element={<RestaurantProtected element={<Profile />} allowedRoles={['restaurant']}  />}/>
 
 
     </Routes>

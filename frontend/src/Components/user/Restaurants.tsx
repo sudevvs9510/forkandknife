@@ -166,8 +166,9 @@ import { useAppDispatch } from "../../redux/app/store";
 import { RootState } from "../../redux/app/store";
 import { fetchRestaurants } from "../../redux/reducers/userSlices/RestaurantSearchSlice";
 import { Shimmer } from "react-shimmer";
-import Button from "../../layouts/Buttons";
+// import Button from "../../layouts/Buttons";
 import { FaLocationDot } from "react-icons/fa6";
+
 
 const RestaurantList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -214,9 +215,9 @@ const RestaurantList: React.FC = () => {
                     <FaLocationDot />
                     <p>{truncateText(restaurant.place, 20)}</p> {/* Truncate place to 20 characters */}
                   </div>
-                  <div className="flex flex-row items-center justify-center gap-4">
+                  {/* <div className="flex flex-row items-center justify-center gap-4">
                     <Button title="Book now" />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -58,6 +58,7 @@ const RestaurantManagement: React.FC = () => {
                      <tr className="border-b">
                         <th className="text-left p-3 px-5">Name</th>
                         <th className="text-left p-3 px-5">Email</th>
+                        <th className="text-left p-3 px-5">Location</th>
                         <th className="text-left p-3 px-5">Contact</th>
                         <th className="text-left p-3 px-5 flex justify-end">Status</th>
                         <th></th>
@@ -84,9 +85,10 @@ const RestaurantManagement: React.FC = () => {
                                     readOnly
                                  />
                               </td>
+                              <td className="p-3 px-6">{restaurant.place}</td>
                               <td className="p-3 px-6">{restaurant.contact}</td>
                               <td className="p-3 px-5 flex justify-end">
-                                 <button className="p-1 rounded-2xl px-5 bg-green-500 text-white">Block</button>
+                                 <button className="p-1 rounded-lg px-5 bg-green-500 text-white">Block</button>
                               </td>
                            </tr>
                         ))

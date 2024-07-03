@@ -37,7 +37,7 @@
 // //         console.log('No token received');
 // //       }
             
-// //          navigate('/home')
+// //          navigate('/')
 // //       } catch (error  ) {
          
 // //          console.log(error + 'kkkkkkkkk');
@@ -68,7 +68,7 @@
 //             console.log('No token received');
 //          }
             
-//          navigate('/home');
+//          navigate('/');
 //       } catch (error) {
 //          console.error('Error during Google login:', error);
 //       }
@@ -139,7 +139,7 @@ const GoogleLoginAuth: React.FC = () => {
           sub: userData.sub
         })).then((result) => {
           if (googleLoginAction.fulfilled.match(result)) {
-            navigate('/home'); // Navigate to home after successful login
+            navigate('/'); // Navigate to home after successful login
           }
         });
 
