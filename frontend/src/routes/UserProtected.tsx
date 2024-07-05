@@ -34,8 +34,11 @@ interface JwtPayload {
   exp: number; // Expiry (UNIX timestamp)
 }
 
+
+
 const UserProtected: React.FC<PrivateRouteProps> = ({ element, allowedRoles }) => {
   const token = useSelector((state: RootState) => state.userAuth.token);
+
 
   if (!token) {
     return <Navigate to="/login" />;

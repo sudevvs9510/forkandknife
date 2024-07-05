@@ -26,11 +26,11 @@ export class restaurantController {
       console.log("inside restaurantlogin controller");
       try {
          const { email, password } = req.body
-         const { restaurant, token, message } = await this.interactor.restaurantLogin({ email, password })
+         const { restaurant, token, message, refreshtoken  } = await this.interactor.restaurantLogin({ email, password })
          if (!restaurant) {
             return res.status(401).json({ message, token: null })
          }
-         res.cookie("restaurant_auth", token, {
+         res.cookie("refreshToken", refreshtoken ,{
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 86400000
@@ -48,9 +48,10 @@ export class restaurantController {
 
    async restaurant_details (req: Request, res: Response, next: NextFunction){
       console.log("restaurant full Details")
-      const email = req.userId
+      console.log(req.cookies)
+      const _id = req.userId
       try{
-         const { restaurant } = await this.interactor.restaurantGetProfileInteractor(email)
+         const { restaurant } = await this.interactor.restaurantGetProfileInteractor(_id)
          return res.status(200).json({ restaurantDetails: restaurant})
       } catch(error){
          console.log("Error occured during get restaurant controller",error)

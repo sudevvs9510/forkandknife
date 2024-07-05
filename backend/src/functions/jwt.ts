@@ -5,15 +5,15 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 // JWT GENERATE TOKEN 
 export const generateAccessToken = (userId:string, role: 'user' | 'restaurant' | 'admin'): string =>{
    const payload = { userId, role }
-   const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "xyZiopasf89asfaj"; 
-   return jwt.sign(payload, accessTokenSecret, {expiresIn: "24h"});
+   const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET_KEY || "xyZiopasf89asfaj"; 
+   return jwt.sign(payload, accessTokenSecret, {expiresIn: "5s"});
 }
 
 // JWT REFRESH TOKEN 
 export const generateRefreshToken = (userId: string, role: 'user' | 'restaurant' | 'admin'): string => {
    const payload = { userId, role };
-   const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "lkgakjdo09asfka";
-   return jwt.sign(payload, refreshTokenSecret, { expiresIn: "30d" });
+   const refreshTokenSecret = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
+   return jwt.sign(payload, refreshTokenSecret, { expiresIn: "2d" });
  };
 
 // JWT VERIFICATION

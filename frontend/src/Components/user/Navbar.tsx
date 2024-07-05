@@ -3,21 +3,25 @@ import { Link as ScrollLink } from 'react-scroll';
 import { Link } from 'react-router-dom';
 import { FaTimes } from "react-icons/fa";
 import { CiMenuBurger } from 'react-icons/ci';
+import { useAppDispatch } from '../../redux/app/store';
+import { logout } from '../../redux/reducers/userSlices/UserAuthSlice';
 
 const Navbar: React.FC = () => {
   const [click, setClick] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("AuthToken");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleClick = () => setClick(!click);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    dispatch(logout())
     setIsLoggedIn(false);
+    // Clear refresh token on the server-side if needed
   };
 
   const content = (

@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { FaMapMarkerAlt, FaUtensils, FaCalendarAlt, FaRupeeSign } from 'react-icons/fa';
 import MainNavBar from './MainNavBar';
+import authAxios from '../../redux/api/authApi';
 
 const RestaurantProfile: React.FC = () => {
+  const [restaurant, setRestaurant] = useState([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(event.target.value);
   };
+  console.log(restaurant)
+
+  useEffect(()=>{
+    authAxios.get("/restaurants")
+    .then((res)=>{
+      console.log(res.data)
+      setRestaurant(res.data.restaurant)
+    }).catch((error)=>{
+      console.log(error)
+    })
+  },[])
 
   return (
     <div>

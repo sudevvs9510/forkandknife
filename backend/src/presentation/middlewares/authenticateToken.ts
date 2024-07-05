@@ -26,12 +26,12 @@ const authenticateToken = (requiredRole: 'user' | 'restaurant' | 'admin') => {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET || "xyZiopasf89asfaj";
+    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET_KEY as string  ;
     const { message, decode } = jwtVerifyToken(token, accessTokenSecret);
 
     if (message === "Invalid Token" || !decode) {
       console.log("Invalid token");
-      return res.status(403).json({ message: 'Invalid token' });
+      return res.status(401).json({ message: 'Invalid token' });
     }
 
     const decoded = decode as DecodedToken;

@@ -39,6 +39,10 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export default store
 
+// import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+// import { RootState, AppDispatch } from '../redux/app/store';
+
+
 
 
 

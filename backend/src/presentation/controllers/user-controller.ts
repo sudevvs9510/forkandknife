@@ -54,7 +54,7 @@ export class userController {
          console.log(token)
          
          if(token){
-            setCookieAuthToken(res,"userAuthToken",token);
+            setCookieAuthToken(res,"AuthToken",token);
          }
  
          console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
@@ -93,7 +93,7 @@ export class userController {
          console.log(email, given_name, sub);
          const { user, message, token, refreshToken } = await this.interactor.googlelogin({ email, given_name, sub })
          if(token){
-            setCookieAuthToken(res,"userAuthToken",token);
+            setCookieAuthToken(res,"AuthToken",token);
          }
          if (user) {
             console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
@@ -196,7 +196,7 @@ export class userController {
          }
 
          const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
-
+         console.log(newAccessToken)
          if (!newAccessToken) {
             console.log("newAccessToken")
             return res.status(401).json({ message: "Invalid refresh token" });

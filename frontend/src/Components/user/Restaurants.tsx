@@ -168,6 +168,7 @@ import { fetchRestaurants } from "../../redux/reducers/userSlices/RestaurantSear
 import { Shimmer } from "react-shimmer";
 // import Button from "../../layouts/Buttons";
 import { FaLocationDot } from "react-icons/fa6";
+import { Link } from "react-router-dom";
 
 
 const RestaurantList: React.FC = () => {
@@ -194,6 +195,7 @@ const RestaurantList: React.FC = () => {
       {restaurants.length === 0 ? (
         <div className="text-center text-red-600">No restaurants found.</div>
       ) : (
+        <Link to={`/restaurant`} >
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {restaurants.map((restaurant) => (
             <div key={restaurant._id} className="w-full p-3 bg-[#00CCB8] bg-opacity-15 rounded-lg">
@@ -223,6 +225,7 @@ const RestaurantList: React.FC = () => {
             </div>
           ))}
         </div>
+        </Link>
       )}
     </div>
   );

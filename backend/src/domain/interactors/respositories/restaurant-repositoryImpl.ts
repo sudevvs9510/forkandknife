@@ -2,8 +2,9 @@ import { RestaurantType } from "../../../domain/entities/restaurant"
 import { restaurantRepository } from "../../../domain/interfaces/repositories/restaurant-repository"
 import restaurantModel from "../../../frameworks/database/models/restaurantModel"
 import nodemailerEmailSeller from "../../../functions/sendMailSeller";
-import { generateAccessToken } from "../../../functions/jwt"
+import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
+import { NullLiteral } from "typescript";
 
 export class sellerRepository implements restaurantRepository {
 
@@ -40,13 +41,13 @@ export class sellerRepository implements restaurantRepository {
 
 
 
-   async findCredentials(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null }> {
+   async findCredentials(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null, refreshtoken: string | null }> {
       console.log("Seller repository impl");
       const { email, password } = data
       try {
          const restaurant = await restaurantModel.findOne({ email: email });
          console.log(restaurant, email);
-         let token = null, message = '';
+         let token = null, refreshtoken=null, message = '';
          if (!restaurant) {
             message = "User not found"
          } else {
@@ -56,7 +57,8 @@ export class sellerRepository implements restaurantRepository {
                   console.log('Password is not match');
                   message = 'Invalid password'
                } else {
-                  token = generateAccessToken(restaurant.email as string, 'restaurant')
+                  token = generateAccessToken(restaurant._id.toString(), 'restaurant')
+                  refreshtoken = generateRefreshToken(restaurant._id.toString(),'restaurant')
                   console.log(token)
                }
             } else {
@@ -64,10 +66,10 @@ export class sellerRepository implements restaurantRepository {
             }
          }
          if (restaurant && !message) {
-            return { restaurant: restaurant.toObject(), message: "Login successfull.", token }
+            return { restaurant: restaurant.toObject(), message: "Login successfull.", token, refreshtoken }
          }
          console.log(message)
-         return { restaurant: null, message, token }
+         return { restaurant: null, message, token , refreshtoken}
       } catch (error) {
          console.error("Error in seller repository", error);
          throw error
@@ -124,9 +126,9 @@ export class sellerRepository implements restaurantRepository {
    }
 
 
-   async getRestaurant(email: string): Promise<{ restaurant: any; message: string; }> {
+   async getRestaurant(_id: string): Promise<{ restaurant: any; message: string; }> {
       try {
-         const restaurant = await restaurantModel.findOne({ email })
+         const restaurant = await restaurantModel.findById(_id)
          console.log(restaurant)
          return { restaurant, message: "" }
       } catch (error) {

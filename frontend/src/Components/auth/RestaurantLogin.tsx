@@ -4,7 +4,7 @@ import { restaurantLoginValidate } from "../../helpers/validation";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import background from "../../assets/images/pexels-photo-776538.webp";
-import { useAppDispatch } from "../../hooks/hooks";
+import { useAppDispatch } from "../../redux/app/store";
 import { login } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
 
 const RestaurantLoginForm: React.FC = () => {

@@ -19,12 +19,12 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
-   async restaurantLogin(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null; }> {
+   async restaurantLogin(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null; refreshtoken: string | null}> {
       console.log("Seller Login Interactor")
       try{
          console.log(data);
-         const { message,token, restaurant } = await this.repository.findCredentials(data)
-         return { message, token, restaurant }   
+         const { message,token, restaurant,refreshtoken } = await this.repository.findCredentials(data)
+         return { message, token, restaurant, refreshtoken }   
       } catch(error){
          console.error("Error in restaurant registration interactor", error);
          throw error
@@ -43,9 +43,9 @@ export class sellerInteractor implements restaurantInteractor{
    }
 
 
-   async restaurantGetProfileInteractor(email: string): Promise<{ restaurant: object; }> {
+   async restaurantGetProfileInteractor(_id: string): Promise<{ restaurant: object; }> {
       try{
-         const { restaurant } = await this.repository.getRestaurant(email)
+         const { restaurant } = await this.repository.getRestaurant(_id)
          return { restaurant }
       } catch(error){
          console.log(error) 
