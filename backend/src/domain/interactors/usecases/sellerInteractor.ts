@@ -1,4 +1,4 @@
-import { RestaurantType } from "../../entities/restaurant"
+import { RestaurantType, tableSlotTypes } from "../../entities/restaurant"
 import { restaurantRepository } from "../../interfaces/repositories/restaurant-repository";
 import { restaurantInteractor } from "../../interfaces/usecases/restaurantInteractor"
 
@@ -52,5 +52,37 @@ export class sellerInteractor implements restaurantInteractor{
          throw error
       }
    }
+
+   async getRestaurantTableInteractor(restaurantId: string): Promise<{ message: string; tableSlotDatas: object; }> {
+      try{
+         const { message, tableSlotDatas } = await this.repository.restaurantTableDatas(restaurantId)
+         return { message, tableSlotDatas}
+      } catch(error){
+         console.log("Error in getRestaurantTableInteractor", error)
+         throw error
+      }
+   }
+
+   async addTableInteractor(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.repository.addNewTableSlot( tableSlotDatas, restaurantId)
+         return { status, message}
+      } catch(error){
+        console.log(error)
+        throw error
+      }
+   }
+
+   async getRestaurnatTableSlotInteractor(tableId: string): Promise<{ message: string; tableSlotDatas: object; }> {
+      try{
+         const { message, tableSlotDatas } = await this.repository.restaurantTableSlotDatas(tableId)
+         return { message, tableSlotDatas }
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+   
    
 }

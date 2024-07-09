@@ -6,6 +6,7 @@ import { CiMenuBurger } from 'react-icons/ci';
 import { useAppDispatch } from '../../redux/app/store';
 import { logout } from '../../redux/reducers/userSlices/UserAuthSlice';
 
+
 const Navbar: React.FC = () => {
   const [click, setClick] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,11 +19,14 @@ const Navbar: React.FC = () => {
 
   const handleClick = () => setClick(!click);
 
-  const handleLogout = () => {
-    dispatch(logout())
+  const handleLogout =async () => {
+    try{
+    await dispatch(logout())
     setIsLoggedIn(false);
-    // Clear refresh token on the server-side if needed
-  };
+  } catch(error){
+  console.log("Error during logout:", error)
+  }
+}
 
   const content = (
     <div className={`lg:hidden block absolute top-16 w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform z-50 ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>

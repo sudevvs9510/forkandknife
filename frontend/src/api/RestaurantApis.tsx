@@ -3,6 +3,7 @@ import axios from "axios";
 import { RestaurantValues } from "../helpers/validation";
 import authAxios from "../redux/api/authApi";
 
+
 export interface credentials {
    restaurantName: string;
    email: string;
@@ -15,6 +16,15 @@ export interface credentials {
    TableRate: string;
    featuredImage: string;
    secondaryImages: string;
+ }
+
+
+ export interface TableSlotTypes {
+  _id?: string
+  tableId: string
+  tableNumber: string;
+  tableCapacity: number
+  tableLocation: string
  }
 
 export const RestaurantRegister = async (datas: credentials) => {
@@ -62,39 +72,11 @@ export const RestaurantFullDetails = async (datas: RestaurantValues) => {
    }
  };
 
-//  export const uploadCloudImage = async (image: File)  => {
-//    const formData = new FormData();
-//    formData.append('file', image);
-//    formData.append('upload_preset', 'hg75472a');
-   
-//    try {
-//      const res = await fetch(
-//        "https://api.cloudinary.com/v1_1/sudev99/image/upload",
-       
-//        {
-//          method: "POST",
-//          body: formData,
-//        }
-//      );
- 
-//      if (res.ok) {
-//        const data = await res.json();
-//        return data.secure_url;
-//      } else {
-//        console.log("upload failed: ", res);
-//        throw new Error("Upload failed");
-//      }
-//    } catch (error) {
-//      console.log("upload error: ", error);
-//      throw new Error("Failed to upload image");
-//    }
-//  };
-
 export const uploadCloudImage = async (file: File) => {
    try {
      const formData = new FormData();
      formData.append('file', file);
-     formData.append('upload_preset', 'hg75472a'); // Replace with your actual upload preset
+     formData.append('upload_preset', 'hg75472a'); 
  
      const response = await axios.post(
        'https://api.cloudinary.com/v1_1/sudev99/image/upload',
@@ -114,3 +96,27 @@ export const uploadCloudImage = async (file: File) => {
    }
  };
  
+
+ export const getTableDatas = async (restaurantId: string) =>{
+  try{
+    const { data: { message, tableSlotDatas}} = await authAxios.get(`/restaurant/tables/${restaurantId}`)
+    return { data: {message, tableSlotDatas }}
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
+
+
+ export const logoutRestaurant = async () =>{
+  try{
+    console.log("llkk")
+    await authAxios.post('/restaurant/logout')
+
+  } catch(error){
+    console.log("Logout error",error)
+  } finally{
+    localStorage.removeItem("AuthToken")
+  }
+ }

@@ -19,4 +19,11 @@ restaurantRouter.put("/restaurant-updation",authenticateToken('restaurant'), con
 restaurantRouter.get('/restaurant-details',authenticateToken('restaurant'), controller.restaurant_details.bind(controller))
 
 
+restaurantRouter.get('/tables/:restaurantId',controller.getRestaurantTable.bind(controller))
+restaurantRouter.post("/add-table",controller.addRestaurantTable.bind(controller))
+
+restaurantRouter.get('/table-slots/:restaurantid', controller.getRestaurantTableSlot.bind(controller))
+
+restaurantRouter.post('/logout', controller.restaurantLogout.bind(controller))
+
 export default restaurantRouter

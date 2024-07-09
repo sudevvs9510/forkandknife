@@ -122,11 +122,16 @@ export const adminLogin = async (data: Partial<credentials>): Promise<APIrespons
    }  
 }
 
-export const Logout = async () =>{
-   const response = await authAxios.post("/logout")
-   if(response.status !==200){
-      throw new Error("Logout Failed")
+export const logoutUser = async () =>{
+   try{
+   await authAxios.post("/logout")
+   } catch(error){
+      console.error("Logout error",error);
+   }finally{
+      localStorage.removeItem("AuthToken")
+
    }
+   
 }
 
 export const validateToken = async () => {

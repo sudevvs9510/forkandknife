@@ -12,6 +12,7 @@ import { RestaurantFullDetails, uploadCloudImage } from '../../api/RestaurantApi
 import { CiCircleRemove } from 'react-icons/ci';
 import { FaSpinner } from 'react-icons/fa'
 
+
 const RestaurantDetails: React.FC = () => {
   const [restaurantDetails, setRestaurantDetails] = useState<RestaurantValues>({
     email: "",
@@ -150,17 +151,17 @@ const RestaurantDetails: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex  ">
       <ToastContainer position="top-center" hideProgressBar autoClose={1500}/>
-      <div className="flex-grow flex flex-col items-center pb-10">
-        <div className="w-full max-w-7xl bg-white shadow-lg shadow-red-200 rounded-lg pb-10 animate-fadeIn">
-          <h1 className="p-5 text-2xl font-bold text-center text-teal-600 rounded-t-lg border-b border-gray-200">
-            Restaurant Details
+      <div className="flex-grow flex flex-col items-center pb-10 ">
+        <div className="w-full bg-white  rounded-lg pb-10 animate-fadeIn  ">
+          <h1 className="p-5 text-2xl font-bold text-start text-black rounded-t-lg  border-gray-200">
+            Restaurant Profile
           </h1>
           <form onSubmit={formik.handleSubmit} className="px-4 md:px-10 lg:px-16 font-semibold space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-2 space-y-2">
-                <div>
+                <div className=''>
                   <label className="block text-lg">Restaurant Name</label>
                   <input
                     type="text"
@@ -310,7 +311,7 @@ const RestaurantDetails: React.FC = () => {
                       <img
                         src={typeof formik.values.featuredImage === 'string' ? formik.values.featuredImage : URL.createObjectURL(formik.values.featuredImage)}
                         alt="Featured"
-                        className="w-full h-65 object-cover rounded-lg"
+                        className="w-full h-25  object-cover rounded-lg"
                       />
                       {formik.values.featuredImage && (
                         <button

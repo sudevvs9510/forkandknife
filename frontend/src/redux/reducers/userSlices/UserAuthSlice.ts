@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, googleLogin, Register } from "../../../api/api"
+import { loginUser, googleLogin, Register, logoutUser} from "../../../api/api"
 import { setStorageItem, removeStorageItem } from "../../../util/localStorage";
 
 
@@ -64,18 +64,32 @@ export const googleLoginAction = createAsyncThunk(
    }
 )
 
+
+export const logout = createAsyncThunk(
+   'auth/logout',
+   async (_, { rejectWithValue }) => {
+      try {
+         await logoutUser(); 
+         removeStorageItem('AuthToken'); 
+         return true
+      } catch (error) {
+         return rejectWithValue("Failed to logout");
+      }
+   }
+);
+
 const authSlice = createSlice({
    name: 'userAuth',
    initialState,
    reducers: {
 
-      logout: (state) => {
-         state.user = null
-         state.token = null
-         state.loading = false;
-         state.error = null;
-         removeStorageItem('AuthToken')
-      },
+      // logout: (state) => {
+      //    state.user = null
+      //    state.token = null
+      //    state.loading = false;
+      //    state.error = null;
+      //    removeStorageItem('AuthToken')
+      // },
 
    },
    extraReducers: (builder) => {
@@ -123,12 +137,29 @@ const authSlice = createSlice({
          .addCase(googleLoginAction.rejected, (state, action: PayloadAction<any>) => {
             state.loading = false;
             state.error = action.payload;
-         });
+         })
+
+
+
+         .addCase(logout.pending,(state) =>{
+            state.loading = true
+            state.error = null 
+         })
+         .addCase(logout.fulfilled,(state)=>{
+            state.user = null
+            state.token = null
+            state.loading = false
+            state.error = null 
+         })
+         .addCase(logout.rejected,(state,action: PayloadAction<any>)=>{
+            state.loading = false
+            state.error = action.payload
+         })
    }
 })
 
 
-export const { logout } = authSlice.actions
+
 
 export default authSlice.reducer
 

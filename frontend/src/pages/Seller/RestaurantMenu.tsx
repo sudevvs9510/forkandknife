@@ -10,7 +10,9 @@ const ReservationMenu: React.FC = () => {
       <div className="min-h-screen flex flex-col">
         <NavBar />
         <div className="flex flex-1 ">
-          <Sidebar />
+        <div className='bg-gray-100'>
+        <Sidebar />
+        </div>
           <Menu />
         </div>
         {/* <Footer /> */}

@@ -17,3 +17,11 @@ export class RestaurantType {
 
    ){}
 }
+
+
+export interface tableSlotTypes{
+    restaurantId: string;
+    tableNumber: string,
+    tableCapacity: number;
+    tableLocation: "Indoor" | "Outdoor"
+}

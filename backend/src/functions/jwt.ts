@@ -6,7 +6,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 export const generateAccessToken = (userId:string, role: 'user' | 'restaurant' | 'admin'): string =>{
    const payload = { userId, role }
    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET_KEY || "xyZiopasf89asfaj"; 
-   return jwt.sign(payload, accessTokenSecret, {expiresIn: "5s"});
+   return jwt.sign(payload, accessTokenSecret, {expiresIn: "1h"});
 }
 
 // JWT REFRESH TOKEN 

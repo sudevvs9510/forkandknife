@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { restaurantInteractor } from "../../domain/interfaces/usecases/restaurantInteractor"
 // import cloudinary from "../../Config/cloudinaryConfig";
 import axios from "axios";
+import { setCookieAuthToken } from "../../functions/cookieFun";
 
 export class restaurantController {
    constructor(private readonly interactor: restaurantInteractor) { }
@@ -26,15 +27,19 @@ export class restaurantController {
       console.log("inside restaurantlogin controller");
       try {
          const { email, password } = req.body
-         const { restaurant, token, message, refreshtoken  } = await this.interactor.restaurantLogin({ email, password })
+         const { restaurant, token, message, refreshtoken } = await this.interactor.restaurantLogin({ email, password })
          if (!restaurant) {
             return res.status(401).json({ message, token: null })
          }
-         res.cookie("refreshToken", refreshtoken ,{
+
+         res.cookie("RefreshAuthToken", refreshtoken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 86400000
          });
+
+         // setCookieAuthToken(res, "RefreshAuthToken", token);
+
          return res.status(200).json({ message, restaurant, token })
       } catch (error) {
          console.error("Error during seller login:", error);
@@ -45,17 +50,16 @@ export class restaurantController {
 
 
 
-
-   async restaurant_details (req: Request, res: Response, next: NextFunction){
+   async restaurant_details(req: Request, res: Response, next: NextFunction) {
       console.log("restaurant full Details")
       console.log(req.cookies)
-      const _id = req.userId
-      try{
-         const { restaurant } = await this.interactor.restaurantGetProfileInteractor(_id)
-         return res.status(200).json({ restaurantDetails: restaurant})
-      } catch(error){
-         console.log("Error occured during get restaurant controller",error)
-         res.status(500).send("Internal server error") 
+      const  restaurantId  = req.userId
+      try {
+         const { restaurant } = await this.interactor.restaurantGetProfileInteractor(restaurantId)
+         return res.status(200).json({ restaurantDetails: restaurant })
+      } catch (error) {
+         console.log("Error occured during get restaurant controller", error)
+         res.status(500).send("Internal server error")
       }
    }
 
@@ -77,12 +81,72 @@ export class restaurantController {
       }
    }
 
+
+
+   async getRestaurantTable(req: Request, res: Response, next: NextFunction) {
+      console.log("get RestaurantTable controller")
+      const { restaurantId } = req.params
+      console.log(restaurantId)
+      try {
+         const { tableSlotDatas, message } = await this.interactor.getRestaurantTableInteractor(restaurantId)
+         return res.status(200).json({ tableSlotDatas, message })
+      } catch (error) {
+         console.log("Error during get restaurant table controller", error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   async addRestaurantTable(req: Request, res: Response, next: NextFunction) {
+      console.log("Addding table component")
+      const { tableAddingDatas, restaurantId } = req.body
+      try {
+         const { message, status } = await this.interactor.addTableInteractor(tableAddingDatas, restaurantId)
+         if (!status) {
+            return res.status(401).json({ message, status })
+         }
+         return res.status(201).json({ message, status })
+
+      } catch (error) {
+         console.log("", error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   async getRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
+      console.log("get RestaurantTableSlot controller")
+      const { tableId } = req.params
+      try {
+         const { tableSlotDatas, message } = await this.interactor.getRestaurnatTableSlotInteractor(tableId)
+         return res.status(200).json({ message, tableSlotDatas })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+
+   async restaurantLogout(req:Request, res:Response, next: NextFunction){
+      console.log("Logout restaurant")
+      try{
+         res.clearCookie("RefreshAuthToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+         })
+         return res.status(200).json({ message: "Logout successfull" })
+      } catch(error){
+         console.log(error)
+         return res.status(500).send({ message: "Logout successfull"})
+      }
+   }
+
+
    // async uploadImage(req: Request, res: Response, next: NextFunction) {
    //    try {
    //      if (!req.file) {
    //        return res.status(400).json({ message: "No file uploaded" });
    //      }
-        
+
    //      const result = await cloudinary.uploader.upload(req.file.path);
    //      return res.status(200).json({ url: result.secure_url });
    //    } catch (error) {
@@ -133,7 +197,8 @@ export class restaurantController {
    //    }
    // }
 
-  
+
+
 
 
 

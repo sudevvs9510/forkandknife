@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Components/user/Navbar';
-import MainNavBar from '../../Components/user/MainNavBar'; 
+// import MainNavBar from '../../Components/user/MainNavBar'; 
 import About from '../../Components/user/About';
 import Header from '../../Components/user/Header';
 import Restaurants from './Restaurants';
@@ -24,7 +24,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {showMainNavBar ? <MainNavBar /> : <Navbar />}
+      {showMainNavBar ? <Navbar /> : <Navbar />}
       <div id="header">
         <Header />
       </div>

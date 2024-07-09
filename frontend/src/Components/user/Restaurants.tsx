@@ -177,6 +177,8 @@ const RestaurantList: React.FC = () => {
   const error = useSelector((state: RootState) => state.restaurantSearch.error);
   console.log(restaurants);
 
+
+
   useEffect(() => {
     dispatch(fetchRestaurants());
   }, []);
@@ -195,9 +197,10 @@ const RestaurantList: React.FC = () => {
       {restaurants.length === 0 ? (
         <div className="text-center text-red-600">No restaurants found.</div>
       ) : (
-        <Link to={`/restaurant`} >
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {restaurants.map((restaurant) => (
+            <Link to={`/restaurant-view/${restaurant._id}`} >
             <div key={restaurant._id} className="w-full p-3 bg-[#00CCB8] bg-opacity-15 rounded-lg">
               <div className="w-full p-3 bg-[#00CCB8] bg-opacity-15 rounded-lg">
                 <div className="w-full h-40 overflow-hidden rounded-xl">
@@ -223,9 +226,10 @@ const RestaurantList: React.FC = () => {
                 </div>
               </div>
             </div>
+            </Link>
+
           ))}
         </div>
-        </Link>
       )}
     </div>
   );

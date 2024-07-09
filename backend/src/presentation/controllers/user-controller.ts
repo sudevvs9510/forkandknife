@@ -5,6 +5,7 @@ import { setCookieAuthToken } from "../../functions/cookieFun"
 import { stat } from 'fs';
 import { NetConnectOpts } from 'net';
 import { generateAccessToken, jwtVerifyToken } from '../../functions/jwt';
+import restaurantModel from '../../frameworks/database/models/restaurantModel';
 
 
 export class userController {
@@ -38,10 +39,10 @@ export class userController {
          console.log('Login Controller');
          console.log('loginData ', req.body);
 
-         const { email, password} = req.body
+         const { email, password } = req.body
          console.log(email, password)
 
-         if (!email || !password ) {
+         if (!email || !password) {
             return res.status(400).json({ message: "Email, password & role are required" })
          }
 
@@ -52,11 +53,11 @@ export class userController {
             return res.status(401).json({ message: "Failed to login user", token: null })
          }
          console.log(token)
-         
-         if(token){
-            setCookieAuthToken(res,"AuthToken",token);
+
+         if (token) {
+            setCookieAuthToken(res, "RefreshAuthToken", token);
          }
- 
+
          console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
          return res.status(200).json({ message: 'Login Successful', user, token, refreshToken });
 
@@ -70,7 +71,7 @@ export class userController {
       console.log("OTP- controller verification")
       try {
          const { otp: { otp }, userId } = req.body
-         console.log("otp verify",otp)
+         console.log("otp verify", otp)
          const { message, status } = await this.interactor.verifyotp(otp, userId)
 
          if (!status) {
@@ -92,12 +93,12 @@ export class userController {
          const { email, given_name, sub } = req.body
          console.log(email, given_name, sub);
          const { user, message, token, refreshToken } = await this.interactor.googlelogin({ email, given_name, sub })
-         if(token){
-            setCookieAuthToken(res,"AuthToken",token);
+         if (token) {
+            setCookieAuthToken(res, "RefreshAuthToken", token);
          }
          if (user) {
             console.log('userController:', user, 'Token', token, 'refreshToken', refreshToken)
-            setCookieAuthToken(res, "google_auth", token as string)
+            setCookieAuthToken(res, "RefreshAuthToken", token as string)
             res.status(200).json({ user, message, token, refreshToken })
          } else {
             console.log(message)
@@ -139,108 +140,124 @@ export class userController {
    }
 
 
-   async resetPasswordGetUser (req: Request, res: Response, next: NextFunction){
+   async resetPasswordGetUser(req: Request, res: Response, next: NextFunction) {
       console.log("Reset password controller")
       const { email } = req.body
-      try{
+      try {
          const { message, success } = await this.interactor.resetPasswordInteractor(email)
-         if(!success) return res.status(401).json({ message , success })
+         if (!success) return res.status(401).json({ message, success })
          return res.status(200).json({ message: "Password reset link sent to your email", success })
-      }catch(error){
+      } catch (error) {
          console.error(error);
-         return res.status(500).json({message: "Internal server error"})
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
-   async resetPasswordUpdate(req:Request, res:Response, next: NextFunction){
+   async resetPasswordUpdate(req: Request, res: Response, next: NextFunction) {
       console.log("Reset password update controller")
       console.log(req.body)
 
-      const  { password } = req.body
+      const { password } = req.body
       const { id } = req.params
 
       if (!password) {
          return res.status(400).json({ message: "Password is required", status: false });
-     }
+      }
 
       try {
-         console.log("userId:",id);
-         const { message, status} = await this.interactor.resetPasswordUpdateItneractor(id, password)
-         if(!status) return res.status(401).json({ message, status })
-            return res.status(200).json({ message,status })
+         console.log("userId:", id);
+         const { message, status } = await this.interactor.resetPasswordUpdateItneractor(id, password)
+         if (!status) return res.status(401).json({ message, status })
+         return res.status(200).json({ message, status })
       } catch (error) {
-         console.log("Error during reset password service",error)
+         console.log("Error during reset password service", error)
          return res.status(500).json({ message: "Internal server error" })
       }
    }
 
 
-   async getRestaurants (req:Request, res: Response, next: NextFunction){
+   async getRestaurants(req: Request, res: Response, next: NextFunction) {
       console.log("Get Restaurant controller")
-      try{
+      try {
          const { approvedRestaurants } = await this.interactor.getApprovedRestaurantsInteractor()
          console.log(approvedRestaurants)
-         return res.status(200).json({ restaurant : approvedRestaurants, messgae: "successfull"})
-      } catch(error){
-         console.log(error);
-         return res.status(500).json({ message: "Internal server error"})
-      }
-   }
-
-   async refreshToken(req: Request, res: Response, next: NextFunction) {
-      try {
-         const { refreshToken } = req.body
-
-         if(!refreshToken){
-            return res.status(401).json({ message: " Refresh token is required"})
-         }
-
-         const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
-         console.log(newAccessToken)
-         if (!newAccessToken) {
-            console.log("newAccessToken")
-            return res.status(401).json({ message: "Invalid refresh token" });
-          }
-
-         return res.status(200).json({ accessToken: newAccessToken });
+         return res.status(200).json({ restaurant: approvedRestaurants, messgae: "successfull" })
       } catch (error) {
-         console.error('Error refreshing token:', error);
-         res.status(500).json({ message: 'Internal server error' });
+         console.log(error);
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
+
+   async restaurantDetalis(req: Request, res: Response, next: NextFunction) {
+      console.log("Restaurant details controller")
+      const { restaurantId } = req.params
+      try {
+         const restaurant = await restaurantModel.findById(restaurantId)
+         return res.status(200).json({ restaurant, message: "successfull" })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "internal server error" })
+      }
+   }
+
+   // async refreshToken(req: Request, res: Response, next: NextFunction) {
+   //    try {
+   //       const { refreshToken } = req.body
+
+   //       if(!refreshToken){
+   //          return res.status(401).json({ message: " Refresh token is required"})
+   //       }
+
+   //       const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
+   //       console.log(newAccessToken)
+   //       if (!newAccessToken) {
+   //          console.log("newAccessToken")
+   //          return res.status(401).json({ message: "Invalid refresh token" });
+   //        }
+
+   //       return res.status(200).json({ accessToken: newAccessToken });
+   //    } catch (error) {
+   //       console.error('Error refreshing token:', error);
+   //       res.status(500).json({ message: 'Internal server error' });
+   //    }
+   // }
 
 
    async Logout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout user");
       try {
-         res.cookie("auth_token","",{
-          expires: new Date(0),
+
+         res.clearCookie("RefreshAuthToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
          })
-         res.send()
+
+         return res.status(200).json({ message: "Logout successfull" })
       } catch (error) {
-        console.error(" OOps ! error during resend otp service:", error);
-        res.status(500).send("Internal server error");
+         console.error(" OOps ! error during resend otp service:", error);
+         return res.status(500).send("Internal server error");
       }
-    }
+   }
 
 
 
 
-    async searchRestaurants(req: Request, res: Response, next: NextFunction){
-      try{
-            const { query, location } = req.body;
+   async searchRestaurants(req: Request, res: Response, next: NextFunction) {
+      try {
+         const { query, location } = req.body;
 
-            // if(!query){
-            //    return res.status(400).json({ message: "Query is required" })
-            // }
-            const parsedLocation = location ? JSON.parse(location as string) : undefined;
-            const { restaurants } = await this.interactor.searchRestaurantInteractor(query, parsedLocation );
-            return res.status(200).json({ restaurants, message: "Search successful" });
-      } catch(error){
+         // if(!query){
+         //    return res.status(400).json({ message: "Query is required" })
+         // }
+         const parsedLocation = location ? JSON.parse(location as string) : undefined;
+         const { restaurants } = await this.interactor.searchRestaurantInteractor(query, parsedLocation);
+         return res.status(200).json({ restaurants, message: "Search successful" });
+      } catch (error) {
          console.log("Error occured in search Restaurants controller:", error)
          return res.status(500).send(" internal server error")
       }
-    }
+   }
 
 
 

@@ -12,7 +12,7 @@ export interface UserInteractor{
    resetPasswordUpdateItneractor(id:string, password:string): Promise<{ message: string; status: boolean }>
 
    getApprovedRestaurantsInteractor() : Promise<{ approvedRestaurants:RestaurantType[]}>
-   refreshAccessToken (refreshToken: string): Promise<string>;
+   // refreshAccessToken (refreshToken: string): Promise<string>;
 
 
    searchRestaurantInteractor(query: string, location?: { type: string, coordinates: number[] }): Promise<{ restaurants: RestaurantType[] }>;

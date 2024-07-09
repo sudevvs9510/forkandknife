@@ -90,6 +90,7 @@
 
 import axios from 'axios';
 import userLogout from "../../util/Logout"
+import restaurantLogout from '../../util/RestaurantLogout';
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 axios.defaults.withCredentials = true;
@@ -108,9 +109,15 @@ const authAxios = axios.create({
 authAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('AuthToken');
+    const restaurantToken = localStorage.getItem("RestaurantAuthToken")
+    
     console.log(token)
+    console.log(restaurantToken)
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (restaurantToken){
+      config.headers.Authorization = `Bearer ${restaurantToken}`;
     }
     console.log('Request Interceptor:', config);
     return config;
@@ -142,13 +149,13 @@ authAxios.interceptors.response.use(
         return authAxios(originalRequest);
       } catch (refreshError) {
         handleRefreshTokenError(refreshError)
-        localStorage.removeItem('AuthToken')
+        // localStorage.removeItem('AuthToken')
         userLogout("This user has been blocked")
         return Promise.reject(refreshError)
       }
 
     } else if (error.response.status == 403) {
-      localStorage.removeItem('AuthToken')
+      // localStorage.removeItem('AuthToken')
       userLogout("This user has been blocked")
     }
     return Promise.reject(error)
@@ -158,7 +165,9 @@ authAxios.interceptors.response.use(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleRefreshTokenError = (error : any) => {
   console.error('Failed to refresh token:', error);
+  
   userLogout("Sorry, your session expired. Please log in again.");
+  restaurantLogout("Sorry, your session expired. Please log in again.")
 };
 
 
