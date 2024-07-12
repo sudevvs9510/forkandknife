@@ -21,10 +21,15 @@ export interface credentials {
 
  export interface TableSlotTypes {
   _id?: string
-  tableId: string
   tableNumber: string;
   tableCapacity: number
   tableLocation: string
+ }
+
+ export interface TimeSlotTypes{
+  _id?: string
+  slotStartTime: string
+  slotEndTime: string
  }
 
 export const RestaurantRegister = async (datas: credentials) => {
@@ -38,16 +43,32 @@ export const RestaurantRegister = async (datas: credentials) => {
    }
 }
 
-export const RestaurantLoginApi = async (data: Partial<credentials>) =>{
-   try {
-      console.log(data)
-      const {data: {message, user, token}} = await authAxios.post('/restaurant/login',data)
-      return {data: { message, user, token }}
-   } catch (error) {
-      console.log("Error in login", error)
-      throw error
-   }
-}
+// export const RestaurantLoginApi = async (data: Partial<credentials>) =>{
+//    try {
+//       console.log(data)
+//       const {data: {message, user, token}} = await authAxios.post('/restaurant/login',data)
+//       console.log(data)
+//       return {data: { message, user, token }}
+//    } catch (error) {
+//       console.log("Error in login", error)
+//       throw error
+//    }
+// }
+
+
+export const RestaurantLoginApi = async (data: Partial<credentials>) => {
+  try {
+    console.log(data);
+    const response = await authAxios.post('/restaurant/login', data);
+    const { message, restaurant, token } = response.data;
+    console.log(response.data);
+    return { message, restaurant, token };
+  } catch (error) {
+    console.log("Error in login", error);
+    throw error;
+  }
+};
+
 
 // export const RestaurantFullDetails = async (datas: credentials) =>{
 //    try{
@@ -101,6 +122,60 @@ export const uploadCloudImage = async (file: File) => {
   try{
     const { data: { message, tableSlotDatas}} = await authAxios.get(`/restaurant/tables/${restaurantId}`)
     return { data: {message, tableSlotDatas }}
+  } catch(error){
+    console.log(error)  
+    throw error
+  }
+ }
+
+ export const addtableDatas = async (tableAddingDatas: TableSlotTypes) =>{
+  try{
+    const { data: { message, status} } = await authAxios.post("/restaurant/add-table",{ tableAddingDatas})
+    return { data: {message, status} }
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
+
+ export const getTableSlot = async (tableId : string) =>{
+  try{
+    const {data:{tableSlotDatas, message }} = await authAxios.get(`restaurant/table-slots/${tableId}`)
+    return { data: {tableSlotDatas, message}}
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
+export const addTableSlot = async (tableSlotTimeData: { slotStartTime: string, slotEndTime: string, tableSlotDate: string }, tableId: string) => {
+  try {
+    const response = await authAxios.post("restaurant/add-table-slot", { tableSlotTimeData, tableId });
+    return response;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+
+ export const getTimeSlot = async ( ) =>{
+  try{
+    const { data: {message, timeSlotDatas  }} = await authAxios.get(`/restaurant/time-slots`)
+    console.log(timeSlotDatas)
+    return { data: { message, timeSlotDatas  }}
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
+ export const addTimeSlot = async (slotAddingDatas: TimeSlotTypes) => {
+  try{
+    const { data: { message, status }} = await authAxios.post("restaurant/add-time-slot",slotAddingDatas)
+    console.log(slotAddingDatas)
+    return { data: {message, status }}
   } catch(error){
     console.log(error)
     throw error

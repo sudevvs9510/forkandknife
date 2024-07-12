@@ -237,7 +237,7 @@
 
 // RestaurantProfile.tsx
 import React, { useEffect, useState } from 'react';
-import { FaMapMarkerAlt, FaUtensils, FaCalendarAlt, FaRupeeSign } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaRupeeSign, FaClock } from 'react-icons/fa';
 import MainNavBar from './MainNavBar';
 import authAxios from '../../redux/api/authApi';
 import { useParams } from 'react-router-dom';
@@ -297,30 +297,35 @@ const RestaurantProfile: React.FC = () => {
             </div>
             <div className="p-6 flex flex-col lg:flex-row">
               <div className="w-full lg:w-2/3 lg:pr-6 mb-6 lg:mb-0">
-                <div className="flex flex-col space-y-4">
+                <div className="flex flex-col space-y-2">
+                  
                   <div className="flex items-center justify-between mb-4">
                     <h1 className="text-3xl font-bold">{restaurant.restaurantName}</h1>
+                    
                     <div className="flex items-center space-x-2 text-xl">
                       <span>9.1/10</span>
                       <span className="text-sm text-gray-500">20470 reviews</span>
                     </div>
+                    
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span>{restaurant.description}</span>
                   </div>
                   <div className="flex items-center space-x-4">
                     <FaMapMarkerAlt className="text-gray-600" />
                     <a href="#" className="text-blue-500">{restaurant.place}</a>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <FaUtensils className="text-gray-600" />
-                    <span>Kerala</span>
+                    <FaClock className="text-gray-600" />
+                    <span>{restaurant.openingTime} am - {restaurant.closingTime} pm</span>
                   </div>
                   <div className="flex items-center space-x-4">
                     <FaRupeeSign className="text-gray-600" />
                     <span>{restaurant.TableRate} per table</span>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <span>{restaurant.description}</span>
-                  </div>
+                  
                 </div>
+                <hr className='my-10'></hr>
                 <div className="flex items-center mt-6 mb-4">
                   <FaCalendarAlt className="text-gray-600 mr-2" />
                   <input

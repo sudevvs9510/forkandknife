@@ -1,10 +1,11 @@
-import { RestaurantType, tableSlotTypes } from "../../entities/restaurant"
+import { RestaurantType, tableSlotTypes, timeSlotTypes } from "../../entities/restaurant"
 import { restaurantRepository } from "../../interfaces/repositories/restaurant-repository";
 import { restaurantInteractor } from "../../interfaces/usecases/restaurantInteractor"
 
 
 export class sellerInteractor implements restaurantInteractor{
    constructor (private readonly repository: restaurantRepository) {}
+  
    
    
   async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
@@ -53,6 +54,8 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
+
+   //Restaurant table view interactor
    async getRestaurantTableInteractor(restaurantId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try{
          const { message, tableSlotDatas } = await this.repository.restaurantTableDatas(restaurantId)
@@ -63,6 +66,7 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
+   //restaruant table add modal interactor
    async addTableInteractor(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string; status: boolean; }> {
       try{
          const { status, message } = await this.repository.addNewTableSlot( tableSlotDatas, restaurantId)
@@ -73,6 +77,7 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
+   //Restaurant table slot view interactor
    async getRestaurnatTableSlotInteractor(tableId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try{
          const { message, tableSlotDatas } = await this.repository.restaurantTableSlotDatas(tableId)
@@ -82,6 +87,39 @@ export class sellerInteractor implements restaurantInteractor{
          throw error
       }
    }
+
+   //Restaurant table slot add modal interactor
+   async addTableSlotInteractor(tableSlotTimeData: { slotStartTime: string, slotEndTime: string, tableSlotDate: string }, tableId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.repository.addTableSlot(tableSlotTimeData, tableId)
+         return { message, status}
+      } catch(error){
+         console.log("Error in create table time slot interactor",error)
+         throw error
+      }
+   }
+
+   async getTimeSlotInteractor(restaurantId: string): Promise<{ message: string; timeSlotDatas: object; }> {
+      try{
+         const { timeSlotDatas, message } = await this.repository.restaurantTimeslotDatas(restaurantId)
+         return { timeSlotDatas, message }
+      } catch(error){
+         console.log("Error in getRestaurantTableInteractor", error)
+         throw error
+      }
+   } 
+
+   async addTimeSlotInteractor(timeSlotDatas: timeSlotTypes): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.repository.addTimeSlot( timeSlotDatas)
+         return { status, message }
+      } catch(error){
+         console.group("Error in add time slot interactor", error)
+         throw error
+      }
+   }
+
+  
 
    
    

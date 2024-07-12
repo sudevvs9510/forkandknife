@@ -39,8 +39,8 @@ export class restaurantController {
          });
 
          // setCookieAuthToken(res, "RefreshAuthToken", token);
-
-         return res.status(200).json({ message, restaurant, token })
+         console.log("restaurnatLogin:", restaurant, token)
+         return res.status(200).json({ message, restaurant, token, refreshtoken })
       } catch (error) {
          console.error("Error during seller login:", error);
          res.status(500).send("Internal server error")
@@ -53,7 +53,7 @@ export class restaurantController {
    async restaurant_details(req: Request, res: Response, next: NextFunction) {
       console.log("restaurant full Details")
       console.log(req.cookies)
-      const  restaurantId  = req.userId
+      const restaurantId = req.userId
       try {
          const { restaurant } = await this.interactor.restaurantGetProfileInteractor(restaurantId)
          return res.status(200).json({ restaurantDetails: restaurant })
@@ -82,7 +82,7 @@ export class restaurantController {
    }
 
 
-
+   //Restaurant table view 
    async getRestaurantTable(req: Request, res: Response, next: NextFunction) {
       console.log("get RestaurantTable controller")
       const { restaurantId } = req.params
@@ -96,25 +96,33 @@ export class restaurantController {
       }
    }
 
+   //restaurant table add modal
    async addRestaurantTable(req: Request, res: Response, next: NextFunction) {
       console.log("Addding table component")
-      const { tableAddingDatas, restaurantId } = req.body
+      const { tableAddingDatas } = req.body
+      const restaurantId = req.userId
+      console.log(req.body)
       try {
          const { message, status } = await this.interactor.addTableInteractor(tableAddingDatas, restaurantId)
          if (!status) {
-            return res.status(401).json({ message, status })
+            return res.status(500).json({ message, status })
          }
          return res.status(201).json({ message, status })
 
       } catch (error) {
-         console.log("", error)
+         console.log("Error during add table", error)
          return res.status(500).json({ message: "Internal server error" })
       }
    }
 
+   //restaurant table delete 
+   async deleteRestaurantTable
+
+   //Restaurant table slot view
    async getRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
       console.log("get RestaurantTableSlot controller")
       const { tableId } = req.params
+      console.log(tableId)
       try {
          const { tableSlotDatas, message } = await this.interactor.getRestaurnatTableSlotInteractor(tableId)
          return res.status(200).json({ message, tableSlotDatas })
@@ -124,21 +132,73 @@ export class restaurantController {
       }
    }
 
+   //Restaurant slot add modal
+   async addRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
+      console.log("Add table slot controller")
+      const {  tableId,tableSlotTimeData  } = req.body
 
-   async restaurantLogout(req:Request, res:Response, next: NextFunction){
+      console.log("Request body:", req.body); 
+      console.log("Table ID:", tableId);
+      console.log("Table Slot Time Data:", tableSlotTimeData); 
+      try {
+         const { message, status } = await this.interactor.addTableSlotInteractor(tableSlotTimeData, tableId)
+         if (!status) {
+            return res.status(500).json({ message: "something went wrong", status })
+         }
+         return res.status(201).json({ message, status })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   //restaurnat time slot management slot time get
+   async getTimeSlot(req: Request, res: Response, next: NextFunction) {
+      console.log("Get time slot controller")
+      const restaurantId = req.userId
+      console.log("Restaurant ID in controller:", restaurantId);
+      try {
+         const { timeSlotDatas, message } = await this.interactor.getTimeSlotInteractor(restaurantId)
+         return res.status(200).json({ message, timeSlotDatas })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+
+   async addRestaurantTimeSlot(req: Request, res: Response, next: NextFunction) {
+      console.log("Add time slot controller")
+      const { slotStartTime, slotEndTime } = req.body;
+      const restaurantId = req.userId
+      console.log("Request body:", req.body);
+      console.log("Restaurant ID:", restaurantId);
+      try {
+         const { message, status } = await this.interactor.addTimeSlotInteractor({ slotStartTime, slotEndTime, restaurantId, timeSlotId: "" })
+         return res.status(200).json({ message, status })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+
+   async restaurantLogout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout restaurant")
-      try{
+      try {
          res.clearCookie("RefreshAuthToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
          })
          return res.status(200).json({ message: "Logout successfull" })
-      } catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).send({ message: "Logout successfull"})
+         return res.status(500).send({ message: "Logout successfull" })
       }
    }
+
+
 
 
    // async uploadImage(req: Request, res: Response, next: NextFunction) {

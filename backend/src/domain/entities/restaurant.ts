@@ -21,7 +21,15 @@ export class RestaurantType {
 
 export interface tableSlotTypes{
     restaurantId: string;
+    tableId: string;
     tableNumber: string,
     tableCapacity: number;
     tableLocation: "Indoor" | "Outdoor"
+}
+
+export interface timeSlotTypes{
+    restaurantId: string;
+    timeSlotId: string;
+    slotStartTime: string;
+    slotEndTime: string;
 }

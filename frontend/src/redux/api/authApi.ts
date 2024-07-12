@@ -150,13 +150,14 @@ authAxios.interceptors.response.use(
       } catch (refreshError) {
         handleRefreshTokenError(refreshError)
         // localStorage.removeItem('AuthToken')
-        userLogout("This user has been blocked")
+        // userLogout("This user has been blocked")
+        userLogout("")
         return Promise.reject(refreshError)
       }
 
     } else if (error.response.status == 403) {
       // localStorage.removeItem('AuthToken')
-      userLogout("This user has been blocked")
+      userLogout("")
     }
     return Promise.reject(error)
   }

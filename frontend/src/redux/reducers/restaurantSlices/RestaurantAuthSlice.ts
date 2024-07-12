@@ -88,11 +88,11 @@ interface Credentials {
 }
 
 interface RestoAuthState {
-  restaurant: null;
+  restaurant: any;
   token: string | null;
   error: string | null;
   loading: boolean;
-  restaurantId: string | null; // Add restaurantId and role to state
+  restaurantId: string | null; 
   role: string | null;
 }
 
@@ -110,8 +110,8 @@ export const login = createAsyncThunk(
   async (credentials: Credentials, { rejectWithValue }) => {
     try {
       const response = await RestaurantLoginApi(credentials);
-      setStorageItem("RestaurantAuthToken", response.data.token);
-      return response.data;
+      setStorageItem("RestaurantAuthToken", response.token);
+      return response;
     } catch (error) {
       return rejectWithValue("Invalid email or password");
     }
@@ -158,8 +158,8 @@ const restaurantAuthSlice = createSlice({
         state.loading = false;
         state.restaurant = action.payload.restaurant;
         state.token = action.payload.token;
-        state.restaurantId = action.payload.restaurantId; // Set restaurantId and role from payload
-        state.role = action.payload.role;
+        state.restaurantId = action.payload.restaurant._id
+        state.role = action.payload.restaurant.role;
       })
       .addCase(login.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
@@ -185,5 +185,4 @@ const restaurantAuthSlice = createSlice({
 
 
 export default restaurantAuthSlice.reducer;
-
 

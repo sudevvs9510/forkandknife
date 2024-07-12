@@ -27,6 +27,7 @@ import Menu from "../pages/Seller/RestaurantMenu"
 import Profile from "../pages/Seller/RestaurantProfile"
 import TableManagement from "../pages/Seller/TableMangement"
 import TableSlots from "../pages/Seller/TableSlot"
+import TimeSlotManagement from "../pages/Seller/TimeSlotManagement"
 import RestaurantDashboard from "../pages/Seller/Dashboard"
 
 //protected routes
@@ -73,7 +74,9 @@ const MainRouter = () => {
       <Route path="restaurant/profile" element={<RestaurantProtected element={<Profile />} allowedRoles={['restaurant']}  />}/>
 
       <Route path="restaurant/tables" element={<RestaurantProtected element={<TableManagement />} allowedRoles={['restaurant']} />} />
-      <Route path="restaurant/tableslots" element={< TableSlots />} />
+      <Route path="restaurant/tableslots/:tableId"  element={<RestaurantProtected element={< TableSlots />} allowedRoles={['restaurant']} />} />
+      
+      <Route path="/restaurant/time-slots" element={<RestaurantProtected element={<TimeSlotManagement />} allowedRoles={['restaurant']} />} />
 
 
     </Routes>

@@ -1,8 +1,10 @@
 import mongoose, { Schema } from "mongoose"
+import { Types } from "mongoose"
 
 const restaurantTableSchema = new Schema ({
   restaurantId: {
-    type: String,
+    type: Types.ObjectId,
+    ref: "Restaurant",
     required: true
   },
   tableNumber:{

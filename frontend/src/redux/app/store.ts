@@ -7,6 +7,7 @@ import userAuthReducer from '../reducers/userSlices/UserAuthSlice';
 import restaurantAuthReducer from '../reducers/restaurantSlices/RestaurantAuthSlice';
 import restaurantsReducer from '../reducers/userSlices/RestaurantSearchSlice'
 import adminAuthReducer from "../reducers/adminSlices/AdminAuthSlice"
+import restaurantTablesSlice from "../reducers/restaurantSlices/RestaurantTableSlice"
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 
 const persistConfig = {
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
    userAuth: userAuthReducer,
    restaurantAuth: restaurantAuthReducer,
    restaurantSearch : restaurantsReducer,
-   adminAuth: adminAuthReducer
+   adminAuth: adminAuthReducer,
+   restaurantTables: restaurantTablesSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

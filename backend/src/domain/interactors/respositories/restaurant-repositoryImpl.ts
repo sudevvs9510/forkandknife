@@ -1,16 +1,17 @@
-import { RestaurantType, tableSlotTypes } from "../../../domain/entities/restaurant"
+import { RestaurantType, tableSlotTypes, timeSlotTypes } from "../../../domain/entities/restaurant"
 import { restaurantRepository } from "../../../domain/interfaces/repositories/restaurant-repository"
 import restaurantModel from "../../../frameworks/database/models/restaurantModel"
 import nodemailerEmailSeller from "../../../functions/sendMailSeller";
 import restaurantTableModel from "../../../frameworks/database/models/restaurantTableModel"
-import tableSlotsModel from "../../../frameworks/database/models/restaurantTableSlotsodel"
+import tableSlotsModel from "../../../frameworks/database/models/restaurantTableSlotsModel"
+import restaurantTimeSlotSchema from "../../../frameworks/database/models/restaurantTimeSlotsModel"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
 
 
 
 export class sellerRepository implements restaurantRepository {
-
+   
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
@@ -141,6 +142,7 @@ export class sellerRepository implements restaurantRepository {
       }
    }
 
+   //Restaurant table view repo
    async restaurantTableDatas(restaurantId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try {
          console.log(restaurantId)
@@ -153,21 +155,21 @@ export class sellerRepository implements restaurantRepository {
       }
    }
 
-
-
-
+   // restaurant table add modal repo
    async addNewTableSlot(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string; status: boolean }> {
       try {
+         console.log("object")
          const { tableNumber, tableCapacity, tableLocation } = tableSlotDatas
+         console.log(restaurantId , tableSlotDatas)
          const restaurantData = await restaurantModel.findById(restaurantId)
          if (!restaurantData) {
             return { message: "Restaurant not found, please try again later", status: false }
          }
 
          const newTableSlot = await restaurantTableModel.create({
-            restaurantId: restaurantId,
+            restaurantId: restaurantData._id,
             tableNumber: tableNumber,
-            tbaleCapacity: tableCapacity,
+            tableCapacity: tableCapacity,
             tableLocation: tableLocation
          })
          console.log(newTableSlot);
@@ -179,6 +181,11 @@ export class sellerRepository implements restaurantRepository {
       }
    }
 
+
+
+
+
+   //restaurant table slot view repo
    async restaurantTableSlotDatas(tableId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try {
          const tableSlotDatas = await tableSlotsModel.find({ tableId })
@@ -188,6 +195,68 @@ export class sellerRepository implements restaurantRepository {
          throw error
       }
    }
+
+
+   //Restaurant table slot 
+   async  addTableSlot(tableSlotTimeData: {slotStartTime: string; slotEndTime: string; tableSlotDate: Date}, tableId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const tableSlotDatas = await tableSlotsModel.create({
+            tableId: tableId,
+            slotStartTime : tableSlotTimeData.slotStartTime,
+            slotEndTime : tableSlotTimeData.slotEndTime,
+            slotDate : tableSlotTimeData.tableSlotDate
+         })
+         console.log("Inserted Table Slot Data:", tableSlotDatas);
+         return { message:"Added success.", status: true}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async restaurantTimeslotDatas(restaurantId: string): Promise<{ message: string; timeSlotDatas: object; }> {
+      try{
+         console.log(restaurantId)
+         const timeSlotDatas = await restaurantTimeSlotSchema.find({ restaurantId })
+         console.log("Time Slot Datas in repository:", timeSlotDatas);
+         return { timeSlotDatas, message: ""}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async addTimeSlot(timeSlotDatas: timeSlotTypes): Promise<{ message: string, status: boolean }> {
+      try{
+         console.log()
+         const { slotStartTime, slotEndTime, restaurantId } = timeSlotDatas
+         console.log("Time slot data received:", slotStartTime, slotEndTime, restaurantId);
+
+         const restaurantData = await restaurantModel.findById(restaurantId)
+         if(!restaurantData){
+            return { message: "Restaurant not found, please try again later", status: false }
+         }
+
+         const newTimeSlot = await restaurantTimeSlotSchema.create({
+            restaurantId: restaurantData._id,
+            slotStartTime: slotStartTime,
+            slotEndTime: slotEndTime
+         })
+         console.log("New time slot created:", newTimeSlot);
+         return { message: "Time sot created", status: true }
+
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+
+
+
 
 
 }

@@ -3,17 +3,18 @@ import mongoose, { Schema } from "mongoose"
 const tableSlotSchema = new Schema({
   tableId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"Table"
+    ref:"Table",
+    required: true
   },
   slotDate: {
     type: Date,
-    require: true 
+    required: true 
   },
   slotStartTime: {
     type:String,
     required: true 
   },
-  slotEndDate: {
+  slotEndTime: {
     type: String,
     required: true
   },
