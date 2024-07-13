@@ -21,14 +21,16 @@ restaurantRouter.get('/restaurant-details',authenticateToken('restaurant'), cont
 
 restaurantRouter.get("/tables/:restaurantId",authenticateToken('restaurant'),controller.getRestaurantTable.bind(controller))
 restaurantRouter.post("/add-table",authenticateToken('restaurant'),controller.addRestaurantTable.bind(controller))
-// restaurantRouter.post("/delete-table", authenticateToken('restaurant'), controller.deleteRestaurantTable.bind(controller))
+restaurantRouter.post("/delete-table", authenticateToken('restaurant'), controller.deleteRestaurantTable.bind(controller))
 
 
 restaurantRouter.get('/table-slots/:tableId', authenticateToken('restaurant'),controller.getRestaurantTableSlot.bind(controller))
 restaurantRouter.post('/add-table-slot',authenticateToken('restaurant'), controller.addRestaurantTableSlot.bind(controller))
+restaurantRouter.post("/delete-table-slot",authenticateToken('restaurant'),controller.deleteRestaurantTableSlot.bind(controller))
 
-restaurantRouter.get('/time-slots',authenticateToken('restaurant'), controller.getTimeSlot.bind(controller))
-restaurantRouter.post('/add-time-slot',authenticateToken('restaurant'), controller.addRestaurantTimeSlot.bind(controller))
+restaurantRouter.get("/time-slots",authenticateToken('restaurant'), controller.getTimeSlot.bind(controller))
+restaurantRouter.post("/add-time-slot",authenticateToken('restaurant'), controller.addRestaurantTimeSlot.bind(controller))
+restaurantRouter.post("/delete-time-slot",authenticateToken('restaurant'),controller.deleteRestaurantTimeSlot.bind(controller))
 
 restaurantRouter.post('/logout', controller.restaurantLogout.bind(controller))
 

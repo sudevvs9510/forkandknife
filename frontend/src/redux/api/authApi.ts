@@ -91,6 +91,7 @@
 import axios from 'axios';
 import userLogout from "../../util/Logout"
 import restaurantLogout from '../../util/RestaurantLogout';
+import adminLogout from "../../util/AdminLogout"
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 axios.defaults.withCredentials = true;
@@ -110,6 +111,7 @@ authAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('AuthToken');
     const restaurantToken = localStorage.getItem("RestaurantAuthToken")
+    const adminToken = localStorage.getItem("AdminAuthToken")
     
     console.log(token)
     console.log(restaurantToken)
@@ -118,6 +120,8 @@ authAxios.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     } else if (restaurantToken){
       config.headers.Authorization = `Bearer ${restaurantToken}`;
+    } else if(adminToken){
+      config.headers.Authorization = `Bearer ${adminToken}`
     }
     console.log('Request Interceptor:', config);
     return config;
@@ -150,14 +154,13 @@ authAxios.interceptors.response.use(
       } catch (refreshError) {
         handleRefreshTokenError(refreshError)
         // localStorage.removeItem('AuthToken')
-        // userLogout("This user has been blocked")
-        userLogout("")
+        userLogout("This user has been blocked")
         return Promise.reject(refreshError)
       }
 
     } else if (error.response.status == 403) {
       // localStorage.removeItem('AuthToken')
-      userLogout("")
+      userLogout("This user has been blocked")
     }
     return Promise.reject(error)
   }
@@ -169,6 +172,7 @@ const handleRefreshTokenError = (error : any) => {
   
   userLogout("Sorry, your session expired. Please log in again.");
   restaurantLogout("Sorry, your session expired. Please log in again.")
+  adminLogout("Sorry, your session expired. Please log in again.");
 };
 
 

@@ -1,9 +1,10 @@
-
+// TableSlots.tsx
 import React, { useEffect, useState } from 'react';
 import AddTableSlot from './Modal/AddSlotModal';
-import toast from 'react-hot-toast';
-import { getTableSlot } from '../../api/RestaurantApis';
+import toast, { Toaster } from 'react-hot-toast';
+import { getTableSlot, deleteTableSlot } from '../../api/RestaurantApis';
 import { useParams } from 'react-router-dom';
+import ConfirmationModal from '../../layouts/ConfirmationModal';
 
 interface TableSlots {
   _id: string;
@@ -19,6 +20,8 @@ interface TableSlotTime {
 
 const TableSlots: React.FC = () => {
   const [tableDatas, setTableDatas] = useState<TableSlots[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const { tableId } = useParams();
 
   useEffect(() => {
@@ -34,7 +37,7 @@ const TableSlots: React.FC = () => {
       }
     };
     fetchTableData();
-  }, []);
+  }, [tableId]);
 
   const handleAddSlot = async (slot: TableSlotTime) => {
     const newSlot: TableSlots = {
@@ -46,33 +49,54 @@ const TableSlots: React.FC = () => {
     setTableDatas([...tableDatas, newSlot]);
   };
 
-  const handleDeleteSlot = async (id: string) => {
-    // Call delete API (assuming you have one) and then remove slot locally
-    // const res = await deleteTableSlot(id); 
-    const updatedSlots = tableDatas.filter((slot) => slot._id !== id);
-    setTableDatas(updatedSlots);
-    toast.success('Slot deleted successfully!');
+  const handleDeleteSlot = async () => {
+    if (tableId && selectedSlotId) {
+      try {
+        const res = await deleteTableSlot(tableId, selectedSlotId);
+        if (res.status) {
+          const updatedSlots = tableDatas.filter((slot) => slot._id !== selectedSlotId);
+          setTableDatas(updatedSlots);
+          toast.success('Slot deleted successfully!');
+        } else {
+          toast.error('Failed to delete slot!');
+        }
+      } catch (error) {
+        console.log('Error deleting slot', error);
+        toast.error('Error deleting slot!');
+      } finally {
+        setIsModalOpen(false);
+        setSelectedSlotId(null);
+      }
+    }
+  };
+
+  const openConfirmationModal = (slotId: string) => {
+    setSelectedSlotId(slotId);
+    setIsModalOpen(true);
+  };
+
+  const closeConfirmationModal = () => {
+    setIsModalOpen(false);
+    setSelectedSlotId(null);
   };
 
   return (
     <div className="p-4 min-h-screen flex flex-col">
+      <Toaster />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Table Slot</h2>
-
         <AddTableSlot
           // tableNo={tableNo || ''}
-          onClose={() => { }}
+          onClose={() => {}}
           onSubmit={handleAddSlot}
         />
       </div>
-
-
       {tableDatas.length === 0 ? (
         <div className="flex-grow flex flex-col mt-20 items-center">
           <p className="font-bold text-red-500">No table slots available</p>
           <p className="text-gray-600">Please add a new slot using the button above.</p>
         </div>
-      ) : (   
+      ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
             <thead>
@@ -85,14 +109,14 @@ const TableSlots: React.FC = () => {
             </thead>
             <tbody>
               {tableDatas.map((slot, index) => (
-                <tr key={slot._id} className='border-b border-gray-200'>
+                <tr key={slot._id} className="border-b border-gray-200">
                   <td className="px-6 py-3 whitespace-no-wrap">{index + 1}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{new Date(slot.slotDate).toLocaleDateString()}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{`${slot.slotStartTime} - ${slot.slotEndTime}`}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                      onClick={() => handleDeleteSlot(slot._id)}
+                      onClick={() => openConfirmationModal(slot._id)}
                     >
                       Delete
                     </button>
@@ -103,6 +127,11 @@ const TableSlots: React.FC = () => {
           </table>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onConfirm={handleDeleteSlot}
+        onCancel={closeConfirmationModal}
+      />
     </div>
   );
 };

@@ -12,8 +12,8 @@ interface PrivateRouteProps {
 interface JwtPayload {
   userId: string;
   role: string;
-  iat: number; // Issued at (UNIX timestamp)
-  exp: number; // Expiry (UNIX timestamp)
+  iat: number; 
+  exp: number; 
 }
 
 const RestaurantProtected: React.FC<PrivateRouteProps> = ({ element, allowedRoles }) => {

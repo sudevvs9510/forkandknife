@@ -4,76 +4,85 @@ import UserModel from "../../../frameworks/database/models/userModel"
 import bcrypt from "bcryptjs"
 import restaurantModel from "../../../frameworks/database/models/restaurantModel";
 import nodeMailerRestaurantApprovalMail from "../../../functions/sendMailApproval"
-import nodeMailerRestaurantRejectMail  from "../../../functions/restoRejectMail"
-import { model } from "mongoose";
+import nodeMailerRestaurantRejectMail from "../../../functions/restoRejectMail"
+import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt";
 
 export class adminRepositoryImpl implements AdminRepositories {
-   
-   
 
-   async adminLoginRepo(credentials: { email: string; password: string; }): Promise<{ admin: UserType | null; message: string; }> {
+
+
+   async adminLoginRepo(credentials: { email: string; password: string; }): Promise<{ admin: UserType | null; message: string; token: string | null; refreshToken: string | null }> {
       try {
          console.log("inside interactor repo")
          const admin = await UserModel.findOne({ email: credentials.email })
+         console.log(admin)
+         let token = null;
+         let refreshToken = null;
+         
          if (!admin || !admin.isAdmin) {
-            return { admin, message: "Admin doesn't exist" }
+            return { admin, message: "Admin doesn't exist", token, refreshToken }
          } else {
             const isPasswordMatch = await bcrypt.compare(credentials.password, admin.password)
             if (isPasswordMatch) {
-               return { admin, message: "Admin Login Successfull" }
+               if(admin){
+                  token = generateAccessToken(admin._id.toString(), "admin");
+                  refreshToken = generateRefreshToken(admin._id.toString(), 'admin')
+                  console.log(token)
+               }
+               return { admin, message: "Admin Login Successfull", token, refreshToken }
             } else {
-               return { admin, message: "Incorrect password"}
+               return { admin, message: "Incorrect password", token, refreshToken }
             }
          }
-      } catch(error: any){
+      } catch (error: any) {
          console.error("Error in admin Login Repo:", error);
-         return {admin: null, message: error.message}
+         throw error
       }
    }
 
    async getRestaurantLists(): Promise<{ restaurants: object | null; message: string; }> {
-      try{
-         const restaurants = await restaurantModel.find({isApproved: true})
-         return { restaurants, message : " restaurant list successfull"}
-      } catch(error){
-         console.error("Error in get restaurant repository",error);
+      try {
+         const restaurants = await restaurantModel.find({ isApproved: true })
+         return { restaurants, message: " restaurant list successfull" }
+      } catch (error) {
+         console.error("Error in get restaurant repository", error);
          throw error
-         
+
       }
    }
 
-   
+
    async approve(): Promise<{ restaurants: object | null; message: string; }> {
-      try{
+      try {
          const restaurants = await restaurantModel.find({ isApproved: false })
          console.log(restaurants)
-         return { restaurants, message: "restaurant list successfull"}
-      }catch(error){
-         console.error("Error in get restaurant approve repository:",error);
+         return { restaurants, message: "restaurant list successfull" }
+      } catch (error) {
+         console.error("Error in get restaurant approve repository:", error);
          throw error
       }
    }
 
    async getApprovalRestaurant(restaurantId: string): Promise<{ restaurants: object | null; message: string; }> {
-     try {
+      try {
          const restaurantDetails = await restaurantModel.findById(restaurantId)
          console.log(restaurantDetails)
-         return { restaurants: restaurantDetails, message: "Restaurant details"}
-     } catch (error) {
-      console.log("Error in getApprovalRestaurant repository", error);
-      throw error
-      
-     }
+         return { restaurants: restaurantDetails, message: "Restaurant details" }
+      } catch (error) {
+         console.log("Error in getApprovalRestaurant repository", error);
+         throw error
+
+      }
    }
-  
-   
+
+
    async confirmRestaurantApproval(restaurantId: string): Promise<{ success: boolean; message: string; }> {
-      try{
-         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, {isApproved: true });
+      try {
+         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, { isApproved: true });
          console.log(restaurant)
          nodeMailerRestaurantApprovalMail(restaurant?.email as string)
-         return { success: true, message: "Success"}
-      } catch(error){
+         return { success: true, message: "Success" }
+      } catch (error) {
          console.log("Error occured in restaurant approval/confirmation", error)
          throw error
       }
@@ -81,13 +90,13 @@ export class adminRepositoryImpl implements AdminRepositories {
 
 
    async confirmRestaurantRejection(restaurantId: string): Promise<{ success: boolean; message: string; }> {
-      try{
-         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, {isApproved: false})
+      try {
+         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, { isApproved: false })
          console.log(restaurant)
          nodeMailerRestaurantRejectMail(restaurant?.email as string)
-         return { success: true, message: "Success"}
-      } catch(error){
-         console.log("Error occured in restaurant rejection",error)
+         return { success: true, message: "Success" }
+      } catch (error) {
+         console.log("Error occured in restaurant rejection", error)
          throw error
       }
    }

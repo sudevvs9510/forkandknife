@@ -10,11 +10,18 @@ export class adminController {
       console.log("Admin login service")
       try {
          const { email, password } = req.body
-         const { admin, message, token } = await this.interactor.adminLogin({ email, password })
+         const { admin, message, token, refreshToken } = await this.interactor.adminLogin({ email, password })
          if (!admin) {
-            return res.status(401).json({ message: message })
+            return res.status(500).json({ message: message })
          }
-         return res.status(201).json({ message, token })
+
+         res.cookie("RefreshAuthToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 86400000
+         });
+
+         return res.status(201).json({ message, token, refreshToken })
       } catch (error) {
          console.error("Error during admin login service:", error);
          res.status(500).send("Internal server error")
@@ -86,5 +93,19 @@ export class adminController {
    } 
 
 
+   async adminLogout(req: Request, res: Response, next: NextFunction) {
+      console.log("Logout admin")
+      try {
+         res.clearCookie("RefreshAuthToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+         })
+         return res.status(200).json({ message: "Logout successfull" })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).send({ message: "Logout successfull" })
+      }
+   }
 
 }

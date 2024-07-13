@@ -1,56 +1,32 @@
-import React, { useState } from 'react';
-import { FaHome, FaUser, FaUtensils, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import React from 'react';
+import { FaHome, FaUser, FaUtensils  } from 'react-icons/fa';
+import { MdAddBusiness } from "react-icons/md";
 import { Link } from 'react-router-dom';
 
-
-
 const Sidebar: React.FC = () => {
-   const [isOpen, setIsOpen] = useState(true);
 
-   const toggleSidebar = () => {
-      setIsOpen(!isOpen);
-   };
-
-   return (
-      <aside className={`bg-gray-100 flex flex-col justify-between transition-all duration-300 ${isOpen ? 'w-48' : 'w-18'} fixed lg:relative h-full lg:h-auto`}>
-         <div className="p-4 space-y-4">
-            <Link to="/admin/dashboard">
-            <a className={`flex items-center ${isOpen ? 'space-x-2' : 'justify-center'} py-2 px-4 bg-white rounded shadow hover:bg-gray-200`}>
-               <FaHome className="h-6 w-6" />
-               {isOpen && <span className="hidden md:block">Admin Dashboard</span>}
-            </a>
-            </Link>
-
-            <Link to="">
-            <a  className={`flex items-center ${isOpen ? 'space-x-2' : 'justify-center'} py-2 px-4 bg-white rounded shadow hover:bg-gray-200`}>
-               <FaUser className="h-6 w-6" />
-               {isOpen && <span className="hidden md:block">User Management</span>}
-            </a>
-            </Link>
-
-
-            <Link to="/admin/restaurant-lists">
-            <a className={`flex items-center ${isOpen ? 'space-x-2' : 'justify-center'} py-2 px-4 bg-white rounded shadow hover:bg-gray-200`}>
-               <FaUtensils className="h-6 w-6" />
-               {isOpen && <span className="hidden md:block">Restaurant Management</span>}
-            </a>
-            </Link>
-
-            <Link to="/admin/new-registrations">
-            <a className={`flex items-center ${isOpen ? 'space-x-2' : 'justify-center'} py-2 px-4 bg-white rounded shadow hover:bg-gray-200`}>
-               <FaUtensils className="h-6 w-6" />
-               {isOpen && <span className="hidden md:block">New Restaurant Registrations</span>}
-            </a>
-            </Link>
-         </div>
-         <button
-            className="bg-green-600 text-white p-2 rounded focus:outline-none transition-all duration-300 ease-in-out self-end mb-4 mr-4"
-            onClick={toggleSidebar}
-         >
-            {isOpen ? <FaArrowLeft /> : <FaArrowRight />}
-         </button>
-      </aside>
-   );
+  return (
+    <aside className={`bg-gray-100 flex flex-col justify-between transition-all duration-300 w-30 sticky top-0 h-full`}>
+      <div className="p-4 space-y-4 relative">
+        <Link to="/admin/dashboard" className="group flex items-center py-2 px-4 bg-white rounded shadow hover:bg-gray-200 relative">
+          <FaHome className="h-6 w-6" />
+          <span className="absolute left-full ml-2 w-max bg-teal-800 text-white text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Admin Dashboard</span>
+        </Link>
+        <Link to="/admin/reservations" className="group flex items-center py-2 px-4 bg-white rounded shadow hover:bg-gray-200 relative">
+          <FaUser className="h-6 w-6" />
+          <span className="absolute left-full ml-2 w-max bg-teal-800 text-white text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">User Management</span>
+        </Link>
+        <Link to="/admin/restaurant-lists" className="group flex items-center py-2 px-4 bg-white rounded shadow hover:bg-gray-200 relative">
+          <FaUtensils className="h-6 w-6" />
+          <span className="absolute left-full ml-2 w-max bg-teal-800 text-white text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Restaurant Management</span>
+        </Link>
+        <Link to="/admin/new-registrations" className="group flex items-center py-2 px-4 bg-white rounded shadow hover:bg-gray-200 relative">
+          <MdAddBusiness className="h-6 w-6" />
+          <span className="absolute left-full ml-2 w-max bg-teal-800 text-white text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">New Restaurant Registrations</span>
+        </Link>
+      </div>
+    </aside>
+  );
 };
 
 export default Sidebar;

@@ -10,15 +10,15 @@ export class AdminInteractorImpl implements AdminInteractor {
    constructor (private readonly repository : AdminRepositories) { }
    
    
-   async adminLogin(credentials: { email: string; password: string; }): Promise<{ message: string; token: string | null; admin: UserType | null; }> {
+   async adminLogin(credentials: { email: string; password: string; }): Promise<{ message: string; token: string | null; admin: UserType | null; refreshToken: string| null }> {
       console.log(" adminLogin interactor impl")
       try{
-         const { admin, message } = await this.repository.adminLoginRepo(credentials);
-         let token: string = ""
-         if(admin){
-            token = generateAccessToken(admin.id as string, 'admin');
-         }
-         return { admin, message, token }
+         const { admin, message, token, refreshToken } = await this.repository.adminLoginRepo(credentials);
+         // let token: string = ""
+         // if(admin){
+         //    token = generateAccessToken(admin.id as string, 'admin');
+         // }
+         return { admin, message, token, refreshToken }
       } catch(error){
          console.error("Error in amdin login interactorImpl: ",error);
          throw error

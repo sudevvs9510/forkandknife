@@ -13,10 +13,10 @@ import ForgotNewPassword from "../Components/user/NewPassword"
 
 //admin components
 import AdminLogin from "../Components/admin/AdminLoginForm"
-import AdminDashboard from "../pages/Admin/Dashboard"
-import RestaurantManagement from "../Components/admin/RestaurantManagement"
+import AdminDashboard from "../pages/Admin/AdminDashboard"
+import RestaurantManagement from "../pages/Admin/RestaurantManagement"
 import RestaurantApproval from "../Components/admin/RestaurantApproval"
-import RestoRegisterManagement from "../Components/admin/RestoRegisterManagement"
+import RestoRegisterManagement from "../pages/Admin/NewRestaurants"
 
 
 // restaurant components

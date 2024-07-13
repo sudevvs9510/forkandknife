@@ -8,13 +8,16 @@ export interface restaurantInteractor{
 
    getRestaurantTableInteractor(restaurantId : string) : Promise<{ message: string; tableSlotDatas: object }>
    addTableInteractor(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{message: string, status: boolean}>
+   deleteTableInteractor(tableId: string, restaurantId: string): Promise<{ message: string, status: boolean}>
 
    getRestaurnatTableSlotInteractor( tableId : string): Promise<{ message: string; tableSlotDatas : object}>
    addTableSlotInteractor( tableSlotTimeDatas: object , tableId: string) : Promise<{message: string; status: boolean}>
+   deleteTableSlotInteractor( restaurantId: string, tableSlotId: string): Promise<{ message: string, status: boolean}>
 
    getTimeSlotInteractor( restaurantId : string ) : Promise<{ message: string,timeSlotDatas: object}>
    addTimeSlotInteractor(timeSlotDatas: timeSlotTypes ) : Promise<{ message: string, status: boolean}>
-
+   deleteTimeSlotInteractor( timeSlotId: string, restaruantId: string) : Promise<{ message: string, status: boolean }>
+   
 
 
    

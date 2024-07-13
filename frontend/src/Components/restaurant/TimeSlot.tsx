@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAppSelector } from '../../redux/app/store';
 import { RootState } from '../../redux/app/store';
-import { addTimeSlot, getTimeSlot } from '../../api/RestaurantApis';
+import { addTimeSlot, getTimeSlot, deleteTimeSlot } from '../../api/RestaurantApis';
 import toast from "react-hot-toast";
 
 interface TimeSlotTypes {
   restaurantId: string | null;
-  timeSlotId: string;
   slotStartTime: string;
   slotEndTime: string;
+  _id?: string;
 }
 
 const TimeSlotManager: React.FC = () => {
@@ -16,22 +16,21 @@ const TimeSlotManager: React.FC = () => {
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
   const [error, setError] = useState<string>('');
-  
+
   const restaurantId = useAppSelector((state: RootState) => state.restaurantAuth.restaurantId);
 
-  useEffect(() => {
-    const fetchTimeSlots = async () => {
-      try {
-        const response = await getTimeSlot();
-        setTimeSlots(response.data.timeSlotDatas);
-      } catch (error) {
-        console.error('Error fetching time slots:', error);
-      }
-    };
 
+  const fetchTimeSlots = async () => {
+    try {
+      const response = await getTimeSlot();
+      setTimeSlots(response.data.timeSlotDatas);
+    } catch (error) {
+      console.error('Error fetching time slots:', error);
+    }
+  };
+  useEffect(() => {
     fetchTimeSlots();
   }, []);
-
   const convertTo12HourFormat = (time: string) => {
     const [hour, minute] = time.split(':').map(Number);
     const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -47,7 +46,6 @@ const TimeSlotManager: React.FC = () => {
 
     const newSlot: TimeSlotTypes = {
       restaurantId: restaurantId,
-      timeSlotId: "",
       slotStartTime: startTime,
       slotEndTime: endTime,
     };
@@ -71,9 +69,19 @@ const TimeSlotManager: React.FC = () => {
     }
   };
 
-  const handleDeleteSlot = (id: string) => {
-    setTimeSlots(timeSlots.filter(slot => slot.timeSlotId !== id));
-    toast.success('Time slot deleted successfully');
+  const handleDeleteSlot = async (timeSlotId: string) => {
+    try {
+      const res = await deleteTimeSlot(timeSlotId, restaurantId || '');
+      if (res.data.status) {
+        fetchTimeSlots()
+        toast.success('Time slot deleted successfully');
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting time slot:', error);
+      toast.error('Failed to delete time slot');
+    }
   };
 
   return (
@@ -119,13 +127,13 @@ const TimeSlotManager: React.FC = () => {
           <table className="bg-white">
             <tbody>
               {timeSlots.map((slot) => (
-                <tr key={slot.timeSlotId}>
+                <tr key={slot._id}>
                   <td className="px-1 py-1 whitespace-no-wrap border-b border-gray-100">{convertTo12HourFormat(slot.slotStartTime)}</td>
                   <td className="px-1 py-1 whitespace-no-wrap border-b border-gray-100"> - </td>
                   <td className="px-1 py-1 whitespace-no-wrap border-b border-gray-100">{convertTo12HourFormat(slot.slotEndTime)}</td>
                   <td className="px-1 py-1 whitespace-no-wrap border-b border-gray-100">
                     <button
-                      onClick={() => handleDeleteSlot(slot.timeSlotId)}
+                      onClick={() => handleDeleteSlot(slot._id as string)}
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     >
                       Delete

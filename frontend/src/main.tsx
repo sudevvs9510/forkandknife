@@ -11,9 +11,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <GoogleOAuthProvider clientId='286482854197-7sil2tnla5ridrc9idi81vvk0htpchqo.apps.googleusercontent.com'>
-        <React.StrictMode>
+        {/* <React.StrictMode> */}
           <App />
-        </React.StrictMode>
+        {/* </React.StrictMode> */}
       </GoogleOAuthProvider>
     </PersistGate>
   </Provider>

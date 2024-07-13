@@ -5,8 +5,6 @@ import { restaurantInteractor } from "../../interfaces/usecases/restaurantIntera
 
 export class sellerInteractor implements restaurantInteractor{
    constructor (private readonly repository: restaurantRepository) {}
-  
-   
    
   async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
       try{
@@ -77,6 +75,17 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
+   //restaurant table delete interactor
+   async deleteTableInteractor(tableId: string, restaurantId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.repository.deleteTableSlot( tableId, restaurantId)
+         return { status, message}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
    //Restaurant table slot view interactor
    async getRestaurnatTableSlotInteractor(tableId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try{
@@ -99,6 +108,17 @@ export class sellerInteractor implements restaurantInteractor{
       }
    }
 
+   //Restaurant table slot delete slot  interactor
+   async deleteTableSlotInteractor(restaurantId: string, tableSlotId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.repository.deleteTableTimeSlot(restaurantId, tableSlotId)
+         return { message, status}
+       } catch(error){
+         console.log(error)
+         throw error
+       }
+   }
+
    async getTimeSlotInteractor(restaurantId: string): Promise<{ message: string; timeSlotDatas: object; }> {
       try{
          const { timeSlotDatas, message } = await this.repository.restaurantTimeslotDatas(restaurantId)
@@ -115,6 +135,16 @@ export class sellerInteractor implements restaurantInteractor{
          return { status, message }
       } catch(error){
          console.group("Error in add time slot interactor", error)
+         throw error
+      }
+   }
+
+   async deleteTimeSlotInteractor(timeSlotId: string, restaruantId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.repository.deleteTimeSlot(timeSlotId)
+         return { status, message }
+      } catch(error){
+         console.log("Error in delete time slot interactor",error)
          throw error
       }
    }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import authAxios from "../../redux/api/authApi";
-import Sidebar from './Sidebar';
 import { toast } from 'react-toastify';
 
 const RestaurantApproval: React.FC = () => {
@@ -49,7 +48,6 @@ const RestaurantApproval: React.FC = () => {
 
   return (
    <div className='flex'>
-      <Sidebar />
       <div className='flex-grow flex justify-center items-center p-5 lg:p-20'>
          <div className='w-full max-w-[900px] bg-white shadow-2xl shadow-neutral-500 rounded-3xl flex flex-col lg:flex-row lg:p-10 justify-between'>
             {restaurantDetails && (

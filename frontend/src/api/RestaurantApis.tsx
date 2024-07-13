@@ -138,6 +138,16 @@ export const uploadCloudImage = async (file: File) => {
   }
  }
 
+ export const deleteTableDatas = async (restaurantId: string, tableId: string) =>{
+  try{
+    const response  = await authAxios.post("/restaurant/delete-table",{ restaurantId, tableId })
+    return response.data
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
 
  export const getTableSlot = async (tableId : string) =>{
   try{
@@ -158,6 +168,16 @@ export const addTableSlot = async (tableSlotTimeData: { slotStartTime: string, s
     throw error;
   }
 };
+
+export const deleteTableSlot = async(tableId: string, tableSlotId: string) =>{
+  try{
+    const response = await authAxios.post("restaurant/delete-table-slot", { tableId, tableSlotId})
+      return response.data
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+}
 
 
  export const getTimeSlot = async ( ) =>{
@@ -182,6 +202,17 @@ export const addTableSlot = async (tableSlotTimeData: { slotStartTime: string, s
   }
  }
 
+ export const deleteTimeSlot = async (timeSlotId: string, restaurantId: string) =>{
+  try{
+    const { data } = await authAxios.post("restaurant/delete-time-slot",{timeSlotId,restaurantId})
+    console.log(timeSlotId, restaurantId)
+    return { data }
+
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
 
 
  export const logoutRestaurant = async () =>{

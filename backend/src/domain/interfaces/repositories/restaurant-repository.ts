@@ -11,15 +11,21 @@ export interface restaurantRepository {
    restaurantTableDatas(restaurantId: string): Promise<{ message: string, tableSlotDatas: object }>
    // restaurant table add modal
    addNewTableSlot(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string, status: boolean }>
+   //restaruant table deletion
+   deleteTableSlot(tableId: string, restaurantId: string): Promise<{message: string, status: boolean}>
    //restaurant table slot view
    restaurantTableSlotDatas(tableId: string): Promise<{ message: string, tableSlotDatas: object }>
    //restaurant table slot add modal
    addTableSlot(tableSlotTimeData: object, tableId: string): Promise<{ message: string; status: boolean}>
-
+   //restaurant table slot delete 
+   deleteTableTimeSlot(restaurantId: string, tableSlotId: string): Promise<{ message: string, status: boolean}>
    //timeslotDatas get
    restaurantTimeslotDatas(restaurantId: string): Promise<{ message: string, timeSlotDatas: object}>
    //timeSlotDatas post
    addTimeSlot(timeSlotDatas: timeSlotTypes) : Promise<{ message: string, status: boolean }>
+
+   deleteTimeSlot(timeSlotId: string): Promise<{ message:string, status: boolean }>
+   
 
 
 }

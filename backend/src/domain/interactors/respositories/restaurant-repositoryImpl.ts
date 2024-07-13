@@ -4,14 +4,17 @@ import restaurantModel from "../../../frameworks/database/models/restaurantModel
 import nodemailerEmailSeller from "../../../functions/sendMailSeller";
 import restaurantTableModel from "../../../frameworks/database/models/restaurantTableModel"
 import tableSlotsModel from "../../../frameworks/database/models/restaurantTableSlotsModel"
-import restaurantTimeSlotSchema from "../../../frameworks/database/models/restaurantTimeSlotsModel"
+import restaurantTimeSlotsModel from "../../../frameworks/database/models/restaurantTimeSlotsModel"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
+import { time } from "console";
 
 
 
 export class sellerRepository implements restaurantRepository {
-   
+
+
+
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
@@ -158,9 +161,9 @@ export class sellerRepository implements restaurantRepository {
    // restaurant table add modal repo
    async addNewTableSlot(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string; status: boolean }> {
       try {
-         console.log("object")
+         console.log("add table repo")
          const { tableNumber, tableCapacity, tableLocation } = tableSlotDatas
-         console.log(restaurantId , tableSlotDatas)
+         console.log(restaurantId, tableSlotDatas)
          const restaurantData = await restaurantModel.findById(restaurantId)
          if (!restaurantData) {
             return { message: "Restaurant not found, please try again later", status: false }
@@ -182,6 +185,28 @@ export class sellerRepository implements restaurantRepository {
    }
 
 
+   //restaurant table delete 
+   async deleteTableSlot(tableId: string, restaurantId: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         console.log("delete table repo")
+
+         const restaurantData = await restaurantModel.findById(restaurantId)
+         if (!restaurantData) {
+            return { message: "Restaurant not found, please try again later", status: false }
+         }
+         const deleteTableSlot = await restaurantTableModel.deleteOne({
+            _id: tableId,
+            restaurantId: restaurantData._id,
+         })
+         console.log(deleteTableSlot);
+         return { message: "Table deleted", status: true }
+      } catch (error) {
+         console.log("Error in delete table respository", error)
+         return { message: "Somthing went wrong please try again later", status: false }
+      }
+   }
+
+
 
 
 
@@ -197,31 +222,51 @@ export class sellerRepository implements restaurantRepository {
    }
 
 
-   //Restaurant table slot 
-   async  addTableSlot(tableSlotTimeData: {slotStartTime: string; slotEndTime: string; tableSlotDate: Date}, tableId: string): Promise<{ message: string; status: boolean; }> {
-      try{
+   //Restaurant add table slot 
+   async addTableSlot(tableSlotTimeData: { slotStartTime: string; slotEndTime: string; tableSlotDate: Date }, tableId: string): Promise<{ message: string; status: boolean; }> {
+      try {
          const tableSlotDatas = await tableSlotsModel.create({
             tableId: tableId,
-            slotStartTime : tableSlotTimeData.slotStartTime,
-            slotEndTime : tableSlotTimeData.slotEndTime,
-            slotDate : tableSlotTimeData.tableSlotDate
+            slotStartTime: tableSlotTimeData.slotStartTime,
+            slotEndTime: tableSlotTimeData.slotEndTime,
+            slotDate: tableSlotTimeData.tableSlotDate
          })
          console.log("Inserted Table Slot Data:", tableSlotDatas);
-         return { message:"Added success.", status: true}
-      } catch(error){
+         return { message: "Added success.", status: true }
+      } catch (error) {
          console.log(error)
+         throw error
+      }
+   }
+
+   //Restaurant table delete slot 
+   async deleteTableTimeSlot(restaurantId: string, tableSlotId: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         const deleteTableSlot = await tableSlotsModel.deleteOne({
+            _id: tableSlotId,
+            restaurantId: restaurantId,
+         })
+         console.log('Deleted table slot:', deleteTableSlot);
+
+         if (deleteTableSlot.deletedCount === 1) {
+            return { message: 'Table slot deleted', status: true };
+         } else {
+            return { message: 'Table slot not found or not deleted', status: false };
+         }
+      } catch (error) {
+         console.error('Error deleting table slot:', error);
          throw error
       }
    }
 
 
    async restaurantTimeslotDatas(restaurantId: string): Promise<{ message: string; timeSlotDatas: object; }> {
-      try{
+      try {
          console.log(restaurantId)
-         const timeSlotDatas = await restaurantTimeSlotSchema.find({ restaurantId })
+         const timeSlotDatas = await restaurantTimeSlotsModel.find({ restaurantId })
          console.log("Time Slot Datas in repository:", timeSlotDatas);
-         return { timeSlotDatas, message: ""}
-      } catch(error){
+         return { timeSlotDatas, message: "" }
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -229,17 +274,17 @@ export class sellerRepository implements restaurantRepository {
 
 
    async addTimeSlot(timeSlotDatas: timeSlotTypes): Promise<{ message: string, status: boolean }> {
-      try{
+      try {
          console.log()
          const { slotStartTime, slotEndTime, restaurantId } = timeSlotDatas
          console.log("Time slot data received:", slotStartTime, slotEndTime, restaurantId);
 
          const restaurantData = await restaurantModel.findById(restaurantId)
-         if(!restaurantData){
+         if (!restaurantData) {
             return { message: "Restaurant not found, please try again later", status: false }
          }
 
-         const newTimeSlot = await restaurantTimeSlotSchema.create({
+         const newTimeSlot = await restaurantTimeSlotsModel.create({
             restaurantId: restaurantData._id,
             slotStartTime: slotStartTime,
             slotEndTime: slotEndTime
@@ -247,7 +292,28 @@ export class sellerRepository implements restaurantRepository {
          console.log("New time slot created:", newTimeSlot);
          return { message: "Time sot created", status: true }
 
-      } catch(error){
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+   async deleteTimeSlot(timeSlotId: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         const timeSlotData = await restaurantTimeSlotsModel.findById(timeSlotId)
+         console.log("Repository timeSlotData:", timeSlotData);
+
+         if (!timeSlotData) {
+            return { message: "Time slot not found, please try again later", status: false }
+         }
+         const restaurantId = timeSlotData.restaurantId
+         console.log("Restaurant ID:", restaurantId);
+
+         const deletedTimeSlot = await restaurantTimeSlotsModel.findByIdAndDelete(timeSlotId)
+         console.log("Time slot deleted:", deletedTimeSlot);
+         return { message: "Time slot deleted", status: true }
+
+      } catch (error) {
          console.log(error)
          throw error
       }

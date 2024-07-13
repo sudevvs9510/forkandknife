@@ -3,6 +3,7 @@ import { restaurantInteractor } from "../../domain/interfaces/usecases/restauran
 // import cloudinary from "../../Config/cloudinaryConfig";
 import axios from "axios";
 import { setCookieAuthToken } from "../../functions/cookieFun";
+import restaurantTableModel from "../../frameworks/database/models/restaurantTableModel";
 
 export class restaurantController {
    constructor(private readonly interactor: restaurantInteractor) { }
@@ -29,7 +30,7 @@ export class restaurantController {
          const { email, password } = req.body
          const { restaurant, token, message, refreshtoken } = await this.interactor.restaurantLogin({ email, password })
          if (!restaurant) {
-            return res.status(401).json({ message, token: null })
+            return res.status(500).json({ message, token: null })
          }
 
          res.cookie("RefreshAuthToken", refreshtoken, {
@@ -116,7 +117,18 @@ export class restaurantController {
    }
 
    //restaurant table delete 
-   async deleteRestaurantTable
+   async deleteRestaurantTable(req: Request, res: Response, next: NextFunction) {
+      console.log("Delete table component")
+      try {
+         const { restaurantId, tableId } = req.body
+         const { message, status } = await this.interactor.deleteTableInteractor(tableId, restaurantId)
+         return res.status(200).json({ message, status })
+
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
 
    //Restaurant table slot view
    async getRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
@@ -135,11 +147,11 @@ export class restaurantController {
    //Restaurant slot add modal
    async addRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
       console.log("Add table slot controller")
-      const {  tableId,tableSlotTimeData  } = req.body
+      const { tableId, tableSlotTimeData } = req.body
 
-      console.log("Request body:", req.body); 
+      console.log("Request body:", req.body);
       console.log("Table ID:", tableId);
-      console.log("Table Slot Time Data:", tableSlotTimeData); 
+      console.log("Table Slot Time Data:", tableSlotTimeData);
       try {
          const { message, status } = await this.interactor.addTableSlotInteractor(tableSlotTimeData, tableId)
          if (!status) {
@@ -148,6 +160,31 @@ export class restaurantController {
          return res.status(201).json({ message, status })
       } catch (error) {
          console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   //restaurant delete table slot
+   async deleteRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
+      console.log("Delete table slot component")
+      try {
+         const { tableId, tableSlotId } = req.body
+         console.log('Deleting table slot:', { tableId, tableSlotId });
+
+
+         const table = await restaurantTableModel.findById(tableId)
+         if(!table){
+            return res.status(404).json({message: "Table not found" })
+         }
+         const restaruantId = table.restaurantId.toString()
+
+         const { message, status } = await this.interactor.deleteTableSlotInteractor(restaruantId, tableSlotId)
+         if (!status) {
+            return res.status(500).json({ message: "Failed to delete table slot", status })
+         }
+         return res.status(200).json({ message: 'Table slot deleted successfully', status })
+      } catch (error) {
+         console.log('Error deleting table slot', error)
          return res.status(500).json({ message: "Internal server error" })
       }
    }
@@ -179,6 +216,21 @@ export class restaurantController {
       } catch (error) {
          console.log(error)
          return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   async deleteRestaurantTimeSlot(req:Request, res: Response, next: NextFunction){
+      console.log("delete time slot controller")
+      try{
+         const {timeSlotId, restaurantId} = req.body
+         console.log("Restaurant ID:", restaurantId);
+         console.log("Time slot ID:", timeSlotId);
+         const {message, status} = await this.interactor.deleteTimeSlotInteractor(timeSlotId, restaurantId)
+         return res.status(200).json({ message, status })
+
+      } catch(error){
+        console.log(error)
+        return res.status(500).json({ message: "Internal server error"})
       }
    }
 

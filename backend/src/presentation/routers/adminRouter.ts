@@ -16,10 +16,11 @@ adminRouter.get('/restaurant-lists', authenticateToken('admin'), controller.getR
 adminRouter.get('/restaurants-approval-lists', authenticateToken('admin') ,controller.approveRestaurantList.bind(controller))
 
 
-adminRouter.get("/restaurant-approval/:id", authenticateToken('admin') ,controller.approveRestaurant.bind(controller))
-adminRouter.put("/restaurant-approval/:id", authenticateToken('admin') , controller.restaurantApprovalConfirmation.bind(controller))
+adminRouter.get("/restaurant-approval/:adminId", authenticateToken('admin') ,controller.approveRestaurant.bind(controller))
+adminRouter.put("/restaurant-approval/:adminId", authenticateToken('admin') , controller.restaurantApprovalConfirmation.bind(controller))
 
-adminRouter.put('/restaurant-reject/:id', authenticateToken('admin') ,controller.restaurantRejection.bind(controller))
+adminRouter.put('/restaurant-reject/:adminId', authenticateToken('admin') ,controller.restaurantRejection.bind(controller))
 
+adminRouter.post('/logout', controller.adminLogout.bind(controller))
 
 export default adminRouter
