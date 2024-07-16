@@ -143,3 +143,26 @@ export const validateToken = async () => {
    return response;
 };
 
+export const fetchUserProfile = async (userId: string) =>{
+   try{
+      const response = await authAxios.get(`/user-profile/${userId}`)
+      console.log(response.data)
+      return response.data.userData
+   } catch(error){
+      console.error("Failed to fetch user profile:", error);
+      throw error
+   }
+}
+
+
+export const updateUserDetails = async(userId: string, userData: { username: string, phone: string }) =>{
+   try{
+      const response  = await authAxios.put(`/update-userDetails/${userId}`,userData)
+      console.log("API update response:", response.data);
+      return response.data
+   } catch(error){
+      console.error("Failed to update user details:", error);
+      throw error
+   }
+}
+

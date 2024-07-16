@@ -16,6 +16,9 @@ export interface UserRepository {
 
    searchRestaurants(query: string, location?: { type: string, coordinates: number[]}) : Promise<{ restaurants: RestaurantType[]}>
 
+   getProfileDetails(userId: string) : Promise<{ userDetails: UserType | null, status: boolean}>
+   updateUser(_id: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean}>
+
 
 
 }

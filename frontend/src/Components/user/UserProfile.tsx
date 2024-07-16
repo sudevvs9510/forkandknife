@@ -1,168 +1,185 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
-import MainNavBar from '../../Components/user/MainNavBar';
 
-const UserProfile: React.FC = () => {
-    const [name, setName] = useState('Sudev');
-    const [nameInput, setNameInput] = useState(false);
-    const [email, setEmail] = useState('sudev@gmail.com');
-    const [emailInput, setEmailInput] = useState(false);
-    const [contact, setContact] = useState('98478896545');
-    const [contactInput, setContactInput] = useState(false);
+import React, { useEffect, useState } from 'react';
+import { FaCamera, FaUser, FaHistory, FaMoneyBillWave } from 'react-icons/fa';
+import { RiLockPasswordLine } from "react-icons/ri";
+import { Link, useParams } from 'react-router-dom';
+import { fetchUserProfile, updateUserDetails } from "../../api/api";
+import toast from 'react-hot-toast';
 
-    const onEditEmail = () => {
-        setEmailInput(!emailInput);
+const ProfilePage: React.FC = () => {
+    const [user, setUser] = useState({
+        username: '',
+        phone: '',
+        email: '',
+    });
+
+    const [originalUser, setOriginalUser] = useState({
+        username: '',
+        phone: '',
+        email: '',
+    });
+
+    const { userId } = useParams<{ userId: string }>();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                console.log("Fetching user data for userId:", userId);
+                const userData = await fetchUserProfile(userId as string);
+                console.log("User data received from API:", userData);
+
+                if (userData) {
+                    setUser({
+                        username: userData.username || '',
+                        phone: userData.phone || '',
+                        email: userData.email || '',
+                    });
+                    setOriginalUser({
+                        username: userData.username || '',
+                        phone: userData.phone || '',
+                        email: userData.email || '',
+                    });
+                    console.log("Updated user state:", {
+                        username: userData.username || '',
+                        phone: userData.phone || '',
+                        email: userData.email || '',
+                    });
+                } else {
+                    console.log("Received invalid user data:", userData);
+                }
+            } catch (error) {
+                console.error("Failed to fetch user data:", error);
+            }
+        };
+
+        fetchUserData();
+    }, [userId]);
+
+    console.log("Current user state:", user);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setUser(prevState => ({
+            ...prevState,
+            [name]: value,
+        }));
     };
 
-    const onEditName = () => {
-        setNameInput(!nameInput);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            console.log("Updating user data:", user);
+            const updatedData = {
+                username: user.username,
+                phone: user.phone,
+            };
+            const response = await updateUserDetails(userId as string, updatedData);
+            console.log("User data after update:", response.updatedUser);
+
+            setUser({
+                ...user,
+                email: response.updatedUser.email,
+            });
+
+            toast.success('Profile updated successfully');
+
+        } catch (error) {
+            console.error("Failed to update user data:", error);
+            toast.error('Failed to update profile');
+        }
     };
 
-    const onEditContact = () => {
-        setContactInput(!contactInput);
+    const isFormDirty = () => {
+        return (
+            user.username !== originalUser.username ||
+            user.phone !== originalUser.phone
+        );
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 relative z-10">
-            <MainNavBar />
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 p-6">
-                <div className="w-full md:w-1/3 bg-white shadow-md rounded-lg p-6">
-                    <div className="flex flex-col items-center mb-6">
+        <div className="bg-white min-h-screen">
+            <div className="max-w-7xl mx-auto py-8 px-20">
+                <div className="bg-white rounded-lg p-8">
+                    <div className="flex items-center">
                         <div className="relative">
-                            <div className="w-24 h-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
-                                {/* <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" alt="Profile" /> */}
+                            <div className="w-24 h-24 bg-purple-500 rounded-full flex items-center justify-center text-white text-4xl">
+                                {user.username.charAt(0).toUpperCase()}
                             </div>
-                            <p className="absolute bottom-0 right-0 bg-red-500 text-white rounded-full p-1 cursor-pointer transform translate-x-1/2 translate-y-1/2 z-20">
-                                <FontAwesomeIcon icon={faPencilAlt} />
-                            </p>
-                        </div>
-                        <div className="mt-4 text-center">
-                            <p className="text-gray-700">Hello,</p>
-                            <p className="text-lg font-semibold text-gray-900">Sudev V S</p>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <Link to="#" className="block text-center text-blue-600 hover:bg-gray-100 p-2 rounded-md">Account</Link>
-                        <Link to="#" className="block text-center text-blue-600 hover:bg-gray-100 p-2 rounded-md">Bookings</Link>
-                        <Link to="#" className="block text-center text-blue-600 hover:bg-gray-100 p-2 rounded-md">Transactions</Link>
-                        <Link to="#" className="block text-center text-blue-600 hover:bg-gray-100 p-2 rounded-md">Settings</Link>
-                        <Link to="#" className="block text-center text-blue-600 hover:bg-gray-100 p-2 rounded-md">Logout</Link>
-                    </div>
-                </div>
-                <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-6">
-                    <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                            <h1 className="text-xl font-bold text-gray-900">Personal Info</h1>
-                            {!nameInput ? (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditName}>
-                                    <FontAwesomeIcon icon={faPencilAlt} /> Edit
-                                </p>
-                            ) : (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditName}>
-                                    Cancel
-                                </p>
-                            )}
-                        </div>
-                        <div className="pl-4">
-                            {!nameInput ? (
-                                <input
-                                    type="text"
-                                    className="border border-neutral-400 bg-neutral-100 p-3 w-full md:w-1/2 text-sm cursor-not-allowed"
-                                    disabled
-                                    value={name}
-                                />
-                            ) : (
-                                <>
-                                    <input
-                                        type="text"
-                                        className="border border-neutral-400 bg-white p-3 w-full md:w-1/2 text-sm"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                    />
-                                    <button className="mt-2 bg-red-500 text-white font-bold py-2 px-4 rounded-lg">Submit</button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                            <h1 className="text-xl font-bold text-gray-900">Email Address</h1>
-                            {!emailInput ? (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditEmail}>
-                                    <FontAwesomeIcon icon={faPencilAlt} /> Edit
-                                </p>
-                            ) : (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditEmail}>
-                                    Cancel
-                                </p>
-                            )}
-                        </div>
-                        <div className="pl-4">
-                            {!emailInput ? (
-                                <input
-                                    type="text"
-                                    className="border border-neutral-400 bg-neutral-100 p-3 w-full md:w-1/2 text-sm cursor-not-allowed"
-                                    disabled
-                                    value={email}
-                                />
-                            ) : (
-                                <>
-                                    <input
-                                        type="text"
-                                        className="border border-neutral-400 bg-white p-3 w-full md:w-1/2 text-sm"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                    <button className="mt-2 bg-red-500 text-white font-bold py-2 px-4 rounded-lg">Submit</button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                            <h1 className="text-xl font-bold text-gray-900">Contact</h1>
-                            {!contactInput ? (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditContact}>
-                                    <FontAwesomeIcon icon={faPencilAlt} /> Edit
-                                </p>
-                            ) : (
-                                <p className="text-red-500 font-bold text-sm cursor-pointer" onClick={onEditContact}>
-                                    Cancel
-                                </p>
-                            )}
-                        </div>
-                        <div className="pl-4">
-                            {!contactInput ? (
-                                <input
-                                    type="text"
-                                    className="border border-neutral-400 bg-neutral-100 p-3 w-full md:w-1/2 text-sm cursor-not-allowed"
-                                    disabled
-                                    value={contact}
-                                />
-                            ) : (
-                                <>
-                                    <input
-                                        type="text"
-                                        className="border border-neutral-400 bg-white p-3 w-full md:w-1/2 text-sm"
-                                        value={contact}
-                                        onChange={(e) => setContact(e.target.value)}
-                                    />
-                                    <button className="mt-2 bg-red-500 text-white font-bold py-2 px-4 rounded-lg">Submit</button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center">
-                        <Link to="/reset-password">
-                            <button className="bg-red-500 text-white font-bold py-2 px-6 rounded-lg">
-                                Change Password
+                            <button className="absolute bottom-0 right-0 bg-white border border-gray-300 rounded-full p-1">
+                                <FaCamera className="text-gray-500" />
                             </button>
-                        </Link>
+                        </div>
+                        <div className="ml-4">
+                            <h1 className="text-3xl font-bold">Hi, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}</h1>
+                        </div>
+                    </div>
+                    <div className="mt-6 border-t pt-6">
+                        <div className="flex space-x-4">
+                            <nav className="w-1/4">
+                                <ul className="space-y-4">
+                                    <li className='flex items-center'>
+                                        <FaUser className="mr-2" /> Account Details
+                                    </li>
+                                    <li className='flex items-center'>
+                                        <FaHistory className="mr-2" /> Reservation History
+                                    </li>
+                                    <li className='flex items-center'>
+                                        <FaMoneyBillWave className="mr-2" /> Transactions
+                                    </li>
+                                    <li className='flex items-center'>
+                                        <Link to='/reset-password' className="flex items-center">
+                                            <RiLockPasswordLine className="mr-2" /> Change Password
+                                        </Link>
+                                    </li>
+
+                                    {/* <li className='border border-red-500 rounded p-2 hover:bg-red-500 hover:text-white text-red-500 flex items-center'>
+                                        <FaSignOutAlt className="mr-2" /> Logout
+                                    </li> */}
+                                </ul>
+                            </nav>
+                            <div className="w-3/4">
+                                <div className="bg-white p-6 rounded-lg shadow-lg">
+                                    <h2 className="text-2xl font-bold mb-4">About me</h2>
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="block text-gray-700">Username</label>
+                                            <input
+                                                type="text"
+                                                name="username"
+                                                value={user.username}
+                                                onChange={handleInputChange}
+                                                className="w-full border rounded p-2 mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-700">Email</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={user.email}
+                                                readOnly
+                                                className="w-full border rounded p-2 mt-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-700">Phone number</label>
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={user.phone}
+                                                onChange={handleInputChange}
+                                                className="w-full border rounded p-2 mt-1"
+                                            />
+                                        </div>
+                                        <div className="mt-6 flex space-x-4">
+                                            <button type="submit" className={`bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-800 ${isFormDirty() ? '' : 'hidden'}`}>
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,4 +187,4 @@ const UserProfile: React.FC = () => {
     );
 };
 
-export default UserProfile;
+export default ProfilePage;

@@ -13,8 +13,7 @@ import { Error } from "mongoose";
 export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
-   
-   
+  
    
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
@@ -159,6 +158,28 @@ export class UserInteractorImpl implements UserInteractor {
          return this.Repository.searchRestaurants(query, location)
       } catch (error){
          console.error(error);
+         throw error
+      }
+   }
+
+   async getProfileInteractor(userId: string): Promise<{ userDetails: UserType | null; status: boolean; }> {
+      try{
+         const {userDetails, status } = await this.Repository.getProfileDetails(userId)
+         return { userDetails, status }
+      }catch(error){
+         console.log("Error in get profile Interactor", error)
+         throw error
+      }
+   }
+
+
+   async updateUserDetailsInteractor(userId: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean; }> {
+      try{
+         console.log("User ID and datas in interactor:", { userId, datas });
+         const { updatedUser, status } = await this.Repository.updateUser(userId, datas)
+         return { updatedUser, status} 
+      } catch(error){
+         console.log(error)
          throw error
       }
    }

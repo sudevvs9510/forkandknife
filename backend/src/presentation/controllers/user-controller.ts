@@ -6,6 +6,7 @@ import { stat } from 'fs';
 import { NetConnectOpts } from 'net';
 import { generateAccessToken, jwtVerifyToken } from '../../functions/jwt';
 import restaurantModel from '../../frameworks/database/models/restaurantModel';
+import restaurantTableModel from '../../frameworks/database/models/restaurantTableModel';
 
 
 export class userController {
@@ -200,27 +201,63 @@ export class userController {
       }
    }
 
-   // async refreshToken(req: Request, res: Response, next: NextFunction) {
-   //    try {
-   //       const { refreshToken } = req.body
+   async getUserProfile(req:Request, res:Response, next: NextFunction){
+      console.log("Get user profile controller")
+      console.log("userId from req:", req.userId);
+      const userId = req.userId
+      try{
+         const { userDetails, status } = await this.interactor.getProfileInteractor(userId)
+         console.log( userDetails) 
+         if(!status){
+            return res.status(404).json({ message: "Failed to fetch the data"})
+         }
+         return res.status(200).json({ message: "User details", userData: userDetails})
+      } catch(error){
+         console.log("Error occured in getProfile controller", error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
 
-   //       if(!refreshToken){
-   //          return res.status(401).json({ message: " Refresh token is required"})
-   //       }
+   }
 
-   //       const newAccessToken = await this.interactor.refreshAccessToken(refreshToken)
-   //       console.log(newAccessToken)
-   //       if (!newAccessToken) {
-   //          console.log("newAccessToken")
-   //          return res.status(401).json({ message: "Invalid refresh token" });
-   //        }
 
-   //       return res.status(200).json({ accessToken: newAccessToken });
-   //    } catch (error) {
-   //       console.error('Error refreshing token:', error);
-   //       res.status(500).json({ message: 'Internal server error' });
-   //    }
-   // }
+   async updateUserDetails(req:Request, res: Response, next: NextFunction){
+      console.log("Update user details controller")
+      const userDetails  = req.body
+      console.log(req.body)
+      try{
+         const { userId } = req.params 
+         console.log("User ID:", userId);
+         const {updatedUser, status} = await this.interactor.updateUserDetailsInteractor(userId, userDetails)
+         if(!status){
+            return res.status(404).json({ message: "Failed to update the data", status, updatedUser})
+         }
+         return res.status(200).json({ message:" Updated successfully", updatedUser, status})
+      } catch(error){
+         console.log("Error during updating profile", error)
+         return res.status(500).json({ message: "Internal server error"})
+      }
+   }
+
+
+   async restaruantTableDetails (req:Request, res: Response, next:NextFunction){
+      console.log("Restaruant table details controller")
+      const { tableId } = req.params
+      try{
+         const restaurantTable = await restaurantTableModel.findById(tableId)
+         console.log(restaurantTable)
+         return res.status(200).json({ restaurantTable, message:"Successfull"})
+
+      } catch(error){
+         console.log("Error in restaurant Table Details controller",error)
+         return res.status(500).json({ message: "Internal server error"})
+      }
+   }
+
+
+   async restaurantTableSlots(req:Request, res: Response, next: NextFunction){
+      console.log("Restaurant table slots controller")
+
+   }
 
 
    async Logout(req: Request, res: Response, next: NextFunction) {

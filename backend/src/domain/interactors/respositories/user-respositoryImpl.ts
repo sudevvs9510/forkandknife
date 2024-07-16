@@ -10,11 +10,11 @@ import reset_PasswordMailer from "../../../functions/sendMailResetPassword"
 import { hashedPasswordFunction } from "../../../functions/bcryptFunctions"
 import { RestaurantType } from '../../entities/restaurant';
 import restaurantModel from '../../../frameworks/database/models/restaurantModel';
+import mongoose from 'mongoose';
 
 
 
 export class UserRepositoryImpl implements UserRepository {
-
 
 
    async findByCredentials(email: string, password: string): Promise<{ user: UserType | null; message: string; token: string | null }> {
@@ -181,7 +181,7 @@ export class UserRepositoryImpl implements UserRepository {
       try {
          const approvedRestaurants: RestaurantType[] = await restaurantModel.aggregate([
             { $match: { isApproved: true } },
-            {$match :{$and :[{featuredImage : {$exists : true}},{address : {$exists : true}}]}},
+            { $match: { $and: [{ featuredImage: { $exists: true } }, { address: { $exists: true } }] } },
             { $sort: { createdAt: -1 } }
          ])
          return { approvedRestaurants: approvedRestaurants }
@@ -196,33 +196,79 @@ export class UserRepositoryImpl implements UserRepository {
       try {
          const searchCriteria: any = {
             isApproved: true,
-          };
-      
-          if (query) {
+         };
+
+         if (query) {
             searchCriteria.$or = [
-              { restaurantName: { $regex: query, $options: 'i' } },
-              { place: { $regex: query, $options: 'i' } },
+               { restaurantName: { $regex: query, $options: 'i' } },
+               { place: { $regex: query, $options: 'i' } },
             ];
-          }
-      
-          if (location) {
+         }
+
+         if (location) {
             searchCriteria.location = {
-              $geoWithin: {
-                $centerSphere: [location.coordinates, 10 / 3963.2], // 10 miles radius
-              }
+               $geoWithin: {
+                  $centerSphere: [location.coordinates, 10 / 3963.2], // 10 miles radius
+               }
             };
-          }
-      
-          // Fetch specific fields from the database
-          const restaurants: RestaurantType[] = await restaurantModel.find(searchCriteria)
+         }
+
+         // Fetch specific fields from the database
+         const restaurants: RestaurantType[] = await restaurantModel.find(searchCriteria)
             .select('restaurantName place featuredImage'); // Add other fields as needed
-      
-          return { restaurants };
+
+         return { restaurants };
       } catch (error) {
          console.log("Error occured while searching restaurants:", error)
          throw error
       }
    }
+
+   async getProfileDetails(_id: string): Promise<{ userDetails: UserType | null; status: boolean; }> {
+      try {
+         if (!mongoose.Types.ObjectId.isValid(_id)) {
+            return { userDetails: null, status: false };
+         }
+         console.log(_id)
+         const userDetails = await userModel.findById(_id).select("-password")
+         console.log(userDetails)
+
+         if (!userDetails) {
+            return { userDetails: null, status: false }
+         }
+         return { userDetails: userDetails, status: true }
+      } catch (error) {
+         console.log("Error in getProfile repository", error)
+         throw error
+      }
+   }
+
+   async updateUser(_id: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean; }> {
+      try {
+         console.log("Update data received in repository:", { _id, datas });
+
+         const updateFields = {} as { [key: string]: any };
+         if (datas.username !== undefined) {
+            updateFields['username'] = datas.username;
+         }
+         if (datas.phone !== undefined) {
+            updateFields['phone'] = datas.phone;
+         }
+         console.log("Update fields being set:", updateFields);
+
+         const updatedUser = await userModel.findByIdAndUpdate(_id, updateFields, { new: true }).exec();
+         console.log("Updated user from DB:", updatedUser); // Log the updated user
+
+         if (!updatedUser) {
+            return { status: false, updatedUser: null };
+         }
+         return { status: true, updatedUser };
+      } catch (error) {
+         console.log("Error in updateUser repository", error)
+         throw error
+      }
+   }
+
 }
 
 

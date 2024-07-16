@@ -89,8 +89,6 @@
 
 
 
-
-
 import React, { useState } from 'react';
 import { FaMapMarkerAlt, FaSearch, FaTimes } from 'react-icons/fa';
 
@@ -160,16 +158,13 @@ const MainNavBar: React.FC = () => {
 
       {/* Search section and logout button for screens below 840px */}
       <div className="flex items-center space-x-4 md:hidden">
-
         <FaSearch
           className="h-5 w-5 text-white cursor-pointer"
           onClick={toggleSearchBar}
         />
-
         <button className='text-white border rounded-lg px-4 py-1 hover:text-black hover:bg-[#00CCB8]'>
           Logout
         </button>
-
       </div>
 
       {showSearchBar && (

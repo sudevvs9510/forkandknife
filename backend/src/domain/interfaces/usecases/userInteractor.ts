@@ -17,6 +17,11 @@ export interface UserInteractor{
 
    searchRestaurantInteractor(query: string, location?: { type: string, coordinates: number[] }): Promise<{ restaurants: RestaurantType[] }>;
    // getRestaurantsInteractor(query?: string, location?: {type: string; coordinates: number[]}): Promise<{restaurants: RestaurantType[]}>
+
+   getProfileInteractor(userId: string): Promise <{ userDetails: UserType | null, status: boolean}>
+   updateUserDetailsInteractor(userId: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean}>
+
+
 }
 
 

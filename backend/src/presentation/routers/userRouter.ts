@@ -26,15 +26,20 @@ userRouter.post('/google-login', controller.googleLogin.bind(controller))
 userRouter.post('/verify-otp',controller.verifyOTP.bind(controller))
 userRouter.post('/resend-otp', controller.ResendOtp.bind(controller));
 
-userRouter.post('/reset-password', controller.resetPasswordGetUser.bind(controller))
-userRouter.put('/reset-password/:id', controller.resetPasswordUpdate.bind(controller))
+userRouter.post('/reset-password',authenticateToken('user'), controller.resetPasswordGetUser.bind(controller))
+userRouter.put('/reset-password/:id',authenticateToken('user'), controller.resetPasswordUpdate.bind(controller))
 
-userRouter.get('/restaurants',controller.getRestaurants.bind(controller))
-userRouter.get("/restaurant-view/:restaurantId", controller.restaurantDetalis.bind(controller))
+userRouter.get('/restaurants',authenticateToken('user'),controller.getRestaurants.bind(controller))
+userRouter.get("/restaurant-view/:restaurantId",authenticateToken('user'), controller.restaurantDetalis.bind(controller))
 
 
-userRouter.get('/search-restaurants', controller.searchRestaurants.bind(controller))
+userRouter.get('/search-restaurants',authenticateToken('user'), controller.searchRestaurants.bind(controller))
 
+userRouter.get("/user-profile/:userId",authenticateToken('user'), controller.getUserProfile.bind(controller))
+userRouter.put('/update-userDetails/:userId',authenticateToken('user'),controller.updateUserDetails.bind(controller))
+
+userRouter.get("/restaurant-table-details/:tableId",authenticateToken('user'), controller.restaruantTableDetails.bind(controller))
+userRouter.post("/restaurant-table-slots", authenticateToken('user'),controller.restaurantTableSlots.bind(controller))
 
 // userRouter.post('/refresh-token', controller.refreshToken.bind(controller));
 
