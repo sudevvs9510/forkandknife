@@ -7,6 +7,8 @@ import { NetConnectOpts } from 'net';
 import { generateAccessToken, jwtVerifyToken } from '../../functions/jwt';
 import restaurantModel from '../../frameworks/database/models/restaurantModel';
 import restaurantTableModel from '../../frameworks/database/models/restaurantTableModel';
+import tableSlotsModel from '../../frameworks/database/models/restaurantTableSlotsModel';
+
 
 
 export class userController {
@@ -201,18 +203,18 @@ export class userController {
       }
    }
 
-   async getUserProfile(req:Request, res:Response, next: NextFunction){
+   async getUserProfile(req: Request, res: Response, next: NextFunction) {
       console.log("Get user profile controller")
       console.log("userId from req:", req.userId);
       const userId = req.userId
-      try{
+      try {
          const { userDetails, status } = await this.interactor.getProfileInteractor(userId)
-         console.log( userDetails) 
-         if(!status){
-            return res.status(404).json({ message: "Failed to fetch the data"})
+         console.log(userDetails)
+         if (!status) {
+            return res.status(404).json({ message: "Failed to fetch the data" })
          }
-         return res.status(200).json({ message: "User details", userData: userDetails})
-      } catch(error){
+         return res.status(200).json({ message: "User details", userData: userDetails })
+      } catch (error) {
          console.log("Error occured in getProfile controller", error)
          return res.status(500).json({ message: "Internal server error" })
       }
@@ -220,43 +222,91 @@ export class userController {
    }
 
 
-   async updateUserDetails(req:Request, res: Response, next: NextFunction){
+   async updateUserDetails(req: Request, res: Response, next: NextFunction) {
       console.log("Update user details controller")
-      const userDetails  = req.body
+      const userDetails = req.body
       console.log(req.body)
-      try{
-         const { userId } = req.params 
+      try {
+         const { userId } = req.params
          console.log("User ID:", userId);
-         const {updatedUser, status} = await this.interactor.updateUserDetailsInteractor(userId, userDetails)
-         if(!status){
-            return res.status(404).json({ message: "Failed to update the data", status, updatedUser})
+         const { updatedUser, status } = await this.interactor.updateUserDetailsInteractor(userId, userDetails)
+         if (!status) {
+            return res.status(404).json({ message: "Failed to update the data", status, updatedUser })
          }
-         return res.status(200).json({ message:" Updated successfully", updatedUser, status})
-      } catch(error){
+         return res.status(200).json({ message: " Updated successfully", updatedUser, status })
+      } catch (error) {
          console.log("Error during updating profile", error)
-         return res.status(500).json({ message: "Internal server error"})
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
 
-   async restaruantTableDetails (req:Request, res: Response, next:NextFunction){
+   async restaruantTableDetails(req: Request, res: Response, next: NextFunction) {
       console.log("Restaruant table details controller")
       const { tableId } = req.params
-      try{
+      try {
          const restaurantTable = await restaurantTableModel.findById(tableId)
          console.log(restaurantTable)
-         return res.status(200).json({ restaurantTable, message:"Successfull"})
+         return res.status(200).json({ restaurantTable, message: "Successfull" })
 
-      } catch(error){
-         console.log("Error in restaurant Table Details controller",error)
-         return res.status(500).json({ message: "Internal server error"})
+      } catch (error) {
+         console.log("Error in restaurant Table Details controller", error)
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
 
-   async restaurantTableSlots(req:Request, res: Response, next: NextFunction){
+   async restaurantTableSlots(req: Request, res: Response, next: NextFunction) {
       console.log("Restaurant table slots controller")
+      const { restaurantId, date, selectedGuests } = req.body;
+      console.log("body :", req.body)
+      try {
 
+         if (!restaurantId || !date || !selectedGuests) {
+            return res.status(400).json({ message: 'All parameters are required' });
+         }
+
+         const restId = restaurantId.split(":");
+         console.log("tableslotdatas:", restId, date, selectedGuests);
+
+         const restaurantTables = await restaurantTableModel.find({
+            restaurantId: restId
+         });
+
+         console.log("restaurantTables:", restaurantTables);
+
+         let allTimeSlots: any = [];
+
+         const dateObj = new Date(date);
+         console.log("Parsed Date Object:", dateObj);
+
+         for (let i = 0; i < restaurantTables.length; i++) {
+            const table = restaurantTables[i];
+            console.log(`Fetching time slots for table ID: ${table._id}, Date: ${date}`);
+
+            const timeSlots = await tableSlotsModel.find({
+               tableId: table._id,
+               isAvailable: true,
+               slotDate: dateObj,
+            });
+
+            console.log(`Time slots for table ID: ${table._id}:`, timeSlots);
+
+            if (table.tableCapacity >= Number(selectedGuests)) {
+               allTimeSlots.push(timeSlots);
+            }
+         }
+         console.log("allTimeSlots:", allTimeSlots);
+
+         if (allTimeSlots.length > 0) {
+            return res.status(200).json({ timeSlots: allTimeSlots, message: "Success" });
+         } else {
+            return res.status(400).json({ timeSlots: [], message: "No available time slots" });
+         }
+      } catch (error) {
+         console.log("Error in restaurant table slot controller", error)
+         res.status(500).json({ message: "Internal server error" })
+      }
    }
 
 

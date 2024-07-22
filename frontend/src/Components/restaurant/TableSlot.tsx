@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AddTableSlot from './Modal/AddSlotModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { getTableSlot, deleteTableSlot } from '../../api/RestaurantApis';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import ConfirmationModal from '../../layouts/ConfirmationModal';
 
 interface TableSlots {
@@ -23,6 +23,9 @@ const TableSlots: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const { tableId } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tableNumber = queryParams.get('tableNumber');
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -41,7 +44,7 @@ const TableSlots: React.FC = () => {
 
   const handleAddSlot = async (slot: TableSlotTime) => {
     const newSlot: TableSlots = {
-      _id: Math.random().toString(36).substr(2, 9), // Generate a temporary ID
+      _id: Math.random().toString(36).substr(2, 9), 
       slotDate: slot.tableSlotDate,
       slotStartTime: slot.tableSlotTime.split(' - ')[0],
       slotEndTime: slot.tableSlotTime.split(' - ')[1],
@@ -84,9 +87,8 @@ const TableSlots: React.FC = () => {
     <div className="p-4 min-h-screen flex flex-col">
       <Toaster />
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Table Slot</h2>
+        <h2 className="text-2xl font-bold"><span className='text-teal-600'>{tableNumber} </span> - Table Slots</h2>
         <AddTableSlot
-          // tableNo={tableNo || ''}
           onClose={() => {}}
           onSubmit={handleAddSlot}
         />

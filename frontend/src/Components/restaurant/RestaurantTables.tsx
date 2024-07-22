@@ -73,7 +73,7 @@ const RestaurantTables: React.FC = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Sl. No</th>
-              <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Table No</th>
+              <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Table Number</th>
               <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Capacity</th>
               <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Indoor/Outdoor</th>
               <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Add Table Slot</th>
@@ -95,7 +95,7 @@ const RestaurantTables: React.FC = () => {
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableCapacity}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableLocation}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">
-                    <Link to={`/restaurant/tableslots/${tableData._id}`}>
+                    <Link to={`/restaurant/tableslots/${tableData._id}?tableNumber=${tableData.tableNumber}`}>
                       <button className="bg-teal-700 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded">View</button>
                     </Link>
                   </td>

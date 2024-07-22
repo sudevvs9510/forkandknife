@@ -8,6 +8,8 @@ import cors from 'cors'
 import { corsConfig } from "./config"
 import morgan from 'morgan'
 import cookieParser from "cookie-parser"
+import { initializeSocket } from './Config/socket'
+
 
 config()   
 
@@ -27,6 +29,7 @@ serverConfig(server).startServer();
 
 routes(app)
 
+initializeSocket(server)
 
 
 

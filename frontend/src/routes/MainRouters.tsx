@@ -11,6 +11,9 @@ const UserProfile = lazy(() => import("../pages/User/UserProfile"));
 const RestaurantProfile = lazy(() => import("../pages/User/RestaurantProfile"));
 const ForgotPasswordMailPage = lazy(() => import("../Components/user/EmailForgotPassword"));
 const ForgotNewPassword = lazy(() => import("../Components/user/NewPassword"));
+const TableBooking = lazy(()=> import('../pages/User/TableBooking'))
+const Chat = lazy(()=> import('../pages/User/Chat'))
+
 
 // admin components
 const AdminLogin = lazy(() => import("../Components/admin/AdminLoginForm"));
@@ -30,6 +33,8 @@ const TableSlots = lazy(() => import("../pages/Seller/TableSlot"));
 const TimeSlotManagement = lazy(() => import("../pages/Seller/TimeSlotManagement"));
 const RestaurantDashboard = lazy(() => import("../pages/Seller/Dashboard"));
 
+const RestaurantChat = lazy(()=> import("../pages/Seller/ChatRestaurant"))
+
 // protected routes
 const UserProtected = lazy(() => import("./UserProtected"));
 const RestaurantProtected = lazy(() => import("./RestaurantProtected"));
@@ -48,6 +53,9 @@ const MainRouter:React.FC = () => {
         <Route path="/restaurant-view/:restaurantId" element={<UserProtected  element={<RestaurantProfile />} allowedRoles={['user']} />} />
         <Route path="/reset-password" element={<ForgotPasswordMailPage />} />
         <Route path="/reset-password/:id" element={<ForgotNewPassword />} />
+        <Route path="/booking-confirmation" element={<UserProtected element={<TableBooking />} allowedRoles={['user']} />} />
+
+        <Route path="/chat" element={<UserProtected element={<Chat />} allowedRoles={['user']} />} />
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -66,6 +74,7 @@ const MainRouter:React.FC = () => {
         <Route path="restaurant/tables" element={<RestaurantProtected element={<TableManagement />} allowedRoles={['restaurant']} />} />
         <Route path="restaurant/tableslots/:tableId" element={<RestaurantProtected element={<TableSlots />} allowedRoles={['restaurant']} />} />
         <Route path="/restaurant/time-slots" element={<RestaurantProtected element={<TimeSlotManagement />} allowedRoles={['restaurant']} />} />
+        <Route path="/restaurant/chat" element={<RestaurantProtected element={<RestaurantChat />} allowedRoles={['restaurant']} />} />
       </Routes>
     </Suspense>
   );

@@ -32,6 +32,8 @@ restaurantRouter.get("/time-slots",authenticateToken('restaurant'), controller.g
 restaurantRouter.post("/add-time-slot",authenticateToken('restaurant'), controller.addRestaurantTimeSlot.bind(controller))
 restaurantRouter.post("/delete-time-slot",authenticateToken('restaurant'),controller.deleteRestaurantTimeSlot.bind(controller))
 
+restaurantRouter.get('/user-details/:userId', controller.getUserDetails.bind(controller))
+
 restaurantRouter.post('/logout', controller.restaurantLogout.bind(controller))
 
 export default restaurantRouter

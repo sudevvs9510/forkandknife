@@ -1,7 +1,6 @@
 import authAxios from "../redux/api/authApi";
 import { UserType } from "../helpers/validation"
 
-
 interface credentials {
    username: string;
    email: string;
@@ -165,4 +164,16 @@ export const updateUserDetails = async(userId: string, userData: { username: str
       throw error
    }
 }
+
+export const getRestaurantTableSlot = async (restaurantId: string | undefined, date: string, selectedGuests: number) => {
+   try {
+     const { data: {timeSlots } } = await authAxios.post("/restaurant-table-slots", { restaurantId, date, selectedGuests });
+     console.log(timeSlots);
+     return { timeSlots };
+   } catch (error) {
+     console.log(error);
+     throw error;
+   }
+ };
+ 
 

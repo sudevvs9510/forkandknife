@@ -109,10 +109,6 @@ export class sellerRepository implements restaurantRepository {
             }
          }
 
-
-
-
-
          const restaurantDetails = await restaurantModel.findOneAndUpdate({ email }, {
             restaurantName,
             contact,

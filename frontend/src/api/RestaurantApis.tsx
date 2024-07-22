@@ -215,6 +215,18 @@ export const deleteTableSlot = async(tableId: string, tableSlotId: string) =>{
  }
 
 
+ export const getUserDetails = async(userId: string) =>{
+  try{
+    const response = await authAxios.get(`/restaurant/user-details/${userId}`)
+    console.log(response)
+    return response.data.userDetails
+  } catch(error){
+    console.log(error)
+    throw error
+  }
+ }
+
+
  export const logoutRestaurant = async () =>{
   try{
     console.log("llkk")

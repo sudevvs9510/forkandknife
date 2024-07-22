@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { FaCamera, FaUser, FaHistory, FaMoneyBillWave } from 'react-icons/fa';
+import { FaUser, FaHistory, FaMoneyBillWave } from 'react-icons/fa';
 import { RiLockPasswordLine } from "react-icons/ri";
 import { Link, useParams } from 'react-router-dom';
 import { fetchUserProfile, updateUserDetails } from "../../api/api";
@@ -102,12 +102,12 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-lg p-8">
                     <div className="flex items-center">
                         <div className="relative">
-                            <div className="w-24 h-24 bg-purple-500 rounded-full flex items-center justify-center text-white text-4xl">
+                            <div className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center text-white text-4xl">
                                 {user.username.charAt(0).toUpperCase()}
                             </div>
-                            <button className="absolute bottom-0 right-0 bg-white border border-gray-300 rounded-full p-1">
+                            {/* <button className="absolute bottom-0 right-0 bg-white border border-gray-300 rounded-full p-1">
                                 <FaCamera className="text-gray-500" />
-                            </button>
+                            </button> */}
                         </div>
                         <div className="ml-4">
                             <h1 className="text-3xl font-bold">Hi, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}</h1>

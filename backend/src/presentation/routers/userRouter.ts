@@ -38,8 +38,13 @@ userRouter.get('/search-restaurants',authenticateToken('user'), controller.searc
 userRouter.get("/user-profile/:userId",authenticateToken('user'), controller.getUserProfile.bind(controller))
 userRouter.put('/update-userDetails/:userId',authenticateToken('user'),controller.updateUserDetails.bind(controller))
 
+
 userRouter.get("/restaurant-table-details/:tableId",authenticateToken('user'), controller.restaruantTableDetails.bind(controller))
 userRouter.post("/restaurant-table-slots", authenticateToken('user'),controller.restaurantTableSlots.bind(controller))
+
+
+
+
 
 // userRouter.post('/refresh-token', controller.refreshToken.bind(controller));
 

@@ -4,6 +4,7 @@ import { restaurantInteractor } from "../../domain/interfaces/usecases/restauran
 import axios from "axios";
 import { setCookieAuthToken } from "../../functions/cookieFun";
 import restaurantTableModel from "../../frameworks/database/models/restaurantTableModel";
+import userModel from "../../frameworks/database/models/userModel";
 
 export class restaurantController {
    constructor(private readonly interactor: restaurantInteractor) { }
@@ -234,6 +235,20 @@ export class restaurantController {
       }
    }
 
+
+   async getUserDetails(req: Request, res: Response, next: NextFunction){
+      console.log("Get user details controller")
+      try{
+         const {userId} = req.params
+         console.log("User ID:", userId);
+         const userDetails = await userModel.findById(userId)
+         console.log(userDetails)
+         return res.status(200).json({ userDetails })
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error"})
+      }
+   }
 
    async restaurantLogout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout restaurant")

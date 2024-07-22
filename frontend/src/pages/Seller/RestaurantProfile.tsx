@@ -16,6 +16,7 @@ const RestaurantProfile: React.FC = () => {
         <main className="flex-1 ">
         <RestaurantDetails />
         </main>
+
         
       </div>
       {/* <Footer /> */}
