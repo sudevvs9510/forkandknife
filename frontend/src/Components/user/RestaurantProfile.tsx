@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import GoogleMap from '../GoogleMap';
 import Loader from '../Loader';
 import { getRestaurantTableSlot } from '../../api/api';
+import TableDetails from './TableDetails';
 
 
 interface ReviewType {
@@ -58,7 +59,11 @@ const RestaurantProfile: React.FC = () => {
   const [date, setDate] = useState(currentDate);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<any[]>([]);
   const [fetchingTimeSlots, setFetchingTimeSlots] = useState<boolean>(false);
-
+  const [selectedTable, setSelectedTable] = useState<any>(null);
+  const [tableSlotId, setTableSlotId] = useState<string>('')
+  const [isTableDetailsModalOpen, setTableDetailsModalOpen] = useState<boolean>(false);
+  const [selectedSlotStartTime, setSelectedSlotStartTime] = useState<string | null>(null);
+  const [selectedSlotEndTime, setSelectedSlotEndTime] = useState<string | null>(null);
   const { restaurantId } = useParams();
 
   useEffect(() => {
@@ -89,6 +94,14 @@ const RestaurantProfile: React.FC = () => {
       console.log(error);
       setAvailableTimeSlots([]);
     }
+  };
+
+  const handleSlotClick = (slot: any) => {
+    setSelectedTable(slot.tableDetails);
+    setTableSlotId(slot._id)
+    setSelectedSlotStartTime(slot.slotStartTime);
+    setSelectedSlotEndTime(slot.slotEndTime);
+    setTableDetailsModalOpen(true);
   };
 
   const getCurrentMonthRange = () => {
@@ -261,19 +274,6 @@ const RestaurantProfile: React.FC = () => {
                       className="w-full border-b p-2 rounded"
                     />
                   </div>
-                  {/* <div>
-                    <label className="block text-gray-700">Time</label>
-                    <select
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="w-full border-b p-2 rounded"
-                    >
-                      {timeSlots.map((slot, index) => (
-                        <option key={index} value={slot}>{slot}</option>
-                      ))}
-                    </select>
-                  </div> */}
-                  {/* <button type="submit" className="w-full bg-teal-600 text-white p-2 rounded">Check available time</button> */}
                 </form>
 
                 {fetchingTimeSlots ? (
@@ -284,7 +284,7 @@ const RestaurantProfile: React.FC = () => {
                       <h3 className="text-md font-semibold mt-4">Available slots for the selected date</h3>
                       <div>
                         {availableTimeSlots.map((slot, index) => (
-                          <button className='px-2 py-1 my-4 mx-1 bg-teal-600 rounded text-white' key={index}>{slot.slotStartTime}</button>
+                          <button className='px-2 py-1 my-4 mx-1 bg-teal-600 rounded text-white' key={index} onClick={() => handleSlotClick(slot)}>{slot.slotStartTime}</button>
                         ))}
                       </div>
                     </div>
@@ -292,6 +292,22 @@ const RestaurantProfile: React.FC = () => {
                     <p className="text-red-600 mt-4">No available time slots</p>
                   )
                 )}
+
+                {/* Table Details Modal */}
+                <TableDetails
+                  restaurantId = {restaurant._id}
+                  selectedTable={selectedTable}
+                  slotStartTime={selectedSlotStartTime}
+                  slotEndTime={selectedSlotEndTime}
+                  isOpen={isTableDetailsModalOpen}
+                  onRequestClose={() => setTableDetailsModalOpen(false)}
+                  restaurantName = {restaurant.restaurantName}
+                  tableRate = {restaurant.TableRate}
+                  guests = {guestCount}
+                  tableSlotId = {tableSlotId}
+                />
+
+
               </div>
 
               <div>

@@ -11,19 +11,16 @@ const bookingSchema = new Schema({
     type: ObjectId,
     ref: "User",
     required: true,
-    index : true
   },
   tableId: {
     type: ObjectId,
     ref: "Table",
     required: true,
-    index : true
   },
   restaurantId: {
     type: ObjectId,
     ref: "Restaurant",
     required: true,
-    index : true
   },
   bookingDate: {
     type: Date,

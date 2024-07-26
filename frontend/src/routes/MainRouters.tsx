@@ -13,6 +13,8 @@ const ForgotPasswordMailPage = lazy(() => import("../Components/user/EmailForgot
 const ForgotNewPassword = lazy(() => import("../Components/user/NewPassword"));
 const TableBooking = lazy(()=> import('../pages/User/TableBooking'))
 const Chat = lazy(()=> import('../pages/User/Chat'))
+import PaymentSuccess from '../Components/user/PaymentSuccess';
+import PaymentFailure from '../Components/user/PaymentFailure';
 
 
 // admin components
@@ -56,6 +58,11 @@ const MainRouter:React.FC = () => {
         <Route path="/booking-confirmation" element={<UserProtected element={<TableBooking />} allowedRoles={['user']} />} />
 
         <Route path="/chat" element={<UserProtected element={<Chat />} allowedRoles={['user']} />} />
+
+        <Route path="/payment-success" element={<UserProtected element={<PaymentSuccess />} allowedRoles={['user']} />} />
+        <Route path="/payment-failure" element={<UserProtected element={<PaymentFailure />} allowedRoles={['user']} />} />
+
+
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

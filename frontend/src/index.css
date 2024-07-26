@@ -15,4 +15,13 @@
    .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
   }
+  /* index.css or App.css */
+    .modal {
+      @apply fixed inset-0 flex items-center justify-center z-50;
+    }
+    
+    .overlay {
+      @apply fixed inset-0 bg-black opacity-50;
+    }
+    
  }

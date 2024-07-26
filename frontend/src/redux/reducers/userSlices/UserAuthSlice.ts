@@ -7,6 +7,8 @@ import { setStorageItem, removeStorageItem } from "../../../util/localStorage";
 
 
 interface userAuthState {
+   email: any;
+   username: any;
    user: any;
    token: string | null;
    error: string | null

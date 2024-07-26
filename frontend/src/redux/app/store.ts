@@ -9,6 +9,7 @@ import restaurantsReducer from '../reducers/userSlices/RestaurantSearchSlice'
 import adminAuthReducer from "../reducers/adminSlices/AdminAuthSlice"
 import restaurantTablesSlice from "../reducers/restaurantSlices/RestaurantTableSlice"
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
+import bookingReducer from "../reducers/userSlices/BookingConfimrationSlice"
 
 const persistConfig = {
    key: 'root',
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
    restaurantAuth: restaurantAuthReducer,
    restaurantSearch : restaurantsReducer,
    adminAuth: adminAuthReducer,
-   restaurantTables: restaurantTablesSlice
+   restaurantTables: restaurantTablesSlice,
+   bookingConfirmation: bookingReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -43,6 +43,12 @@ userRouter.get("/restaurant-table-details/:tableId",authenticateToken('user'), c
 userRouter.post("/restaurant-table-slots", authenticateToken('user'),controller.restaurantTableSlots.bind(controller))
 
 
+userRouter.post("/make-payment", authenticateToken("user"),controller.makePayment.bind(controller))
+
+userRouter.post("/update-slot-and-booking-status",authenticateToken('user'), controller.updateSlotAndBookingStatus.bind(controller))
+
+
+
 
 
 
