@@ -26,11 +26,22 @@ export async function addConversationMembers(req: Request, res: Response, next: 
       const { senderId, receiverId } = req.body
       console.log(req.body)
 
+      if (!senderId || !receiverId) {
+         return res.status(400).json({ message: 'Both senderId and receiverId are required.' });
+       }
+       console.log(req.body);
+
+      const existingConversation = await conversationModel.findOne({
+         members: { $all: [senderId, receiverId]}
+      })
+
+      if(existingConversation){
+         return res.status(200).json({message: "conversation already exists",existingConversation})
+      }
+      
+
       const newChatMessage = new conversationModel({
-         members: [
-            senderId,
-            receiverId
-         ]
+         members: [senderId,receiverId]
       })
       const savedConversation = await newChatMessage.save();
       return res.status(200).json(savedConversation)

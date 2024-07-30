@@ -11,6 +11,7 @@ export interface restaurantInteractor{
    deleteTableInteractor(tableId: string, restaurantId: string): Promise<{ message: string, status: boolean}>
 
    getRestaurnatTableSlotInteractor( tableId : string): Promise<{ message: string; tableSlotDatas : object}>
+   getBookingDetailsInteractor( restaurantId : string): Promise<{ message: string; bookingDatas: object}>
    addTableSlotInteractor( tableSlotTimeDatas: object , tableId: string) : Promise<{message: string; status: boolean}>
    deleteTableSlotInteractor( restaurantId: string, tableSlotId: string): Promise<{ message: string, status: boolean}>
 
@@ -18,7 +19,8 @@ export interface restaurantInteractor{
    addTimeSlotInteractor(timeSlotDatas: timeSlotTypes ) : Promise<{ message: string, status: boolean}>
    deleteTimeSlotInteractor( timeSlotId: string, restaruantId: string) : Promise<{ message: string, status: boolean }>
    
-
+   getReservationDetailsInteractor(bookingId: string) : Promise<{ message: string,reservationDatas: object | null }>
+   updateBookingStatusInteractor(bookingId: string, bookingStatus: string): Promise<{ message: string, status: boolean}>
 
    
 }

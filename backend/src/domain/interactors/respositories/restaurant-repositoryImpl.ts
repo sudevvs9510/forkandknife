@@ -8,13 +8,11 @@ import restaurantTimeSlotsModel from "../../../frameworks/database/models/restau
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
 import { time } from "console";
+import bookingModel from "../../../frameworks/database/models/bookingModel";
 
 
 
 export class sellerRepository implements restaurantRepository {
-
-
-
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
@@ -141,6 +139,8 @@ export class sellerRepository implements restaurantRepository {
       }
    }
 
+
+
    //Restaurant table view repo
    async restaurantTableDatas(restaurantId: string): Promise<{ message: string; tableSlotDatas: object; }> {
       try {
@@ -150,6 +150,22 @@ export class sellerRepository implements restaurantRepository {
          return { message: "", tableSlotDatas }
       } catch (error) {
          console.log("Error in table datas repository", error)
+         throw error
+      }
+   }
+
+
+   async getBookingDetails(restaurantId: string): Promise<{ message: string; bookingDatas: object; }> {
+      try {
+         console.log(restaurantId)
+         const bookingDatas = await bookingModel.find({ restaurantId })
+            .populate('userId', 'username email',)
+            .populate('tableId', 'tableNumber tableCapacity tableLocation')
+
+         console.log(bookingDatas)
+         return { message: "", bookingDatas }
+      } catch (error) {
+         console.log("Error in fetching getBooking datas", error)
          throw error
       }
    }
@@ -314,6 +330,44 @@ export class sellerRepository implements restaurantRepository {
          throw error
       }
    }
+
+
+   async getReservationDetails(bookingId: string): Promise<{ message: string; reservationDatas: object | null; }> {
+      try {
+         const reservationDatas = await bookingModel.findOne({ bookingId })
+            .populate('userId', 'username email')
+            .populate('tableId', 'tableNumber tableCapacity tableLocation')
+         console.log(reservationDatas)
+         if (!reservationDatas) {
+            return { message: "Error while fetching reservation datas", reservationDatas: null }
+         }
+         return { reservationDatas, message: "" }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+   async updateBookingStatus(bookingId: string, bookingStatus: string): Promise<{ message: string; status: boolean; }> {
+      try {
+      
+         const bookingData = await bookingModel.findOneAndUpdate(
+            { bookingId },
+            { $set: { bookingStatus } },
+            { new: true })
+          
+         if (!bookingData) {
+            return { message: "Booking not found", status: false };
+         }
+         console.log("Updated Booking Data:", bookingData);
+         return { message: "Booking status updated", status: true }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+
 
 
 

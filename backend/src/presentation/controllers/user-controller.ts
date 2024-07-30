@@ -9,6 +9,8 @@ import { paymentDataRetrieval } from "../../functions/Booking/paymentDataRetriev
 import { createPayment } from "../../functions/Booking/paymentIntegration"
 import bookingModel from "../../frameworks/database/models/bookingModel"
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import reviewModel from '../../frameworks/database/models/reviewModel';
 
 export class userController {
 
@@ -309,7 +311,7 @@ export class userController {
          }
       } catch (error) {
          console.log("Error in restaurant table slot controller", error);
-         res.status(500).json({ message: "Internal server error" });
+         return res.status(500).json({ message: "Internal server error" });
       }
    }
 
@@ -327,7 +329,7 @@ export class userController {
          return res.status(200).json({ message: "Logout successfull" })
       } catch (error) {
          console.error(" OOps ! error during resend otp service:", error);
-         res.status(500).json({ message: "Internal server error" });
+         return res.status(500).json({ message: "Internal server error" });
       }
    }
 
@@ -346,7 +348,7 @@ export class userController {
          return res.status(200).json({ restaurants, message: "Search successful" });
       } catch (error) {
          console.log("Error occured in search Restaurants controller:", error)
-         res.status(500).json({ message: "Internal server error" });
+         return res.status(500).json({ message: "Internal server error" });
       }
    }
 
@@ -354,19 +356,19 @@ export class userController {
    async makePayment(req: Request, res: Response, next: NextFunction) {
       console.log("make payements")
 
-      const { restaurantDatas, userEmail, userUsername, restaurantId, tableSlotId, userId, bookingTime } = req.body
+      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId } = req.body
 
-      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableSlotId, userId, bookingTime)
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId)
       try {
          const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
-         const bookingId = new mongoose.Types.ObjectId().toString()
+         const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`;
          const session = await createPayment({ userEmail, userUsername }, totalAmount, bookingId, tableSlotId);
          console.log(session)
 
          const newBooking = new bookingModel({
             bookingId: bookingId,
             userId,
-            tableId: tableSlotId,
+            tableId: tableId,
             restaurantId: restaurantId,
             bookingDate: new Date(),
             bookingTime,
@@ -383,7 +385,7 @@ export class userController {
          return res.status(200).json({ sessionId: session.id, bookingId: newBooking.bookingId })
       } catch (error) {
          console.log(error)
-         res.status(500).json({ message: "Internal server error" });
+         return res.status(500).json({ message: "Internal server error" });
       }
    }
 
@@ -397,7 +399,7 @@ export class userController {
          }
       } catch (error) {
          console.log(error)
-         res.status(500).json({ message: "Internal server error" });
+         return res.status(500).json({ message: "Internal server error" });
       }
    }
 
@@ -432,34 +434,110 @@ export class userController {
    async updateSlotAndBookingStatus(req: Request, res: Response, next: NextFunction) {
       console.log("update slot and booking status controller");
       const { bookingId, tableSlotId, status } = req.body;
-    
-      if (!bookingId || !tableSlotId) {
-        return res.status(400).json({ error: 'Booking ID and TableSlot ID are required' });
+      console.log(bookingId, tableSlotId, status)
+
+      if (!bookingId || !tableSlotId || !status) {
+         return res.status(400).json({ error: 'Booking ID and TableSlot ID are required' });
       }
+
+      try {
+         const bookingStatus = status === 'true' ? 'CONFIRMED' : 'CANCELLED';
+         const paymentStatus = status === 'true' ? 'PAID' : 'FAILED';
+
+         await bookingModel.findOneAndUpdate(
+            { bookingId: bookingId },
+            {
+               paymentStatus,
+               bookingStatus,
+            },
+            { new: true }
+         );
+
+         if (status === 'true') {
+            await tableSlotsModel.findByIdAndUpdate(tableSlotId, { isAvailable: false });
+         }
+
+         return res.status(200).json({ message: 'Booking and table slot updated successfully' });
+      } catch (error) {
+         return res.status(500).json({ message: 'Failed to update booking and table slot', error });
+      }
+   }
+
+
+   async userBookingHistory(req: Request, res: Response, next: NextFunction) {
+      console.log("user booking history controller")
+      const userId = req.params.userId
+      console.log(userId)
+      try {
+         const { bookingDatas, message } = await this.interactor.getBookingHistoryInteractor(userId)
+         return res.status(200).json({ bookingDatas, message })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
+   async getBookingDetails(req: Request, res: Response, next: NextFunction) {
+      console.log("get booking details controller")
+      const {bookingId} = req.params
+      console.log(`Received bookingId: ${bookingId}`);
+      try {
+         const { bookingData, message } = await this.interactor.getBookingDetailsInteractor(bookingId);
+      return res.status(200).json({ bookingData, message });
+      }
+      catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: 'Internal server error' });
+      }
+   }
+
+   
+   async addReviews(req: Request, res: Response, next: NextFunction) {
+      console.log("add reviews controller");
+    
+      const restaurantId = req.params.restaurantId;
+      const { username, description, rating, userId } = req.body;
+      
+    
+      console.log(restaurantId, username, description, rating, userId);
     
       try {
-        const bookingStatus = status === 'true' ? 'CONFIRMED' : 'CANCELLED';
-        const paymentStatus = status === 'true' ? 'PAID' : 'FAILED';
-    
-        await bookingModel.findOneAndUpdate(
-          { bookingId: bookingId },
-          {
-            paymentStatus,
-            bookingStatus,
-          },
-          { new: true }
-        );
-    
-        if (status === 'true') {
-          await tableSlotsModel.findByIdAndUpdate(tableSlotId, { isAvailable: false });
+        if (!restaurantId || !username || !description || !rating || !userId) {
+          return res.status(400).json({ message: "All details are required" });
         }
     
-        res.status(200).json({ message: 'Booking and table slot updated successfully' });
+        const { reviewData, message } = await this.interactor.addReviewsInteractor({
+          restaurantId,
+          userId,
+          username,
+          description,
+          rating
+        });
+    
+        return res.status(200).json({ message, reviewData });
+    
       } catch (error) {
-        res.status(500).json({ message: 'Failed to update booking and table slot', error });
+        console.log(error);
+        return res.status(500).json({ message: 'Error in adding reviews' });
+      }
+    }
+
+
+
+    async getReviews(req:Request, res: Response, next:NextFunction){
+      console.log("get reviews controller")
+      const {restaurantId} = req.params
+      try{
+         const { reviewDatas, message } = await this.interactor.getReviewsInteractor(restaurantId)
+         return res.status(200).json({ reviewDatas, message: "review datas found"})
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: 'Error in getting reviews' })
       }
     }
     
+    
+
 
 
 

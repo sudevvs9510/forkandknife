@@ -19,6 +19,12 @@ export interface UserRepository {
    getProfileDetails(userId: string) : Promise<{ userDetails: UserType | null, status: boolean}>
    updateUser(_id: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean}>
 
+   getBookingHistory(userId: string): Promise<{ message: string; bookingDatas: object} >
+   getBookingDetails(bookingId: string): Promise<{ message:string, bookingData: object}>
+
+   addReviews(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message:string, reviewData: object}>
+   getReviews(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
+
 
 
 }

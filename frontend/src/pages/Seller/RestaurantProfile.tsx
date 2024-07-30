@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../../Components/restaurant/NavBar';
 import Sidebar from '../../Components/restaurant/SideBar';
 import RestaurantDetails from '../../Components/restaurant/RestaurantManagement';
+import ChatIcon from '../../Components/restaurant/ChatIcon';
 // import Footer from '../../Components/restaurant/Footer';
 
 const RestaurantProfile: React.FC = () => {
@@ -10,14 +11,17 @@ const RestaurantProfile: React.FC = () => {
       <Header />
       <div className="flex flex-1 ">
         <div className='bg-gray-100'>
-        <Sidebar />
+          <Sidebar />
         </div>
-        
+
         <main className="flex-1 ">
-        <RestaurantDetails />
+          <RestaurantDetails />
+          <div className="fixed bottom-5 right-5">
+            <ChatIcon />
+          </div>
         </main>
 
-        
+
       </div>
       {/* <Footer /> */}
     </div>

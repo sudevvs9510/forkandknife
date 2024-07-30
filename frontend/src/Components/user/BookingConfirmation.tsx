@@ -125,13 +125,14 @@ const ReservationDetails: React.FC = () => {
     tableSlotId
   } = useAppSelector((state: RootState) => state.bookingConfirmation);
 
+
   const userData = useAppSelector((state: RootState) => state.userAuth.user);
 
   const [paymentMethod, setPaymentMethod] = useState<string>('Online');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId) {
+  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId) {
     return null;
   }
 
@@ -155,6 +156,7 @@ const ReservationDetails: React.FC = () => {
         bookingTime: slotStartTime,
         tableSlotId: tableSlotId
       });
+      console.log(response.data)
 
       stripe?.redirectToCheckout({
         sessionId: response.data.sessionId
@@ -201,6 +203,7 @@ const ReservationDetails: React.FC = () => {
               <span className="ml-2">Online</span>
             </label>
           </div>
+          <p>{tableSlotId}</p>
 
           {error && <p className="text-red-500 mt-2">{error}</p>}
           

@@ -34,6 +34,11 @@ restaurantRouter.post("/delete-time-slot",authenticateToken('restaurant'),contro
 
 restaurantRouter.get('/user-details/:userId', controller.getUserDetails.bind(controller))
 
+restaurantRouter.get('/table-reservations/:restaurantId', controller.tableReservation.bind(controller))
+
+restaurantRouter.get('/reservation-details/:bookingId', controller.getBookingDetails.bind(controller))
+restaurantRouter.patch('/booking-status-edit/:bookingId', controller.editBookingStatus.bind(controller))
+
 restaurantRouter.post('/logout', controller.restaurantLogout.bind(controller))
 
 export default restaurantRouter

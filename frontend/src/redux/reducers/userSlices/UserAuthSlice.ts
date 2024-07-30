@@ -19,7 +19,9 @@ const initialState: userAuthState = {
    user: null,
    token: null,
    error: null,
-   loading: false
+   loading: false,
+   email: undefined,
+   username: undefined
 }
 
 export const login = createAsyncThunk(

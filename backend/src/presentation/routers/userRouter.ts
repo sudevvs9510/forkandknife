@@ -47,7 +47,12 @@ userRouter.post("/make-payment", authenticateToken("user"),controller.makePaymen
 
 userRouter.post("/update-slot-and-booking-status",authenticateToken('user'), controller.updateSlotAndBookingStatus.bind(controller))
 
+userRouter.get("/booking-history/:userId", controller.userBookingHistory.bind(controller))
+userRouter.get('/booking-details/:bookingId', controller.getBookingDetails.bind(controller));
 
+
+userRouter.post("/add-review/:restaurantId", controller.addReviews.bind(controller))
+userRouter.get("/get-reviews/:restaurantId", controller.getReviews.bind(controller))
 
 
 

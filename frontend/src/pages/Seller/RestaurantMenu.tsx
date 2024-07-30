@@ -1,8 +1,8 @@
 import React from 'react';
 import Sidebar from '../../Components/restaurant/SideBar';
 import Menu from "../../Components/restaurant/Menu";
-
 import NavBar from '../../Components/restaurant/NavBar';
+import ChatIcon from '../../Components/restaurant/ChatIcon';
 // import Footer from '../../Components/restaurant/Footer';
 
 const ReservationMenu: React.FC = () => {
@@ -14,6 +14,9 @@ const ReservationMenu: React.FC = () => {
         <Sidebar />
         </div>
           <Menu />
+          <div className="fixed bottom-5 right-5">
+          <ChatIcon />
+        </div>
         </div>
         {/* <Footer /> */}
       </div>

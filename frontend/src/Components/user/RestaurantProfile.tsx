@@ -7,20 +7,22 @@ import { RiRestaurantLine } from "react-icons/ri";
 import { IoPhonePortraitOutline } from "react-icons/io5";
 import { CiLocationOn } from "react-icons/ci";
 import authAxios from '../../redux/api/authApi';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import GoogleMap from '../GoogleMap';
 import Loader from '../Loader';
-import { getRestaurantTableSlot } from '../../api/api';
+import { fetchRestaurantReviews, getRestaurantTableSlot } from '../../api/api';
 import TableDetails from './TableDetails';
+import { IoMdChatbubbles } from "react-icons/io";
+import { addConversation } from '../../api/ChatApis';
+import { RootState, useAppSelector } from '../../redux/app/store';
 
 
 interface ReviewType {
+  description: string;
+  username: string;
   rating: number;
-  date: string;
-  reviewText: string;
-  reviewerName: string;
-  reviewerLocation: string;
-  reviewerImage: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface RestaurantType {
@@ -53,7 +55,8 @@ interface RestaurantType {
 
 const RestaurantProfile: React.FC = () => {
   const currentDate = new Date().toISOString().split('T')[0];
-
+  const userId = useAppSelector((state: RootState) => state.userAuth.user._id)
+  console.log(userId)
   const [restaurant, setRestaurant] = useState<RestaurantType | null>(null);
   const [guestCount, setGuestCount] = useState<number>(2);
   const [date, setDate] = useState(currentDate);
@@ -64,7 +67,11 @@ const RestaurantProfile: React.FC = () => {
   const [isTableDetailsModalOpen, setTableDetailsModalOpen] = useState<boolean>(false);
   const [selectedSlotStartTime, setSelectedSlotStartTime] = useState<string | null>(null);
   const [selectedSlotEndTime, setSelectedSlotEndTime] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<ReviewType[]>([]);
   const { restaurantId } = useParams();
+  const navigate = useNavigate()
+
+  console.log(tableSlotId)
 
   useEffect(() => {
     authAxios.get(`/restaurant-view/${restaurantId}`)
@@ -74,6 +81,16 @@ const RestaurantProfile: React.FC = () => {
         console.log(error);
       });
   }, [restaurantId]);
+
+  useEffect(() => {
+    const fetchReviewDatas = async () => {
+      const reviewdatas = await fetchRestaurantReviews(restaurantId as string)
+      console.log(reviewdatas)
+      setReviews(reviewdatas)
+    }
+    fetchReviewDatas()
+  }, [restaurantId])
+  console.log(reviews)
 
   useEffect(() => {
     setFetchingTimeSlots(true);
@@ -106,8 +123,9 @@ const RestaurantProfile: React.FC = () => {
 
   const getCurrentMonthRange = () => {
     const now = new Date();
-    const startOfToday = now.toISOString().split('T')[0];
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const currentDate = now.toISOString().split('T')[0];
+    const endDate = new Date(now);
+    endDate.setDate(now.getDate() + 30);
 
     const formatDateString = (date: Date) => {
       const year = date.getFullYear();
@@ -117,8 +135,8 @@ const RestaurantProfile: React.FC = () => {
     };
 
     return {
-      start: startOfToday,
-      end: formatDateString(endOfMonth),
+      start: currentDate,
+      end: formatDateString(endDate),
     };
   };
 
@@ -135,6 +153,18 @@ const RestaurantProfile: React.FC = () => {
     setFetchingTimeSlots(true);
     fetchAvailableTimeSlots().finally(() => setFetchingTimeSlots(false));
   };
+
+
+  const handleChatClick = async () => {
+    try {
+      const senderId = userId
+      const receiverId = restaurantId as string
+      const newConversation = await addConversation(senderId, receiverId);
+      navigate('/chat', { state: { conversationId: newConversation._id } });
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div>
@@ -154,8 +184,16 @@ const RestaurantProfile: React.FC = () => {
             {/* Left section */}
             <div className="lg:w-2/3 pt-10">
               <div className='py-4 '>
-                <div className="flex flex-col items-start mb-4">
-                  <h1 className="text-4xl font-bold">{restaurant.restaurantName}</h1>
+                <div className="flex flex-col mb-4">
+                  <div className='flex justify-between'>
+                    <h1 className="text-4xl font-bold">{restaurant.restaurantName}</h1>
+                    <button className='bg-teal-600 text-white text-center p-2 rounded'
+                      onClick={handleChatClick}>
+                      <span><IoMdChatbubbles className='inline-block' />
+                        Chat with restaurant
+                      </span>
+                    </button>
+                  </div>
                   <div className="flex items-center mt-2 space-x-4">
                     <div className="flex items-center">
                       <span className="text-teal-600 mr-2">★★★★☆</span>
@@ -234,16 +272,38 @@ const RestaurantProfile: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Placeholder for Reviews */}
-                <div className="bg-white p-4 rounded-lg shadow-md">
-                  <div className="flex justify-between items-center mb-4">
+                {/* Display Reviews */}
+                {reviews.length > 0 ? (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    {reviews.map((review) => (
+                      <div className="border-b border-gray-200 mb-4 pb-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="text-sm">
+                            <span className="font-semibold">{review.username}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <p className="text-gray-800 mb-2">{review.description}</p>
+                        <div className="flex items-center">
+                          <div className="text-teal-600 text-2xl mr-2">
+                            {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                          </div>
+                          <span className="text-gray-700 font-semibold">5/{review.rating} Rating</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold">No Reviews Yet</h3>
+                    <p className="text-gray-700">No reviews available for this restaurant yet.</p>
                   </div>
-                  <div className="text-gray-700">
-                    <p>No reviews available for this restaurant yet.</p>
-                  </div>
-                </div>
+                )}
+
               </div>
+
             </div>
 
             {/* Right section */}
@@ -295,16 +355,16 @@ const RestaurantProfile: React.FC = () => {
 
                 {/* Table Details Modal */}
                 <TableDetails
-                  restaurantId = {restaurant._id}
+                  restaurantId={restaurant._id}
                   selectedTable={selectedTable}
                   slotStartTime={selectedSlotStartTime}
                   slotEndTime={selectedSlotEndTime}
                   isOpen={isTableDetailsModalOpen}
                   onRequestClose={() => setTableDetailsModalOpen(false)}
-                  restaurantName = {restaurant.restaurantName}
-                  tableRate = {restaurant.TableRate}
-                  guests = {guestCount}
-                  tableSlotId = {tableSlotId}
+                  restaurantName={restaurant.restaurantName}
+                  tableRate={restaurant.TableRate}
+                  guests={guestCount}
+                  tableSlotId={tableSlotId}
                 />
 
 

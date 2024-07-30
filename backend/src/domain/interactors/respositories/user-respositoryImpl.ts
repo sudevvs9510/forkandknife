@@ -11,12 +11,11 @@ import { hashedPasswordFunction } from "../../../functions/bcryptFunctions"
 import { RestaurantType } from '../../entities/restaurant';
 import restaurantModel from '../../../frameworks/database/models/restaurantModel';
 import mongoose from 'mongoose';
-
-
+import bookingModel from '../../../frameworks/database/models/bookingModel';
+import reviewModel from "../../../frameworks/database/models/reviewModel"
 
 export class UserRepositoryImpl implements UserRepository {
-
-
+   
    async findByCredentials(email: string, password: string): Promise<{ user: UserType | null; message: string; token: string | null }> {
       try {
          console.log("s REPOSITORY ----");
@@ -269,7 +268,77 @@ export class UserRepositoryImpl implements UserRepository {
       }
    }
 
+   async getBookingHistory(userId: string): Promise<{ message: string; bookingDatas: object; }> {
+      console.log(userId)
+      try {
+         const bookingDatas = await bookingModel.find({ userId })
+            .populate('restaurantId', 'restaurantName featuredImage')
+            .populate('tableId', 'tableNumber tableCapacity tableLocation')
+            .sort({ bookingDate: -1 });
+         console.log(bookingDatas)
+         return { message: "", bookingDatas }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+   async getBookingDetails(bookingId: string): Promise<{ message: string; bookingData: object; }> {
+      try {
+         console.log(`Querying for bookingId: ${bookingId}`);
+         const bookingData = await bookingModel.findOne({ bookingId })
+            .populate('restaurantId', 'restaurantName')
+            .populate('tableId', 'tableNumber tableCapacity tableLocation')
+         console.log(bookingData)
+
+         if (!bookingData) {
+            return { message: 'Booking not found', bookingData: {} };
+         }
+
+         return { message: 'Booking found', bookingData };
+      } catch (error) {
+         console.error(error);
+         throw error;
+      }
+   }
+
+   async addReviews(
+      reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number
+    }): Promise<{ message: string; reviewData: object; }> {
+      try {
+
+      const reviewId = new mongoose.Types.ObjectId();
+
+        const reviewData = await reviewModel.create({...reviewDetails, reviewId});
+    
+        // Return a success message and the created review data
+        return { message: "Review added successfully", reviewData };
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    }
+
+    async getReviews(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
+      try{
+         const reviewDatas = await reviewModel.find({restaurantId})         
+         .sort({ rating: -1 });
+         if (!reviewDatas) {
+            return { message: 'No reviews found', reviewDatas: [] };
+          }
+         console.log(reviewDatas)
+         return { message: "Reviews found", reviewDatas };
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+
 }
+
+
 
 
 

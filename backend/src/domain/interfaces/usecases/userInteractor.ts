@@ -21,6 +21,12 @@ export interface UserInteractor{
    getProfileInteractor(userId: string): Promise <{ userDetails: UserType | null, status: boolean}>
    updateUserDetailsInteractor(userId: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean}>
 
+   getBookingHistoryInteractor(userId: string): Promise<{ message: string, bookingDatas: object}>
+   getBookingDetailsInteractor(bookingId: string): Promise<{message: string, bookingData: object}>
+
+   addReviewsInteractor(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message: string, reviewData: object }>
+   getReviewsInteractor(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
+
 
 }
 

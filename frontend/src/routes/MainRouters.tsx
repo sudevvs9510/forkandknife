@@ -13,8 +13,14 @@ const ForgotPasswordMailPage = lazy(() => import("../Components/user/EmailForgot
 const ForgotNewPassword = lazy(() => import("../Components/user/NewPassword"));
 const TableBooking = lazy(()=> import('../pages/User/TableBooking'))
 const Chat = lazy(()=> import('../pages/User/Chat'))
+// const BookingHistory = lazy(()=> import("../Components/user/BookingHistory"))
+const BookingFullDetails = lazy(()=> import("../pages/User/BookingDetails"))
+
+
+// stripe payment links 
 import PaymentSuccess from '../Components/user/PaymentSuccess';
 import PaymentFailure from '../Components/user/PaymentFailure';
+
 
 
 // admin components
@@ -28,6 +34,7 @@ const RestoRegisterManagement = lazy(() => import("../pages/Admin/NewRestaurants
 const RestaurantSignup = lazy(() => import("../Components/auth/RestaurantSignup"));
 const RestaurantLogin = lazy(() => import("../Components/auth/RestaurantLogin"));
 const Reservation = lazy(() => import('../pages/Seller/Reservation'));
+const UpdateReservation =lazy(() =>  import('../pages/Seller/UpdateReservation'))
 const Menu = lazy(() => import("../pages/Seller/RestaurantMenu"));
 const Profile = lazy(() => import("../pages/Seller/RestaurantProfile"));
 const TableManagement = lazy(() => import("../pages/Seller/TableMangement"));
@@ -58,6 +65,11 @@ const MainRouter:React.FC = () => {
         <Route path="/booking-confirmation" element={<UserProtected element={<TableBooking />} allowedRoles={['user']} />} />
 
         <Route path="/chat" element={<UserProtected element={<Chat />} allowedRoles={['user']} />} />
+        
+        {/* <Route path="/booking-history/:userId" element={<UserProtected element={<BookingHistory />} allowedRoles={['user']} />} /> */}
+        <Route path="/booking-details/:bookingId" element={<UserProtected element={<BookingFullDetails />} allowedRoles={['user']} />} />
+
+
 
         <Route path="/payment-success" element={<UserProtected element={<PaymentSuccess />} allowedRoles={['user']} />} />
         <Route path="/payment-failure" element={<UserProtected element={<PaymentFailure />} allowedRoles={['user']} />} />
@@ -76,6 +88,8 @@ const MainRouter:React.FC = () => {
         <Route path="restaurant/login" element={<RestaurantLogin />} />
         <Route path="restaurant/dashboard" element={<RestaurantProtected element={<RestaurantDashboard />} allowedRoles={['restaurant']} />} />
         <Route path="restaurant/reservations" element={<RestaurantProtected element={<Reservation />} allowedRoles={['restaurant']} />} />
+        <Route path="restaurant/update-reservations/:bookingId" element={<RestaurantProtected element={<UpdateReservation />} allowedRoles={['restaurant']} />} />
+
         <Route path="restaurant/menu" element={<RestaurantProtected element={<Menu />} allowedRoles={['restaurant']} />} />
         <Route path="restaurant/profile" element={<RestaurantProtected element={<Profile />} allowedRoles={['restaurant']} />} />
         <Route path="restaurant/tables" element={<RestaurantProtected element={<TableManagement />} allowedRoles={['restaurant']} />} />

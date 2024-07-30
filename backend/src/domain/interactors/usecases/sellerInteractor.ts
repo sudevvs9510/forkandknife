@@ -3,28 +3,28 @@ import { restaurantRepository } from "../../interfaces/repositories/restaurant-r
 import { restaurantInteractor } from "../../interfaces/usecases/restaurantInteractor"
 
 
-export class sellerInteractor implements restaurantInteractor{
-   constructor (private readonly repository: restaurantRepository) {}
+export class sellerInteractor implements restaurantInteractor {
+   constructor(private readonly repository: restaurantRepository) { }
    
-  async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
-      try{
+   async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
+      try {
          console.log("Inside restaurant registration usecase")
-         console.log("Credentials received",credentials);
+         console.log("Credentials received", credentials);
          const { message, restaurant } = await this.repository.create(credentials)
          return { message, restaurant }
-      } catch (error){
+      } catch (error) {
          console.log("Error in Restaurant registration interactor", error);
          throw error
       }
    }
 
-   async restaurantLogin(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null; refreshtoken: string | null}> {
+   async restaurantLogin(data: Partial<RestaurantType>): Promise<{ restaurant: Partial<RestaurantType> | null; message: string; token: string | null; refreshtoken: string | null }> {
       console.log("Seller Login Interactor")
-      try{
+      try {
          console.log(data);
-         const { message,token, restaurant,refreshtoken } = await this.repository.findCredentials(data)
-         return { message, token, restaurant, refreshtoken }   
-      } catch(error){
+         const { message, token, restaurant, refreshtoken } = await this.repository.findCredentials(data)
+         return { message, token, restaurant, refreshtoken }
+      } catch (error) {
          console.error("Error in restaurant registration interactor", error);
          throw error
       }
@@ -32,10 +32,10 @@ export class sellerInteractor implements restaurantInteractor{
 
    async restaurantDetailsUpdateInteractor(credentials: RestaurantType): Promise<{ restaurant: Partial<RestaurantType>; message: string; }> {
       console.log("Restaurant updation interactor")
-      try{
+      try {
          const { message, restaurant } = await this.repository.restaurantAllDetails(credentials)
          return { message, restaurant }
-      } catch(error){
+      } catch (error) {
          console.log("Error in restaurantDetailsUpdateInteractor:", error)
          throw error
       }
@@ -43,11 +43,11 @@ export class sellerInteractor implements restaurantInteractor{
 
 
    async restaurantGetProfileInteractor(_id: string): Promise<{ restaurant: object; }> {
-      try{
+      try {
          const { restaurant } = await this.repository.getRestaurant(_id)
          return { restaurant }
-      } catch(error){
-         console.log(error) 
+      } catch (error) {
+         console.log(error)
          throw error
       }
    }
@@ -55,32 +55,42 @@ export class sellerInteractor implements restaurantInteractor{
 
    //Restaurant table view interactor
    async getRestaurantTableInteractor(restaurantId: string): Promise<{ message: string; tableSlotDatas: object; }> {
-      try{
+      try {
          const { message, tableSlotDatas } = await this.repository.restaurantTableDatas(restaurantId)
-         return { message, tableSlotDatas}
-      } catch(error){
+         return { message, tableSlotDatas }
+      } catch (error) {
          console.log("Error in getRestaurantTableInteractor", error)
+         throw error
+      }
+   }
+
+   async getBookingDetailsInteractor(restaurnatId: string): Promise<{ message: string; bookingDatas: object; }> {
+      try {
+         const { message, bookingDatas } = await this.repository.getBookingDetails(restaurnatId)
+         return { message, bookingDatas }
+      } catch (error) {
+         console.log("Error in getBookingDetailsInteractor", error)
          throw error
       }
    }
 
    //restaruant table add modal interactor
    async addTableInteractor(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { status, message } = await this.repository.addNewTableSlot( tableSlotDatas, restaurantId)
-         return { status, message}
-      } catch(error){
-        console.log(error)
-        throw error
+      try {
+         const { status, message } = await this.repository.addNewTableSlot(tableSlotDatas, restaurantId)
+         return { status, message }
+      } catch (error) {
+         console.log(error)
+         throw error
       }
    }
 
    //restaurant table delete interactor
    async deleteTableInteractor(tableId: string, restaurantId: string): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { status, message } = await this.repository.deleteTableSlot( tableId, restaurantId)
-         return { status, message}
-      } catch(error){
+      try {
+         const { status, message } = await this.repository.deleteTableSlot(tableId, restaurantId)
+         return { status, message }
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -88,10 +98,10 @@ export class sellerInteractor implements restaurantInteractor{
 
    //Restaurant table slot view interactor
    async getRestaurnatTableSlotInteractor(tableId: string): Promise<{ message: string; tableSlotDatas: object; }> {
-      try{
+      try {
          const { message, tableSlotDatas } = await this.repository.restaurantTableSlotDatas(tableId)
          return { message, tableSlotDatas }
-      } catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -99,58 +109,79 @@ export class sellerInteractor implements restaurantInteractor{
 
    //Restaurant table slot add modal interactor
    async addTableSlotInteractor(tableSlotTimeData: { slotStartTime: string, slotEndTime: string, tableSlotDate: string }, tableId: string): Promise<{ message: string; status: boolean; }> {
-      try{
+      try {
          const { message, status } = await this.repository.addTableSlot(tableSlotTimeData, tableId)
-         return { message, status}
-      } catch(error){
-         console.log("Error in create table time slot interactor",error)
+         return { message, status }
+      } catch (error) {
+         console.log("Error in create table time slot interactor", error)
          throw error
       }
    }
 
    //Restaurant table slot delete slot  interactor
    async deleteTableSlotInteractor(restaurantId: string, tableSlotId: string): Promise<{ message: string; status: boolean; }> {
-      try{
+      try {
          const { message, status } = await this.repository.deleteTableTimeSlot(restaurantId, tableSlotId)
-         return { message, status}
-       } catch(error){
+         return { message, status }
+      } catch (error) {
          console.log(error)
          throw error
-       }
+      }
    }
 
    async getTimeSlotInteractor(restaurantId: string): Promise<{ message: string; timeSlotDatas: object; }> {
-      try{
+      try {
          const { timeSlotDatas, message } = await this.repository.restaurantTimeslotDatas(restaurantId)
          return { timeSlotDatas, message }
-      } catch(error){
+      } catch (error) {
          console.log("Error in getRestaurantTableInteractor", error)
          throw error
       }
-   } 
+   }
 
    async addTimeSlotInteractor(timeSlotDatas: timeSlotTypes): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { status, message } = await this.repository.addTimeSlot( timeSlotDatas)
+      try {
+         const { status, message } = await this.repository.addTimeSlot(timeSlotDatas)
          return { status, message }
-      } catch(error){
+      } catch (error) {
          console.group("Error in add time slot interactor", error)
          throw error
       }
    }
 
    async deleteTimeSlotInteractor(timeSlotId: string, restaruantId: string): Promise<{ message: string; status: boolean; }> {
-      try{
+      try {
          const { status, message } = await this.repository.deleteTimeSlot(timeSlotId)
          return { status, message }
-      } catch(error){
-         console.log("Error in delete time slot interactor",error)
+      } catch (error) {
+         console.log("Error in delete time slot interactor", error)
          throw error
       }
    }
 
-  
 
-   
-   
+   async getReservationDetailsInteractor(bookingId: string): Promise<{ message: string; reservationDatas: object | null; }> {
+      try {
+      const { reservationDatas, message } = await this.repository.getReservationDetails(bookingId)
+      return {reservationDatas, message }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async updateBookingStatusInteractor(bookingId: string, bookingStatus: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.repository.updateBookingStatus(bookingId, bookingStatus)
+         return { message, status}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+
+
 }

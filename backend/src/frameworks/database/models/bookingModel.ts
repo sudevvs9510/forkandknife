@@ -9,7 +9,7 @@ const bookingSchema = new Schema({
   },
   userId: {
     type: ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
   tableId: {
@@ -41,7 +41,7 @@ const bookingSchema = new Schema({
   },
   bookingStatus: {
     type: String,
-    enum: ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED" , "CHECKED"],
+    enum: ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED" , "CHECKED IN"],
     default: "PENDING",
   },
   totalAmount: {

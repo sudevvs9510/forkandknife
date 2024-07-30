@@ -7,6 +7,7 @@ import { RootState } from '../../redux/app/store';
 import { getUserDetails } from '../../api/RestaurantApis';
 import { getConversations, getMessages, sendMessage } from '../../api/ChatApis';
 import { io, Socket } from 'socket.io-client';
+import { IoIosSend } from 'react-icons/io';
 
 interface ConversationType {
   _id: string;
@@ -22,6 +23,11 @@ interface MessageType {
   updatedAt: string;
 }
 
+interface UserDetails {
+  username: string;
+  email: string; // Add other details you want to display
+}
+
 const RestaurantChat: React.FC = () => {
   const restaurantId = useSelector((state: RootState) => state.restaurantAuth.restaurant._id);
   const [conversations, setConversations] = useState<ConversationType[]>([]);
@@ -29,6 +35,7 @@ const RestaurantChat: React.FC = () => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
+  const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -117,8 +124,13 @@ const RestaurantChat: React.FC = () => {
     }
   };
 
-  const handleSelectConversation = (conv: ConversationType) => {
+  const handleSelectConversation = async (conv: ConversationType) => {
     setSelectedConversation(conv);
+    const userId = conv.members.find((member) => member !== restaurantId);
+    if (userId) {
+      const userDetails = await getUserDetails(userId);
+      setSelectedUser(userDetails);
+    }
     if (socketRef.current) {
       console.log('Joining conversation room:', conv._id);
       socketRef.current.emit('join conversation', conv._id);
@@ -132,7 +144,7 @@ const RestaurantChat: React.FC = () => {
   return (
     <div className="flex h-screen">
       {/* Conversations Section */}
-      <div className="w-1/5 border-r border-gray-300 p-4">
+      <div className="w-1/4 border-r border-gray-300 p-4">
         <h2 className="text-2xl font-bold mb-4">Chat</h2>
         <ul>
           {conversations.map((conv) => {
@@ -159,7 +171,13 @@ const RestaurantChat: React.FC = () => {
       {/* Messages Section */}
       <div className="w-full p-4 flex flex-col bg-teal-50">
         {selectedConversation ? (
-          <div className="flex flex-col h-full relative">
+          <div className="flex flex-col h-full relative ">
+            {selectedUser && (
+              <div className="pt-2 p-4 border border-gray-200 rounded mb-1">
+                <h3 className="text-xl font-bold">{selectedUser.username}</h3>
+                <p>{selectedUser.email}</p>
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto mb-16 bg-teal-200 bg-opacity-20">
               {messages.length > 0 ? (
                 messages.map((msg) => (
@@ -173,7 +191,7 @@ const RestaurantChat: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center">No messages yet. Start a new conversation.</div>
+                <div className="mt-[250px] text-center">No messages yet. Start a new conversation.</div>
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -186,7 +204,9 @@ const RestaurantChat: React.FC = () => {
                   className="w-full border p-2 rounded mr-2"
                   placeholder="Type your message..."
                 />
-                <button type="submit" className="bg-teal-600 text-white p-2 rounded">Send</button>
+                <button type="submit" className="bg-teal-600 flex items-baseline text-white p-2 rounded">
+                   Send <IoIosSend className="ml-1" />
+                </button>
               </form>
             </div>
           </div>
@@ -199,3 +219,4 @@ const RestaurantChat: React.FC = () => {
 };
 
 export default RestaurantChat;
+

@@ -13,12 +13,13 @@ import { Error } from "mongoose";
 export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
-  
    
+
+
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
          console.log("Signup ----");
-         
+
          const { user, message } = await this.Repository.createUser(credentials)
          console.log('Usercase returned', user, message);
          return { user, message }
@@ -47,10 +48,10 @@ export class UserInteractorImpl implements UserInteractor {
    }
 
 
-   async verifyotp( otp: string, userId: string ): Promise<{ message: string; status: boolean }> {
+   async verifyotp(otp: string, userId: string): Promise<{ message: string; status: boolean }> {
       try {
          console.log("verify otp")
-         const { message,status } = await this.Repository.verifyOtp(otp, userId)
+         const { message, status } = await this.Repository.verifyOtp(otp, userId)
          return { message, status }
       }
       catch (err) {
@@ -61,45 +62,45 @@ export class UserInteractorImpl implements UserInteractor {
 
    async googlelogin(credentials: { email: string; given_name: string; sub: string }): Promise<{ user: UserType | null; message: string; token: string | null; refreshToken: string | null }> {
       try {
-         
-        const { email, given_name, sub } = credentials;
-        console.log("Googel Login usecaseimpl", email, given_name, sub)
-        let { userData, message, token } = await this.Repository.findGoogleCredentials(email);
-  
-        if (!userData) {
-        // User does not exist, create a new one using createGoogleUser
-          const { user, message:createMessage  } = await this.Repository.createGoogleUser({ email, username: given_name, password: sub });
-         //  user = { user: newUser, message: "User created and logged in", token: null };
-         message = createMessage;
-         if(user){
-            token = generateAccessToken(user.id as string, 'user')
+
+         const { email, given_name, sub } = credentials;
+         console.log("Googel Login usecaseimpl", email, given_name, sub)
+         let { userData, message, token } = await this.Repository.findGoogleCredentials(email);
+
+         if (!userData) {
+            // User does not exist, create a new one using createGoogleUser
+            const { user, message: createMessage } = await this.Repository.createGoogleUser({ email, username: given_name, password: sub });
+            //  user = { user: newUser, message: "User created and logged in", token: null };
+            message = createMessage;
+            if (user) {
+               token = generateAccessToken(user.id as string, 'user')
+            }
+            return { user, message, token, refreshToken: null };
          }
-         return { user , message, token , refreshToken : null};
-      }
 
-  
-      const refreshToken = userData ? generateRefreshToken(userData.id as string, 'user') : null;
-      return { user : userData , message, token, refreshToken };
+
+         const refreshToken = userData ? generateRefreshToken(userData.id as string, 'user') : null;
+         return { user: userData, message, token, refreshToken };
       } catch (err) {
-        console.error(err);
-        throw err;
+         console.error(err);
+         throw err;
       }
-    }
+   }
 
-   async resendOtp (userId: string): Promise <{message: string; status:boolean}>{
-      try{
+   async resendOtp(userId: string): Promise<{ message: string; status: boolean }> {
+      try {
          const { message, status } = await this.Repository.resend(userId)
          return { message, status }
-       } catch(error){
+      } catch (error) {
          console.log(error);
          throw error
-       }
+      }
    }
 
    async resetPasswordInteractor(email: string): Promise<{ message: string; success: boolean; }> {
       try {
          const { message, success } = await this.Repository.resetPassword(email)
-         return { message, success } 
+         return { message, success }
       } catch (error) {
          console.log(error)
          throw error
@@ -107,21 +108,21 @@ export class UserInteractorImpl implements UserInteractor {
    }
 
 
-   async  resetPasswordUpdateItneractor(id: string, password: string): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { message, status } = await this.Repository.confirmResetPassword(id,password)
+   async resetPasswordUpdateItneractor(id: string, password: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         const { message, status } = await this.Repository.confirmResetPassword(id, password)
          return { message, status }
-      }catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }
    }
 
    async getApprovedRestaurantsInteractor(): Promise<{ approvedRestaurants: RestaurantType[]; }> {
-      try{
+      try {
          const { approvedRestaurants } = await this.Repository.getApprovedRestaurants()
          return { approvedRestaurants }
-      } catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -132,7 +133,7 @@ export class UserInteractorImpl implements UserInteractor {
    //    try{
    //       const REFRESH_TOKEN_SECRET = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
    //       const verified = jwtVerifyToken(refreshToken, REFRESH_TOKEN_SECRET)
-         
+
    //       if(!verified.decode || !verified.decode.userId){
    //          throw new Error("Invalid refresh token")
    //       }
@@ -154,19 +155,19 @@ export class UserInteractorImpl implements UserInteractor {
 
 
    async searchRestaurantInteractor(query: string, location?: { type: string; coordinates: number[]; }): Promise<{ restaurants: RestaurantType[]; }> {
-      try{
+      try {
          return this.Repository.searchRestaurants(query, location)
-      } catch (error){
+      } catch (error) {
          console.error(error);
          throw error
       }
    }
 
    async getProfileInteractor(userId: string): Promise<{ userDetails: UserType | null; status: boolean; }> {
-      try{
-         const {userDetails, status } = await this.Repository.getProfileDetails(userId)
+      try {
+         const { userDetails, status } = await this.Repository.getProfileDetails(userId)
          return { userDetails, status }
-      }catch(error){
+      } catch (error) {
          console.log("Error in get profile Interactor", error)
          throw error
       }
@@ -174,31 +175,68 @@ export class UserInteractorImpl implements UserInteractor {
 
 
    async updateUserDetailsInteractor(userId: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean; }> {
-      try{
+      try {
          console.log("User ID and datas in interactor:", { userId, datas });
          const { updatedUser, status } = await this.Repository.updateUser(userId, datas)
-         return { updatedUser, status} 
-      } catch(error){
+         return { updatedUser, status }
+      } catch (error) {
          console.log(error)
          throw error
       }
    }
 
 
+   async getBookingHistoryInteractor(userId: string): Promise<{ message: string; bookingDatas: object; }> {
+      try {
+         const { message, bookingDatas } = await this.Repository.getBookingHistory(userId)
+         return { message, bookingDatas }
+      } catch (error) {
+         console.error(error);
+         throw error
+      }
+   }
 
-//     async getRestaurantsInteractor(query?: string, location?: { type: string; coordinates: number[]; }): Promise<{ restaurants: RestaurantType[]; }> {
-//     try {
-//       if (query) {
-//         const { restaurants } = await this.searchRestaurantInteractor(query, location);
-//         return { restaurants };
-//       } else {
-//         const { approvedRestaurants } = await this.getApprovedRestaurantsInteractor();
-//         return { restaurants: approvedRestaurants };
-//       }
-//     } catch (error) {
-//       console.error('Error in getRestaurantsInteractor:', error);
-//       throw error;
-//     }
-//   }
+
+   async getBookingDetailsInteractor(bookingId: string): Promise<{ message: string; bookingData: object; }> {
+      try {
+         console.log(`Interactor querying for bookingId: ${bookingId}`);
+         const { bookingData, message } = await this.Repository.getBookingDetails(bookingId);
+         return { bookingData, message };
+      } catch (error) {
+         console.error(error);
+         throw error;
+      }
+   }
+
+   // In userInteractorImpl.ts
+
+   async addReviewsInteractor(reviewDetails: {
+      restaurantId: string,
+      userId: string,
+      username: string,
+      description: string,
+      rating: number
+   }): Promise<{ message: string; reviewData: object; }> {
+      try {
+         const { reviewData, message } = await this.Repository.addReviews(reviewDetails);
+         return { reviewData, message };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
+
+
+   async getReviewsInteractor(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
+      try{
+         console.log(restaurantId)
+         const { reviewDatas, message } = await this.Repository.getReviews(restaurantId)
+         return { reviewDatas , message}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
 
 }

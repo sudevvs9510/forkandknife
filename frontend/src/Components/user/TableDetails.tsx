@@ -87,6 +87,7 @@ const TableDetails: React.FC<TableDetailsProps> = ({
             <FaUserFriends className="inline-block size-5 mr-2 mb-2 text-teal-600" />
             <strong>{guests} Guests </strong>
           </p>
+          <p>{tableSlotId}</p>
         
           <Link to="/booking-confirmation">
             <button

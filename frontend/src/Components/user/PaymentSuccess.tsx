@@ -59,6 +59,7 @@ const PaymentSuccess: React.FC = () => {
   useEffect(() => {
     const updateBookingAndSlotStatus = async () => {
       if (bookingId && tableSlotId) {
+        console.log(bookingId, tableSlotId)
         try {
           const response = await authAxios.post('/update-slot-and-booking-status', { bookingId, tableSlotId, status });
           console.log('Booking and table slot updated successfully', response);

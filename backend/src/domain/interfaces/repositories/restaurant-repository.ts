@@ -9,6 +9,8 @@ export interface restaurantRepository {
    getRestaurant(restaurantId: string): Promise<{ restaurant: any, message: string }>
    //Restaurant table view
    restaurantTableDatas(restaurantId: string): Promise<{ message: string, tableSlotDatas: object }>
+
+   getBookingDetails(restaurantId: string) : Promise<{ message: string, bookingDatas: object}>
    // restaurant table add modal
    addNewTableSlot(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{ message: string, status: boolean }>
    //restaruant table deletion
@@ -25,6 +27,9 @@ export interface restaurantRepository {
    addTimeSlot(timeSlotDatas: timeSlotTypes) : Promise<{ message: string, status: boolean }>
 
    deleteTimeSlot(timeSlotId: string): Promise<{ message:string, status: boolean }>
+
+   getReservationDetails(bookingId: string) : Promise<{ message: string, reservationDatas: object | null}>
+   updateBookingStatus(bookingId: string, bookingStatus: string): Promise<{ message: string, status:boolean}>
    
 
 

@@ -205,6 +205,7 @@ export class restaurantController {
    }
 
 
+
    async addRestaurantTimeSlot(req: Request, res: Response, next: NextFunction) {
       console.log("Add time slot controller")
       const { slotStartTime, slotEndTime } = req.body;
@@ -250,6 +251,23 @@ export class restaurantController {
       }
    }
 
+
+
+   async tableReservation (req:Request, res: Response, next: NextFunction){
+      console.log("Table reservation controller")
+      const restaurantId = req.params.restaurantId
+      console.log("restaurantId :", restaurantId)
+      try{
+         const { bookingDatas , message } = await this.interactor.getBookingDetailsInteractor(restaurantId)
+         return res.status(200).json({ bookingDatas, message })
+      }catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error"})
+      }
+   }
+
+
+
    async restaurantLogout(req: Request, res: Response, next: NextFunction) {
       console.log("Logout restaurant")
       try {
@@ -264,6 +282,41 @@ export class restaurantController {
          return res.status(500).send({ message: "Logout successfull" })
       }
    }
+
+
+   async getBookingDetails(req:Request, res: Response, next: NextFunction){
+      console.log("Get booking details controller")
+      const {bookingId} = req.params
+      console.log(bookingId)
+      try{
+         const { reservationDatas, message} = await this.interactor.getReservationDetailsInteractor(bookingId)
+         return res.status(200).json({ reservationDatas, message })
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "error while fetching booking details controller"})
+      }
+   }
+
+   async editBookingStatus(req:Request, res:Response, next:NextFunction){
+      console.log("Edit booking status controller")
+      const { bookingId} = req.params
+      console.log(bookingId)
+
+      const {bookingStatus} = req.body
+      console.log(bookingStatus)
+      try{
+         const { message, status } = await this.interactor.updateBookingStatusInteractor(bookingId ,bookingStatus)
+         if(!status){
+            return res.status(400).json({ message: "Invalid booking status" })
+         }
+         return res.status(200).json({ message: "Booking status updated", status: true})
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Error during updating booking status controller"})
+      }
+   }
+
+   
 
 
 
