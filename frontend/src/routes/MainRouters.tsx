@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Loader from '../Components/Loader';  
 
 // user components
@@ -13,6 +13,7 @@ const ForgotPasswordMailPage = lazy(() => import("../Components/user/EmailForgot
 const ForgotNewPassword = lazy(() => import("../Components/user/NewPassword"));
 const TableBooking = lazy(()=> import('../pages/User/TableBooking'))
 const Chat = lazy(()=> import('../pages/User/Chat'))
+// const Chat = lazy(()=> import('../Components/user/Chat'))
 // const BookingHistory = lazy(()=> import("../Components/user/BookingHistory"))
 const BookingFullDetails = lazy(()=> import("../pages/User/BookingDetails"))
 
@@ -29,6 +30,7 @@ const AdminDashboard = lazy(() => import("../pages/Admin/AdminDashboard"));
 const RestaurantManagement = lazy(() => import("../pages/Admin/RestaurantManagement"));
 const RestaurantApproval = lazy(() => import("../Components/admin/RestaurantApproval"));
 const RestoRegisterManagement = lazy(() => import("../pages/Admin/NewRestaurants"));
+const UserManagement = lazy (()=> import("../pages/Admin/UserManagement.tsx"))
 
 // restaurant components
 const RestaurantSignup = lazy(() => import("../Components/auth/RestaurantSignup"));
@@ -58,7 +60,10 @@ const MainRouter:React.FC = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<Otp />} />
         <Route path="/" element={<UserProtected element={<Home />} allowedRoles={['user']} />} />
-        <Route path="/profile/:userId" element={<UserProtected element={<UserProfile />} allowedRoles={['user']} />} />
+        <Route path="/profile/:userId/*" element={<UserProtected element={<UserProfile />} allowedRoles={['user']} />} />
+        <Route path="*" element={<Navigate  to="/profile/:userId" />} />
+        
+
         <Route path="/restaurant-view/:restaurantId" element={<UserProtected  element={<RestaurantProfile />} allowedRoles={['user']} />} />
         <Route path="/reset-password" element={<ForgotPasswordMailPage />} />
         <Route path="/reset-password/:id" element={<ForgotNewPassword />} />
@@ -82,6 +87,7 @@ const MainRouter:React.FC = () => {
         <Route path="/admin/restaurant-lists" element={<AdminProtected element={<RestaurantManagement />} allowedRoles={['admin']} />} />
         <Route path="/admin/restaurant-approval/:id" element={<AdminProtected element={<RestaurantApproval />} allowedRoles={['admin']} />} />
         <Route path="/admin/new-registrations" element={<AdminProtected element={<RestoRegisterManagement />} allowedRoles={['admin']} />} />
+        <Route path="/admin/user-management" element={<AdminProtected element={<UserManagement />} allowedRoles={['admin']} />} />
 
         {/* Restaurant Routes */}
         <Route path="restaurant/signup" element={<RestaurantSignup />} />

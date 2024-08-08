@@ -51,7 +51,7 @@ const restaurantSchema = new mongoose.Schema(
     openingTime: String,
     closingTime: String,
     // qrCode: String,
-    isListed: {
+    isBlocked: {
       type: Boolean,
       default: false,
     },

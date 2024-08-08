@@ -19,7 +19,8 @@ interface TableDetailsProps {
   onRequestClose: () => void;
   restaurantName: string;
   restaurantId: string,
-  tableSlotId: string
+  tableSlotId: string,
+  bookingDate: string
 }
 
 const TableDetails: React.FC<TableDetailsProps> = ({
@@ -32,7 +33,8 @@ const TableDetails: React.FC<TableDetailsProps> = ({
   guests,
   tableRate,
   restaurantId,
-  tableSlotId
+  tableSlotId,
+  bookingDate
 }) => {
   const dispatch = useAppDispatch();
 
@@ -47,11 +49,12 @@ const TableDetails: React.FC<TableDetailsProps> = ({
           tableRate,
           restaurantName,
           restaurantId,
-          tableSlotId
+          tableSlotId,
+          bookingDate
         })
       );
     }
-  }, [dispatch, selectedTable, slotStartTime, slotEndTime, isOpen, guests, tableRate, restaurantName, tableSlotId]);
+  }, [dispatch, selectedTable, slotStartTime, slotEndTime, isOpen, guests, tableRate, restaurantName, tableSlotId, bookingDate]);
 
   if (!selectedTable || !isOpen) {
     return null;
@@ -81,13 +84,16 @@ const TableDetails: React.FC<TableDetailsProps> = ({
           </p>
           <p>
             <FaClock className="inline-block size-5 mr-2 mb-2 text-teal-600" />
+            <strong>Selected Date:</strong> {bookingDate}
+          </p>
+          <p>
+            <FaClock className="inline-block size-5 mr-2 mb-2 text-teal-600" />
             <strong>Selected Time:</strong> {slotStartTime} - {slotEndTime}
           </p>
           <p>
             <FaUserFriends className="inline-block size-5 mr-2 mb-2 text-teal-600" />
             <strong>{guests} Guests </strong>
           </p>
-          <p>{tableSlotId}</p>
         
           <Link to="/booking-confirmation">
             <button

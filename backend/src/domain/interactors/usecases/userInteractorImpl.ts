@@ -14,8 +14,6 @@ export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
    
-
-
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
          console.log("Signup ----");
@@ -232,6 +230,28 @@ export class UserInteractorImpl implements UserInteractor {
          console.log(restaurantId)
          const { reviewDatas, message } = await this.Repository.getReviews(restaurantId)
          return { reviewDatas , message}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async getWalletInteractor(userId: string): Promise<{ message: string; walletDatas: object | null; }> {
+      try{
+         const { message, walletDatas} = await this.Repository.getWalletDetails(userId)
+         return { message, walletDatas}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async cancelBookingInteractor(bookingId: string, userId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { status, message } = await this.Repository.cancelBooking(bookingId, userId)
+         return { status, message }
       } catch(error){
          console.log(error)
          throw error

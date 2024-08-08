@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { format } from 'timeago.js';
@@ -8,6 +10,7 @@ import { getUserDetails } from '../../api/RestaurantApis';
 import { getConversations, getMessages, sendMessage } from '../../api/ChatApis';
 import { io, Socket } from 'socket.io-client';
 import { IoIosSend } from 'react-icons/io';
+import { IoClose } from 'react-icons/io5'; // Import close icon
 
 interface ConversationType {
   _id: string;
@@ -36,6 +39,8 @@ const RestaurantChat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
+  const [showMessages, setShowMessages] = useState<boolean>(false); // State to manage section visibility
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -81,9 +86,20 @@ const RestaurantChat: React.FC = () => {
     if (restaurantId) {
       socketRef.current = io('http://localhost:4000'); // Replace with your server URL
 
+      socketRef.current.emit("join", restaurantId)
+
       socketRef.current.on('connect', () => {
         console.log('Connected to socket server');
       });
+
+      socketRef.current.on("return_online", (data) => {
+        console.log(data)
+        setOnlineUsers(data)
+      })
+
+      socketRef.current.on("online_update", (data) => {
+        setOnlineUsers(data)
+      })
 
       socketRef.current.on('chat message', (message: MessageType) => {
         console.log('Received message:', message);
@@ -97,6 +113,7 @@ const RestaurantChat: React.FC = () => {
       });
 
       return () => {
+        socketRef.current?.emit('remove_online', restaurantId)
         socketRef.current?.disconnect();
       };
     }
@@ -112,7 +129,6 @@ const RestaurantChat: React.FC = () => {
     e.preventDefault();
     if (selectedConversation && restaurantId && newMessage) {
       await sendMessage(selectedConversation._id, restaurantId, newMessage);
-      // setMessages((prevMessages) => [...prevMessages, message]);
       setNewMessage('');
 
       socketRef.current?.emit('chat message', {
@@ -131,10 +147,18 @@ const RestaurantChat: React.FC = () => {
       const userDetails = await getUserDetails(userId);
       setSelectedUser(userDetails);
     }
+    setShowMessages(true); // Show message section
     if (socketRef.current) {
       console.log('Joining conversation room:', conv._id);
       socketRef.current.emit('join conversation', conv._id);
     }
+  };
+
+  const handleCloseConversation = () => {
+    setSelectedConversation(null);
+    setMessages([]);
+    setSelectedUser(null);
+    setShowMessages(false); // Hide message section
   };
 
   if (!restaurantId) {
@@ -142,9 +166,9 @@ const RestaurantChat: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Conversations Section */}
-      <div className="w-1/4 border-r border-gray-300 p-4">
+    <div className="flex flex-col md:flex-row h-screen">
+      {/* User list Section */}
+      <div className={`w-full md:w-1/4 border-r border-gray-300 p-2 ${showMessages ? 'hidden md:block' : 'block'}`}>
         <h2 className="text-2xl font-bold mb-4">Chat</h2>
         <ul>
           {conversations.map((conv) => {
@@ -168,17 +192,33 @@ const RestaurantChat: React.FC = () => {
         </ul>
       </div>
 
-      {/* Messages Section */}
-      <div className="w-full p-4 flex flex-col bg-teal-50">
+      {/* Messages show Section */}
+      <div className={`w-full h-full md:flex-2 p-4 bg-teal-50 ${showMessages ? 'block' : 'hidden md:block'}`}>
         {selectedConversation ? (
-          <div className="flex flex-col h-full relative ">
+          <div className="flex flex-col h-full relative">
             {selectedUser && (
-              <div className="pt-2 p-4 border border-gray-200 rounded mb-1">
-                <h3 className="text-xl font-bold">{selectedUser.username}</h3>
-                <p>{selectedUser.email}</p>
+              <div className="pt-2 p-4 border border-gray-200 rounded mb-1 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">{selectedUser.username}</h3>
+                  <p>{selectedUser.email}</p>
+                  <span className="flex items-center mt-1">
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${onlineUsers.includes(selectedConversation.members.filter(item => item !== restaurantId)[0]) ? 'bg-green-500' : 'bg-red-500'}`}
+                    ></span>
+                    <span className="ml-2">
+                      {onlineUsers.includes(selectedConversation.members.filter(item => item !== restaurantId)[0]) ? 'Online' : 'Offline'}
+                    </span>
+                  </span>
+                </div>
+                <button
+                  onClick={handleCloseConversation}
+                  className="text-gray-600 hover:text-gray-800 transition"
+                >
+                  <IoClose size={24} />
+                </button>
               </div>
             )}
-            <div className="flex-1 overflow-y-auto mb-16 bg-teal-200 bg-opacity-20">
+            <div className="flex-1 overflow-y-auto mb-16 bg-teal-200 bg-opacity-20 ">
               {messages.length > 0 ? (
                 messages.map((msg) => (
                   <div key={msg._id} className={`p-2 ${msg.sender === restaurantId ? 'text-right' : 'text-left'}`}>
@@ -191,12 +231,13 @@ const RestaurantChat: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="mt-[250px] text-center">No messages yet. Start a new conversation.</div>
+                <div className="mt-64 text-center">No messages yet. Start a new conversation.</div>
               )}
+
               <div ref={messagesEndRef} />
             </div>
             <div className="sticky bottom-0">
-              <form onSubmit={handleSendMessage} className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-300 flex items-center">
+              <form onSubmit={handleSendMessage} className="absolute bottom-0 left-0 right-0 p-2 bg-white border-t border-gray-300 flex items-center">
                 <input
                   type="text"
                   value={newMessage}
@@ -204,14 +245,14 @@ const RestaurantChat: React.FC = () => {
                   className="w-full border p-2 rounded mr-2"
                   placeholder="Type your message..."
                 />
-                <button type="submit" className="bg-teal-600 flex items-baseline text-white p-2 rounded">
-                   Send <IoIosSend className="ml-1" />
+                <button type="submit" className="bg-teal-600 text-white p-2 rounded-lg flex items-center hover:bg-teal-700 transition">
+                  <IoIosSend size={20} />
                 </button>
               </form>
             </div>
           </div>
         ) : (
-          <p>Select a conversation to start chatting</p>
+          <div className="font-bold mt-10 text-center text-lg">Select a user to start messaging.</div>
         )}
       </div>
     </div>
@@ -219,4 +260,3 @@ const RestaurantChat: React.FC = () => {
 };
 
 export default RestaurantChat;
-

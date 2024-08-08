@@ -13,9 +13,11 @@ import restaurantModel from '../../../frameworks/database/models/restaurantModel
 import mongoose from 'mongoose';
 import bookingModel from '../../../frameworks/database/models/bookingModel';
 import reviewModel from "../../../frameworks/database/models/reviewModel"
+import walletModel from '../../../frameworks/database/models/walletModel';
 
 export class UserRepositoryImpl implements UserRepository {
-   
+
+
    async findByCredentials(email: string, password: string): Promise<{ user: UserType | null; message: string; token: string | null }> {
       try {
          console.log("s REPOSITORY ----");
@@ -30,6 +32,9 @@ export class UserRepositoryImpl implements UserRepository {
 
          if (!user) {
             message = "Invalid User";
+         } else if (user.isBlocked) {
+            console.log('User is blocked');
+            message = "This account has been blocked. Please contact support.";
          } else {
             console.log("Password from user:", user.password);
             const isPasswordMatch = await bcrypt.compare(password, user.password);
@@ -303,32 +308,87 @@ export class UserRepositoryImpl implements UserRepository {
    }
 
    async addReviews(
-      reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number
-    }): Promise<{ message: string; reviewData: object; }> {
+      reviewDetails: {
+         restaurantId: string, userId: string, username: string, description: string, rating: number
+      }): Promise<{ message: string; reviewData: object; }> {
       try {
 
-      const reviewId = new mongoose.Types.ObjectId();
+         const reviewId = new mongoose.Types.ObjectId();
 
-        const reviewData = await reviewModel.create({...reviewDetails, reviewId});
-    
-        // Return a success message and the created review data
-        return { message: "Review added successfully", reviewData };
+         const reviewData = await reviewModel.create({ ...reviewDetails, reviewId });
+
+         // Return a success message and the created review data
+         return { message: "Review added successfully", reviewData };
       } catch (error) {
-        console.log(error);
-        throw error;
+         console.log(error);
+         throw error;
       }
-    }
+   }
 
-    async getReviews(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
-      try{
-         const reviewDatas = await reviewModel.find({restaurantId})         
-         .sort({ rating: -1 });
+   async getReviews(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
+      try {
+         const reviewDatas = await reviewModel.find({ restaurantId })
+            .sort({ rating: -1 });
          if (!reviewDatas) {
             return { message: 'No reviews found', reviewDatas: [] };
-          }
+         }
          console.log(reviewDatas)
          return { message: "Reviews found", reviewDatas };
-      } catch(error){
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async getWalletDetails(userId: string): Promise<{ message: string; walletDatas: object | null; }> {
+      console.log(userId)
+      try {
+         const walletDatas = await walletModel.findOne({ userId })
+         console.log(walletDatas)
+         return { message: "Wallet datas fetched successfully", walletDatas }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+
+   async cancelBooking(bookingId: string, userId: string): Promise<{ message: string; status: boolean; }> {
+      console.log(bookingId)
+      try {
+         const bookingData = await bookingModel.findOneAndUpdate(
+            { bookingId },
+            { bookingStatus: "CANCELLED" },
+            { new: true }
+         )
+         if (!bookingData) {
+            return { message: "Booking not found or not authorized", status: false };
+         }
+         console.log(bookingData)
+         const totalAmount = bookingData.totalAmount;
+
+         const wallet = await walletModel.findOneAndUpdate(
+            { userId },
+            { 
+               $inc: { balance: totalAmount },
+               $push: {
+                  transactions:{
+                     amount: totalAmount,
+                     type: "credit",
+                     createdAt: new Date(),
+                     updatedAt: new Date()
+                  }
+               }
+             },
+            { new: true }
+         )
+         if (!wallet) {
+            return { message: "Wallet not found", status: false };
+         }
+
+         return { message: "Booking cancelled and amount credited to wallet", status: true };
+      } catch (error) {
          console.log(error)
          throw error
       }

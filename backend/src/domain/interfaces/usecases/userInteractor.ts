@@ -27,6 +27,8 @@ export interface UserInteractor{
    addReviewsInteractor(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message: string, reviewData: object }>
    getReviewsInteractor(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
 
+   getWalletInteractor(userId : string): Promise<{ message: string, walletDatas: object | null }>
+   cancelBookingInteractor(bookingId: string, userId: string): Promise<{ message: string, status:boolean}>
 
 }
 

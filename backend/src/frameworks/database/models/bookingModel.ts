@@ -48,6 +48,8 @@ const bookingSchema = new Schema({
     type: Number,
     required: true,
   },
+},{
+  timestamps: true
 });
 
 const bookingModel = mongoose.model("bookings", bookingSchema);

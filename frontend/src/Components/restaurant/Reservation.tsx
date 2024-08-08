@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
 import authAxios from '../../redux/api/authApi';
 import { RootState, useAppSelector } from '../../redux/app/store';
-import { FaEdit, FaFilter } from 'react-icons/fa';
+import { FaAngleLeft, FaAngleRight, FaEdit, FaFilter } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import TableShimmer from '../TableShimmer';
 
@@ -44,9 +43,9 @@ const getStatusColor = (status: string) => {
     case 'pending':
       return 'text-orange-600';
     case 'completed':
-      return 'text-gray-600'; 
+      return 'text-gray-600';
     default:
-      return 'text-gray-600'; 
+      return 'text-gray-600';
   }
 };
 
@@ -56,6 +55,10 @@ const ReservationComponent: React.FC = () => {
   const [filter, setFilter] = useState<string>('All');
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [reservationsPerPage] = useState<number>(5);
 
   const handleFilterClick = () => {
     setShowMenu(!showMenu);
@@ -93,9 +96,22 @@ const ReservationComponent: React.FC = () => {
     navigate(`/restaurant/update-reservations/${bookingId}`);
   };
 
+  // Pagination logic
+  const indexOfLastReservation = currentPage * reservationsPerPage;
+  const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
+  const currentReservations = filteredReservations.slice(indexOfFirstReservation, indexOfLastReservation);
+  const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   return (
     <div className="w-[88%] lg:w-full p-4">
-      <Toaster />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Reservations</h2>
         <div className="relative">
@@ -120,7 +136,7 @@ const ReservationComponent: React.FC = () => {
       </div>
       {loading ? (
         <TableShimmer />
-      ) : filteredReservations.length > 0 ? (
+      ) : currentReservations.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full w-full bg-white">
             <thead>
@@ -136,7 +152,7 @@ const ReservationComponent: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredReservations.map((reservation, index) => (
+              {currentReservations.map((reservation, index) => (
                 <tr key={index} className='border-b border-gray-100'>
                   <td className="px-6 py-1 whitespace-no-wrap">
                     <span title={reservation.bookingId}>{reservation.bookingId.substring(0, 10)}...</span>
@@ -160,18 +176,29 @@ const ReservationComponent: React.FC = () => {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handlePrevPage}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l disabled:opacity-50"
+              disabled={currentPage === 1}
+            >
+              <FaAngleLeft />
+            </button>
+            <span className="py-2 px-4">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r disabled:opacity-50"
+              disabled={currentPage === totalPages}
+            >
+             <FaAngleRight />
+            </button>
+          </div>
         </div>
       ) : (
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold">No reservations available</p>
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              toast.success('Add new reservation functionality not implemented');
-            }}
-          >
-            Add Reservation
-          </button>
         </div>
       )}
     </div>

@@ -11,6 +11,9 @@ import bookingModel from "../../frameworks/database/models/bookingModel"
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import reviewModel from '../../frameworks/database/models/reviewModel';
+import { createWalletTopUpPayment } from '../../functions/Wallet/walletPaymentIntegration'
+import { handleWalletTopUpSuccess } from "../../functions/Wallet/walletPaymentDataRetrieval"
+import WalletModel from "../../frameworks/database/models/walletModel"
 
 export class userController {
 
@@ -353,55 +356,6 @@ export class userController {
    }
 
 
-   async makePayment(req: Request, res: Response, next: NextFunction) {
-      console.log("make payements")
-
-      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId } = req.body
-
-      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId)
-      try {
-         const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
-         const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`;
-         const session = await createPayment({ userEmail, userUsername }, totalAmount, bookingId, tableSlotId);
-         console.log(session)
-
-         const newBooking = new bookingModel({
-            bookingId: bookingId,
-            userId,
-            tableId: tableId,
-            restaurantId: restaurantId,
-            bookingDate: new Date(),
-            bookingTime,
-            paymentMethod: "Online",
-            paymentStatus: "PENDING",
-            bookingStatus: "PENDING",
-            totalAmount,
-         })
-
-         await newBooking.save()
-
-         console.log("Booking saved:", newBooking)
-
-         return res.status(200).json({ sessionId: session.id, bookingId: newBooking.bookingId })
-      } catch (error) {
-         console.log(error)
-         return res.status(500).json({ message: "Internal server error" });
-      }
-   }
-
-
-   async booking(req: Request, res: Response, next: NextFunction) {
-      try {
-         const paymentId = req.body.paymentId
-         const paymentIntent = await paymentDataRetrieval(paymentId)
-         if (!paymentIntent) {
-            return res.status(400).json({ message: "Payment intent not found" })
-         }
-      } catch (error) {
-         console.log(error)
-         return res.status(500).json({ message: "Internal server error" });
-      }
-   }
 
    //to update booking status and isAvailable after payment
    // async updateSlotAndBookingStatus(req: Request, res: Response, next: NextFunction) {
@@ -429,6 +383,44 @@ export class userController {
    // }
 
 
+
+   async makePayment(req: Request, res: Response, next: NextFunction) {
+      console.log("make payements")
+
+      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate } = req.body
+
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate)
+      try {
+         const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
+         const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`;
+         const session = await createPayment({ userEmail, userUsername }, totalAmount, bookingId, tableSlotId);
+         console.log(session)
+
+         const newBooking = new bookingModel({
+            bookingId: bookingId,
+            userId,
+            tableId: tableId,
+            restaurantId: restaurantId,
+            bookingDate: bookingDate,
+            bookingTime,
+            paymentMethod: "Online",
+            paymentStatus: "PENDING",
+            bookingStatus: "PENDING",
+            totalAmount,
+         })
+
+
+         console.log("newBooking", newBooking)
+         await newBooking.save()
+
+         console.log("Booking saved:", newBooking)
+
+         return res.status(200).json({ sessionId: session.id, bookingId: newBooking.bookingId })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" });
+      }
+   }
 
 
    async updateSlotAndBookingStatus(req: Request, res: Response, next: NextFunction) {
@@ -479,11 +471,11 @@ export class userController {
 
    async getBookingDetails(req: Request, res: Response, next: NextFunction) {
       console.log("get booking details controller")
-      const {bookingId} = req.params
+      const { bookingId } = req.params
       console.log(`Received bookingId: ${bookingId}`);
       try {
          const { bookingData, message } = await this.interactor.getBookingDetailsInteractor(bookingId);
-      return res.status(200).json({ bookingData, message });
+         return res.status(200).json({ bookingData, message });
       }
       catch (error) {
          console.log(error)
@@ -491,54 +483,129 @@ export class userController {
       }
    }
 
-   
+
    async addReviews(req: Request, res: Response, next: NextFunction) {
       console.log("add reviews controller");
-    
+
       const restaurantId = req.params.restaurantId;
       const { username, description, rating, userId } = req.body;
-      
-    
+
+
       console.log(restaurantId, username, description, rating, userId);
-    
+
       try {
-        if (!restaurantId || !username || !description || !rating || !userId) {
-          return res.status(400).json({ message: "All details are required" });
-        }
-    
-        const { reviewData, message } = await this.interactor.addReviewsInteractor({
-          restaurantId,
-          userId,
-          username,
-          description,
-          rating
-        });
-    
-        return res.status(200).json({ message, reviewData });
-    
+         if (!restaurantId || !username || !description || !rating || !userId) {
+            return res.status(400).json({ message: "All details are required" });
+         }
+
+         const { reviewData, message } = await this.interactor.addReviewsInteractor({
+            restaurantId,
+            userId,
+            username,
+            description,
+            rating
+         });
+
+         return res.status(200).json({ message, reviewData });
+
       } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Error in adding reviews' });
+         console.log(error);
+         return res.status(500).json({ message: 'Error in adding reviews' });
       }
-    }
+   }
 
 
 
-    async getReviews(req:Request, res: Response, next:NextFunction){
+   async getReviews(req: Request, res: Response, next: NextFunction) {
       console.log("get reviews controller")
-      const {restaurantId} = req.params
-      try{
+      const { restaurantId } = req.params
+      try {
          const { reviewDatas, message } = await this.interactor.getReviewsInteractor(restaurantId)
-         return res.status(200).json({ reviewDatas, message: "review datas found"})
-      } catch(error){
+         return res.status(200).json({ reviewDatas, message: "review datas found" })
+      } catch (error) {
          console.log(error)
          return res.status(500).json({ message: 'Error in getting reviews' })
       }
-    }
-    
-    
+   }
 
 
+
+   // async updateWalletAndCreateTransaction(req: Request, res: Response, next: NextFunction){
+   //    console.log("update wallet and create transaction controller");
+   //    const {userId} = req.params 
+   //    const { amount, }
+   // }
+
+
+   async addMoneyToWallet(req: Request, res: Response, next: NextFunction) {
+      console.log("add money to wallet controller");
+      const { userEmail, userUsername, userId, amount } = req.body;
+      console.log(userEmail, userUsername, userId, amount);
+
+      try {
+         // Create a payment session with Stripe
+         const session = await createWalletTopUpPayment({ userEmail, userUsername, userId }, amount, userId);
+         console.log(session);
+
+         // Find the user's wallet or create a new one
+         let wallet = await WalletModel.findOne({ userId: userId });
+         if (!wallet) {
+            wallet = new WalletModel({
+               userId: userId,
+               balance: 0,
+               transactions: []
+            });
+         }
+
+         // Add the transaction to the wallet with status pending
+         wallet.transactions.push({
+            amount: amount,
+            type: 'credit'
+         });
+
+         if(wallet){
+            wallet.balance += amount
+         }
+
+         // Save the wallet with the new transaction
+         await wallet.save();
+
+         return res.status(200).json({ sessionId: session.id });
+      } catch (error) {
+         console.log(error);
+         return res.status(500).json({ message: "Error in adding money to wallet" });
+      }
+   };
+
+
+   async getWalletDetails(req: Request, res: Response, next:NextFunction){
+      console.log("get wallet details controller");
+      const {userId}  = req.params
+      console.log(userId)
+      try{
+         const { walletDatas, message } = await this.interactor.getWalletInteractor(userId)
+         return res.status(200).json({ walletDatas, message })
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message:"Error in fetching wallet datas" })
+      }
+   }
+
+
+   async cancelBooking(req:Request, res: Response, next: NextFunction){
+      console.log("cancel booking controller");
+      try{
+         const {bookingId} = req.params
+         const {userId} = req.body
+         console.log(bookingId, userId)
+         const {message, status} = await this.interactor.cancelBookingInteractor(bookingId, userId)
+         return res.status(200).json({ message,status})
+
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message:"Error in cancel booking"})
+      }
+   }
 
 
 

@@ -3,14 +3,18 @@ import { getTableDatas, TableSlotTypes, deleteTableDatas } from "../../api/Resta
 import { RootState, useAppSelector } from "../../redux/app/store";
 import AddTable from "./Modal/AddTableModal";
 import { Link } from "react-router-dom";
-import ConfirmationModal from "../../layouts/ConfirmationModal"; 
+import ConfirmationModal from "../../layouts/ConfirmationModal";
 import toast from 'react-hot-toast';
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 const RestaurantTables: React.FC = () => {
   const [tableDatas, setTableDatas] = useState<TableSlotTypes[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const { restaurantId } = useAppSelector((state: RootState) => state.restaurantAuth);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(2);
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -61,6 +65,14 @@ const RestaurantTables: React.FC = () => {
     setSelectedTableId(null);
   };
 
+
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = tableDatas.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(tableDatas.length / itemsPerPage)
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
     <div className="p-4">
       {/* <Toaster /> */}
@@ -81,14 +93,14 @@ const RestaurantTables: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {tableDatas.length === 0 ? (
+            {currentItems.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-3 text-center">
                   No tables added. Add tables using the above "Add Table" button.
                 </td>
               </tr>
             ) : (
-              tableDatas.map((tableData: TableSlotTypes, index) => (
+              currentItems.map((tableData: TableSlotTypes, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="px-6 py-3 whitespace-no-wrap">{index + 1}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableNumber}</td>
@@ -112,6 +124,23 @@ const RestaurantTables: React.FC = () => {
             )}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center items-center mt-4">
+        <button
+          className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-2 mr-2 rounded"
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <FaAngleLeft />
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button
+          className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-2 ml-2 rounded"
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <FaAngleRight />
+        </button>
       </div>
       <ConfirmationModal
         isOpen={isModalOpen}

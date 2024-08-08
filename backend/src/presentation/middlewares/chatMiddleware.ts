@@ -5,7 +5,7 @@ import conversationModel from "../../frameworks/database/models/conversationMode
 export async function getConversationMembers(req: Request, res: Response, next: NextFunction) {
    try {
       const { userId } = req.params
-      console.log('Fetching conversations for userId:', userId); 
+      console.log('Fetching conversations for userId:', userId);
       const conversation = await conversationModel.find({
          members: { $in: [userId] }
       })
@@ -28,20 +28,20 @@ export async function addConversationMembers(req: Request, res: Response, next: 
 
       if (!senderId || !receiverId) {
          return res.status(400).json({ message: 'Both senderId and receiverId are required.' });
-       }
-       console.log(req.body);
+      }
+      console.log(req.body);
 
       const existingConversation = await conversationModel.findOne({
-         members: { $all: [senderId, receiverId]}
+         members: { $all: [senderId, receiverId] }
       })
 
-      if(existingConversation){
-         return res.status(200).json({message: "conversation already exists",existingConversation})
+      if (existingConversation) {
+         return res.status(200).json({ message: "conversation already exists", existingConversation })
       }
-      
+
 
       const newChatMessage = new conversationModel({
-         members: [senderId,receiverId]
+         members: [senderId, receiverId]
       })
       const savedConversation = await newChatMessage.save();
       return res.status(200).json(savedConversation)
@@ -77,7 +77,7 @@ export async function getChatMessages(req: Request, res: Response, next: NextFun
          ({
             conversationId: conversationId
          })
-         console.log(messages)
+      console.log(messages)
       return res.status(200).json(messages)
    } catch (error) {
       console.log(error)

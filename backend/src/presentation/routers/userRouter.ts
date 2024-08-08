@@ -47,15 +47,17 @@ userRouter.post("/make-payment", authenticateToken("user"),controller.makePaymen
 
 userRouter.post("/update-slot-and-booking-status",authenticateToken('user'), controller.updateSlotAndBookingStatus.bind(controller))
 
-userRouter.get("/booking-history/:userId", controller.userBookingHistory.bind(controller))
-userRouter.get('/booking-details/:bookingId', controller.getBookingDetails.bind(controller));
+userRouter.get("/booking-history/:userId",authenticateToken('user'), controller.userBookingHistory.bind(controller))
+userRouter.get('/booking-details/:bookingId',authenticateToken('user'), controller.getBookingDetails.bind(controller));
 
 
-userRouter.post("/add-review/:restaurantId", controller.addReviews.bind(controller))
-userRouter.get("/get-reviews/:restaurantId", controller.getReviews.bind(controller))
+userRouter.post("/add-review/:restaurantId",authenticateToken('user'), controller.addReviews.bind(controller))
+userRouter.get("/get-reviews/:restaurantId",authenticateToken('user'), controller.getReviews.bind(controller))
 
+userRouter.post("/add-money-to-wallet", controller.addMoneyToWallet.bind(controller))
+userRouter.get("/wallet-details/:userId", controller.getWalletDetails.bind(controller))
 
-
+userRouter.post("/cancel-booking/:bookingId", controller.cancelBooking.bind(controller))
 
 // userRouter.post('/refresh-token', controller.refreshToken.bind(controller));
 

@@ -9,7 +9,6 @@ import { generateAccessToken } from "../../../functions/jwt"
 export class AdminInteractorImpl implements AdminInteractor {
    constructor (private readonly repository : AdminRepositories) { }
    
-   
    async adminLogin(credentials: { email: string; password: string; }): Promise<{ message: string; token: string | null; admin: UserType | null; refreshToken: string| null }> {
       console.log(" adminLogin interactor impl")
       try{
@@ -33,6 +32,16 @@ export class AdminInteractorImpl implements AdminInteractor {
          return { restaurants, message}
       } catch(error){
          console.error("Error in getusers interactor impl:",error);
+         throw error
+      }
+   }
+
+   async blockRestaurantInteractor(restaurantId: string, isBlocked: boolean): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.repository.blockRestaurant(restaurantId, isBlocked)
+         return { message, status}
+      } catch(error){
+         console.log(error)
          throw error
       }
    }
@@ -74,6 +83,27 @@ export class AdminInteractorImpl implements AdminInteractor {
          return { message, success }
       } catch(error){
          console.log("Error in reject restaurant interactorImpl",error)
+         throw error
+      }
+   }
+
+   async getUsersListInteractor(): Promise<{ users: object | null; message: string; }> {
+      try{
+         const { users, message} = await this.repository.getUserLists()
+         return { users, message }
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+   async blockUserInteractor(userId: string, isBlocked: boolean): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.repository.blockUser(userId, isBlocked)
+         return { message, status}
+
+      } catch(error){
+         console.log(error)
          throw error
       }
    }

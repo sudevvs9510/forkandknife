@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, googleLogin, Register, logoutUser} from "../../../api/api"
+import { loginUser, googleLogin, Register, logoutUser } from "../../../api/api"
 import { setStorageItem, removeStorageItem } from "../../../util/localStorage";
+import axios from "axios";
 
 
 
@@ -32,8 +33,12 @@ export const login = createAsyncThunk(
          const response = await loginUser(credentials)
          setStorageItem('AuthToken', response.data.token)
          return response.data
-      } catch (error) {
-         return rejectWithValue("Invalid email or password")
+      } catch (error: any) {
+         if (axios.isAxiosError(error) && error.response) {
+            return rejectWithValue(error.response.data.message || "Invalid email or password");
+         } else {
+            return rejectWithValue("An unexpected error occurred. Please try again.");
+         }
       }
    }
 )
@@ -48,8 +53,8 @@ export const signup = createAsyncThunk(
          setStorageItem('remainingSeconds', '30')
          setStorageItem("Email", response.user._id)
          return response.user
-      } catch (error) {
-         return rejectWithValue("Signup failed")
+      } catch (error: any) {
+         return rejectWithValue(error.response.data.message || "Signup failed")
       }
    }
 )
@@ -62,8 +67,8 @@ export const googleLoginAction = createAsyncThunk(
          const response = await googleLogin(credentials)
          setStorageItem('AuthToken', response.data.token)
          return response.data
-      } catch (error) {
-         return rejectWithValue("Google login failed")
+      } catch (error: any) {
+         return rejectWithValue(error.response.data.message || "Google login failed")
       }
    }
 )
@@ -73,8 +78,8 @@ export const logout = createAsyncThunk(
    'auth/logout',
    async (_, { rejectWithValue }) => {
       try {
-         await logoutUser(); 
-         removeStorageItem('AuthToken'); 
+         await logoutUser();
+         removeStorageItem('AuthToken');
          return true
       } catch (error) {
          return rejectWithValue("Failed to logout");
@@ -85,17 +90,7 @@ export const logout = createAsyncThunk(
 const authSlice = createSlice({
    name: 'userAuth',
    initialState,
-   reducers: {
-
-      // logout: (state) => {
-      //    state.user = null
-      //    state.token = null
-      //    state.loading = false;
-      //    state.error = null;
-      //    removeStorageItem('AuthToken')
-      // },
-
-   },
+   reducers: {},
    extraReducers: (builder) => {
       builder
          .addCase(login.pending, (state) => {
@@ -145,17 +140,17 @@ const authSlice = createSlice({
 
 
 
-         .addCase(logout.pending,(state) =>{
+         .addCase(logout.pending, (state) => {
             state.loading = true
-            state.error = null 
+            state.error = null
          })
-         .addCase(logout.fulfilled,(state)=>{
+         .addCase(logout.fulfilled, (state) => {
             state.user = null
             state.token = null
             state.loading = false
-            state.error = null 
+            state.error = null
          })
-         .addCase(logout.rejected,(state,action: PayloadAction<any>)=>{
+         .addCase(logout.rejected, (state, action: PayloadAction<any>) => {
             state.loading = false
             state.error = action.payload
          })

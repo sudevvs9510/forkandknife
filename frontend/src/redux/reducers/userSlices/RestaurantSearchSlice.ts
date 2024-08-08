@@ -30,6 +30,8 @@ interface RestaurantsState {
   isLoading: boolean;
   error: string | null;
   locationData: any[];
+  filterOptions: string;
+  sortOption: string;
 }
 
 const initialState: RestaurantsState = {
@@ -39,9 +41,14 @@ const initialState: RestaurantsState = {
   isLoading: false,
   error: null,
   locationData: [],
+  filterOptions: '',
+  sortOption: '',
 };
 
-// Async thunk to fetch restaurants from the API
+const normalizeString = (str: string) =>
+  str.toLowerCase().replace(/[^a-z0-9]/gi, '');
+
+
 export const fetchRestaurants = createAsyncThunk(
   'restaurants/fetchRestaurants',
   async () => {
@@ -54,7 +61,7 @@ export const fetchRestaurants = createAsyncThunk(
   }
 );
 
-// Async thunk to fetch location data from the Mapbox API
+
 export const fetchLocationData = createAsyncThunk(
   'restaurants/fetchLocationData',
   async (query: string) => {
@@ -63,7 +70,6 @@ export const fetchLocationData = createAsyncThunk(
         import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN
       }`);
       const data = await res.json();
-      console.log(data)
       return data.features;
     } catch (error) {
       console.log("Error in Get Location", error);
@@ -80,15 +86,38 @@ const restaurantsSlice = createSlice({
       state.searchQuery = action.payload;
     },
     filterRestaurants: (state) => {
-      const searchTerm = state.searchQuery.toLowerCase();
+      const searchTerm = normalizeString(state.searchQuery)
       state.filteredRestaurants = state.restaurants.filter((restaurant) =>
-        restaurant.restaurantName.toLowerCase().includes(searchTerm)
+        normalizeString(restaurant.restaurantName).includes(searchTerm)
       );
     },
     filterRestaurantsByLocation: (state, action: PayloadAction<number>) => {
       state.filteredRestaurants = state.restaurants.filter((restaurant) =>
         restaurant.location.coordinates[1] === action.payload
       );
+    },
+    setFilterOptions: (state, action: PayloadAction<string>) => {
+      state.filterOptions = action.payload;
+      switch (action.payload) {
+        case 'lessThan200':
+          state.filteredRestaurants = state.restaurants.filter((restaurant) => parseFloat(restaurant.TableRate) < 200);
+          break;
+        case '200To500':
+          state.filteredRestaurants = state.restaurants.filter((restaurant) => parseFloat(restaurant.TableRate) >= 200 && parseFloat(restaurant.TableRate) <= 500);
+          break;
+        case 'above500':
+          state.filteredRestaurants = state.restaurants.filter((restaurant) => parseFloat(restaurant.TableRate) > 500);
+          break;
+        default:
+          state.filteredRestaurants = state.restaurants;
+          break;
+      }
+    },
+    setSortOption: (state, action: PayloadAction<string>) => {
+      state.sortOption = action.payload;
+      if (action.payload === 'sortByName') {
+        state.filteredRestaurants.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName));
+      }
     },
   },
   extraReducers: (builder) => {
@@ -111,11 +140,12 @@ const restaurantsSlice = createSlice({
   },
 });
 
-// Export action creators and reducer
-export const { updateSearchQuery, filterRestaurants, filterRestaurantsByLocation } = restaurantsSlice.actions;
 
-// Selectors
+export const { updateSearchQuery, filterRestaurants, filterRestaurantsByLocation, setFilterOptions, setSortOption } = restaurantsSlice.actions;
+
+
 export const selectRestaurants = (state: RootState) => state.restaurantSearch.restaurants;
 export const selectFilteredRestaurants = (state: RootState) => state.restaurantSearch.filteredRestaurants;
 
 export default restaurantsSlice.reducer;
+

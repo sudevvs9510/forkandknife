@@ -13,8 +13,9 @@ import Loader from '../Loader';
 import { fetchRestaurantReviews, getRestaurantTableSlot } from '../../api/api';
 import TableDetails from './TableDetails';
 import { IoMdChatbubbles } from "react-icons/io";
-import { addConversation } from '../../api/ChatApis';
+import { addConversation, getConversations } from '../../api/ChatApis';
 import { RootState, useAppSelector } from '../../redux/app/store';
+
 
 
 interface ReviewType {
@@ -71,6 +72,7 @@ const RestaurantProfile: React.FC = () => {
   const { restaurantId } = useParams();
   const navigate = useNavigate()
 
+  console.log(date)
   console.log(tableSlotId)
 
   useEffect(() => {
@@ -129,8 +131,11 @@ const RestaurantProfile: React.FC = () => {
 
     const formatDateString = (date: Date) => {
       const year = date.getFullYear();
+      console.log(year)
       const month = String(date.getMonth() + 1).padStart(2, '0');
+      console.log(month)
       const day = String(date.getDate()).padStart(2, '0');
+      console.log(day)
       return `${year}-${month}-${day}`;
     };
 
@@ -157,14 +162,37 @@ const RestaurantProfile: React.FC = () => {
 
   const handleChatClick = async () => {
     try {
-      const senderId = userId
-      const receiverId = restaurantId as string
-      const newConversation = await addConversation(senderId, receiverId);
-      navigate('/chat', { state: { conversationId: newConversation._id } });
+      const senderId = userId;
+      const receiverId = restaurantId as string;
+
+      // Fetch existing conversations for the user
+      const conversations = await getConversations(senderId);
+      console.log(conversations);
+
+      // Check if a conversation already exists with the restaurant
+      let existingConversation = conversations.find(
+        (conversation: any) =>
+          conversation.members.includes(senderId) && conversation.members.includes(receiverId)
+      );
+      console.log(existingConversation);
+
+      // If no existing conversation, create a new one
+      if (!existingConversation) {
+        existingConversation = await addConversation(senderId, receiverId);
+      }
+      navigate('/chat', { state: { conversationId: existingConversation._id } });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
+
+
+  const averageRating = reviews.length > 0
+    ? Math.floor(reviews.reduce((total, review) => total + review.rating, 0) / reviews.length)
+    : 0;
+
+  const filledStars = "★".repeat(averageRating);
+  const emptyStars = "☆".repeat(5 - averageRating);
 
   return (
     <div>
@@ -196,12 +224,15 @@ const RestaurantProfile: React.FC = () => {
                   </div>
                   <div className="flex items-center mt-2 space-x-4">
                     <div className="flex items-center">
-                      <span className="text-teal-600 mr-2">★★★★☆</span>
-                      <span className="text-gray-600">4.2</span>
+                      <span className="text-teal-600 text-2xl mr-2">
+                        {filledStars}
+                        {emptyStars}
+                      </span>
+                      <span className="text-gray-600">{(averageRating).toFixed(1)}</span>
                     </div>
                     <div className="flex items-center">
                       <MdOutlineReviews className="text-gray-600 mr-1" />
-                      <span className="text-gray-600">445 Reviews</span>
+                      <span className="text-gray-600">{reviews.length} reviews</span>
                     </div>
                     <div className="flex items-center">
                       <RiRestaurantLine className="text-gray-600 mr-1" />
@@ -249,26 +280,15 @@ const RestaurantProfile: React.FC = () => {
                   <h3 className="text-xl font-semibold mb-2">Overall ratings and reviews</h3>
                   <p className="text-gray-700 mb-4">Reviews can only be made by diners who have eaten at this restaurant</p>
                   <div className="flex items-center mb-4">
-                    <span className="text-teal-600 text-2xl mr-2">★★★★☆</span>
-                    <span className="text-gray-700 text-lg font-semibold">4.2 based on recent ratings</span>
-                  </div>
-                  <div className="flex justify-between mb-4">
-                    <div className="text-center">
-                      <span className="block text-xl font-bold">4.5</span>
-                      <span className="text-gray-600">Food</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xl font-bold">4.0</span>
-                      <span className="text-gray-600">Service</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xl font-bold">4.2</span>
-                      <span className="text-gray-600">Ambience</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-xl font-bold">4.1</span>
-                      <span className="text-gray-600">Value</span>
-                    </div>
+                    <span className="text-teal-600 text-2xl mr-2">
+                      {filledStars}
+                      {emptyStars}
+                    </span>
+                    <span className="text-gray-700 text-lg font-semibold">
+                      {reviews.length > 0
+                        ? `${averageRating.toFixed(1)} based on recent ratings`
+                        : 'No reviews'}
+                    </span>
                   </div>
                 </div>
 
@@ -287,10 +307,11 @@ const RestaurantProfile: React.FC = () => {
                         </div>
                         <p className="text-gray-800 mb-2">{review.description}</p>
                         <div className="flex items-center">
+
                           <div className="text-teal-600 text-2xl mr-2">
                             {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
                           </div>
-                          <span className="text-gray-700 font-semibold">5/{review.rating} Rating</span>
+                          <span className="text-gray-700 font-semibold">{review.rating}/5 Rating</span>
                         </div>
                       </div>
                     ))}
@@ -365,6 +386,7 @@ const RestaurantProfile: React.FC = () => {
                   tableRate={restaurant.TableRate}
                   guests={guestCount}
                   tableSlotId={tableSlotId}
+                  bookingDate={date}
                 />
 
 

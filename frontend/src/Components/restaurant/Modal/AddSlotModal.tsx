@@ -60,8 +60,10 @@ const AddTableSlot: React.FC<{ onClose: () => void; onSubmit: (slot: TableSlotTi
       };
       const response = await addTableSlot(tableSlotTimeData, tableId as string);
       console.log(response.data)
+      console.log(tableSlotTimeData)
       toast.success(response.data.message);
       onSubmit(values);
+      console.log(values)
       setIsModalOpen(false);
     } catch (error) {
       console.log(error)

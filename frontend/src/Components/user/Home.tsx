@@ -6,6 +6,7 @@ import About from '../../Components/user/About';
 import Header from '../../Components/user/Header';
 import Restaurants from './Restaurants';
 import Footer from '../../Components/user/Footer';
+import ChatIcon from './Chat';
 
 const Home: React.FC = () => {
   const [showMainNavBar, setShowMainNavBar] = useState(false);
@@ -30,6 +31,9 @@ const Home: React.FC = () => {
       </div>
       <Restaurants  />
       <About />
+      <div className="fixed bottom-4 right-4">
+        <ChatIcon />
+      </div>
       <Footer />
     </div>
   );

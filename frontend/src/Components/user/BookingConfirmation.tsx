@@ -122,7 +122,8 @@ const ReservationDetails: React.FC = () => {
     guests,
     tableRate,
     restaurantId,
-    tableSlotId
+    tableSlotId,
+    bookingDate
   } = useAppSelector((state: RootState) => state.bookingConfirmation);
 
 
@@ -132,7 +133,7 @@ const ReservationDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId) {
+  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId ||!bookingDate) {
     return null;
   }
 
@@ -154,7 +155,8 @@ const ReservationDetails: React.FC = () => {
         restaurantId: restaurantId,
         tableId: selectedTable._id,
         bookingTime: slotStartTime,
-        tableSlotId: tableSlotId
+        tableSlotId: tableSlotId,
+        bookingDate
       });
       console.log(response.data)
 
@@ -203,7 +205,6 @@ const ReservationDetails: React.FC = () => {
               <span className="ml-2">Online</span>
             </label>
           </div>
-          <p>{tableSlotId}</p>
 
           {error && <p className="text-red-500 mt-2">{error}</p>}
           

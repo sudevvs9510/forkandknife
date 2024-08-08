@@ -25,6 +25,10 @@ export interface UserRepository {
    addReviews(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message:string, reviewData: object}>
    getReviews(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
 
+   getWalletDetails(userId: string): Promise<{ message: string, walletDatas: object | null}>
+
+   cancelBooking(bookingId: string, userId: string): Promise<{ message: string, status: boolean}>
+
 
 
 }

@@ -143,20 +143,20 @@ const Navbar: React.FC = () => {
   };
 
   const content = (
-    <div className={`lg:hidden block absolute top-16 w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform z-50 ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
+    <div className={`lg:hidden block absolute top-[70px] w-full left-0 right-0 bg-[#00CCB8] transition-all duration-300 ease-in-out transform z-50 ${click ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}>
       <ul className='text-center text-xl p-20'>
         <Link to={'/'}>
-          <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Home</li>
+          <li className='my-4 py-4 border-b border-teal-800 hover:bg-teal-800 hover:rounded'>Home</li>
         </Link>
         <ScrollLink spy={true} smooth={true} to='About' onClick={handleClick}>
-          <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>About</li>
+          <li className='my-4 py-4 border-b border-teal-800 hover:bg-teal-800 hover:rounded'>About</li>
         </ScrollLink>
         <ScrollLink spy={true} smooth={true} to='Restaurant' onClick={handleClick}>
-          <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Restaurant</li>
+          <li className='my-4 py-4 border-b border-teal-800 hover:bg-teal-800 hover:rounded'>Restaurant</li>
         </ScrollLink>
         {user && (
-          <Link to={`/profile/${user._id}`} onClick={handleClick}>
-            <li className='my-4 py-4 border-b border-green-800 hover:bg-green-800 hover:rounded'>Profile</li>
+          <Link to={`/profile/${user._id}/about-user`} onClick={handleClick}>
+            <li className='my-4 py-4 border-b border-teal-800 hover:bg-teal-800 hover:rounded'>Profile</li>
           </Link>
         )}
         <li className='my-4 py-4'>

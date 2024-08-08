@@ -40,6 +40,18 @@ export class adminController {
       }
    }
 
+   async blockRestaurant(req:Request, res: Response, next: NextFunction){
+      console.log("Block restaurant controller")
+      const { restaurantId, isBlocked } = req.body
+       try{
+         const { message, status} = await this.interactor.blockRestaurantInteractor(restaurantId, isBlocked)
+         return res.status(200).json({ message, status})
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Error during block / unblock restaurant"})
+      }
+   }
+
    async approveRestaurantList(req: Request, res: Response, next: NextFunction) {
       console.log("Get un approved restaurant list")
       try {
@@ -79,18 +91,44 @@ export class adminController {
       }
    }
 
-   async restaurantRejection(req: Request, res:Response, next: NextFunction) {
+   async restaurantRejection(req: Request, res: Response, next: NextFunction) {
       console.log("Restaurant rejection controller")
       const id = req.params.id
-      try{
+      try {
          const restaurantId = id.split(":");
          console.log(restaurantId[1])
          const { message, success } = await this.interactor.rejectRestaurantInteractor(restaurantId[1])
          return res.status(200).json({ message, success })
-      } catch(error){
-         console.log("Error during admin-restaurant rejection controller ",error)
+      } catch (error) {
+         console.log("Error during admin-restaurant rejection controller ", error)
+         return res.status(500).json({ message:"interanl server error"})
       }
-   } 
+   }
+
+   async getUserLists(req: Request, res: Response, next: NextFunction) {
+      console.log("get users controller")
+      try{
+         const { users, message } = await this.interactor.getUsersListInteractor()
+         return res.status(200).json({ users, message })
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Error during fetching users"})
+      }
+   }
+
+
+   async blockUser(req: Request, res: Response, next:NextFunction){
+      console.log("block user controller")
+      const {userId, isBlocked} = req.body
+      console.log(userId,isBlocked)
+      try{
+         const { message, status } = await this.interactor.blockUserInteractor(userId, isBlocked)
+         return res.status(200).json({ message, status})
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Error during blocking user"})
+      }
+   }
 
 
    async adminLogout(req: Request, res: Response, next: NextFunction) {
@@ -104,8 +142,10 @@ export class adminController {
          return res.status(200).json({ message: "Logout successfull" })
       } catch (error) {
          console.log(error)
-         return res.status(500).send({ message: "Logout successfull" })
+         return res.status(500).send({ message: "Logout unsuccessfull" })
       }
    }
+
+
 
 }

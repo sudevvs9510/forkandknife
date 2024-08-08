@@ -13,7 +13,8 @@ interface ReservationDetails {
   restaurantName: string;
   guests: number;
   tableRate: string;
-  restaurantId: string
+  restaurantId: string;
+  bookingDate: string
 }
 
 const initialState: ReservationDetails = {
@@ -24,7 +25,8 @@ const initialState: ReservationDetails = {
   guests: 0,
   tableRate: '',
   restaurantId: '',
-  tableSlotId: ''
+  tableSlotId: '',
+  bookingDate: ''
 
 };
 
@@ -41,6 +43,7 @@ const bookingConfirmationSlice = createSlice({
       state.tableRate = action.payload.tableRate;
       state.restaurantId = action.payload.restaurantId;
       state.tableSlotId = action.payload.tableSlotId;
+      state.bookingDate = action.payload.bookingDate
     },
   },
 });
