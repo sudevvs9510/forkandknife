@@ -316,6 +316,21 @@ export class restaurantController {
       }
    }
 
+
+   async dashboard(req:Request, res: Response, next:NextFunction){
+      console.log("Dashboard controller")
+      const {restaurantId} = req.body
+      console.log(restaurantId)
+      try{
+         const { message, status } = await this.interactor.dashboardInteractor(restaurantId)
+         return { message, status }
+
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({  message: "Error in dashboard controller"})
+      }
+   }
+
    
 
 

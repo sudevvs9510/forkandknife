@@ -22,5 +22,8 @@ export interface restaurantInteractor{
    getReservationDetailsInteractor(bookingId: string) : Promise<{ message: string,reservationDatas: object | null }>
    updateBookingStatusInteractor(bookingId: string, bookingStatus: string): Promise<{ message: string, status: boolean}>
 
+
+   dashboardInteractor(restaruantId: string): Promise<{ message:string, status: boolean }>
+
    
 }

@@ -22,31 +22,23 @@ export const initializeSocket = (server: HTTPServer) => {
 
     socket.on('join', (userId: any) => {
       console.log(userId)
-      if(!onlineUsers.includes(userId)) {
-        onlineUsers.push(userId )
+      if (!onlineUsers.includes(userId)) {
+        onlineUsers.push(userId)
       }
-      // console.log(`User ${data} connected with socket ID ${socket.id}`);
-      console.log("Online users after join:", onlineUsers);
-      socket.emit("return_online",onlineUsers);
-      socket.broadcast.emit("online_update",onlineUsers)
+      socket.join(userId)
+      socket.emit("return_online", onlineUsers);
+      socket.broadcast.emit("online_update", onlineUsers)
     })
 
 
     socket.on('disconnect', (userId) => {
       console.log('User disconnected:', socket.id)
-      
-      // const index = onlineUsers.findIndex(user => user.socketId === socket.id);
-      // if (index !== -1) {
-      //   console.log(`User ${onlineUsers[index].userId} disconnected with socket ID ${socket.id}`);
-      //   onlineUsers.splice(index, 1);
-      // }
-      // console.log('Online users after disconnect:', onlineUsers);
+
     })
 
-    socket.on('remove_online',userId =>  {
+    socket.on('remove_online', userId => {
       onlineUsers = onlineUsers.filter(item => item !== userId);
-      console.log("removing online",onlineUsers)
-      socket.broadcast.emit("online_update",onlineUsers)
+      socket.broadcast.emit("online_update", onlineUsers)
 
     })
 
@@ -60,13 +52,49 @@ export const initializeSocket = (server: HTTPServer) => {
           content,
           conversationId,
         })
-        console.log(message)
 
-        io.emit('chat message', message)
+        io.to(receiverId).emit('chat message', message)
       } catch (error) {
         console.log(error)
       }
     })
+
+    socket.on("set_messages_seen", async ({ sender, conversationId,currentId }) => {
+      const message = await ChatMessageModel.find({ conversationId })
+      for (const msg of message) {
+        if (msg.sender === sender) {
+          msg.seen = true
+          await msg.save()
+        }
+      }
+      io.to(sender).emit("set_messages_seen",currentId)
+     
+    })
+
+    // socket.on("seen update",(senderId)=>{ 
+    //   io.to(senderId).emit("seen update")
+    // })
+
+    // socket.on("message seen", async (conversationId:string , senderId:string)=>{
+    //   try{
+    //     const message = await ChatMessageModel.find({conversationId})
+    //     for(const msg of message) {
+    //       if(msg.sender === senderId) {
+    //         msg.seen = true
+    //         await msg.save()
+    //       }
+    //     }
+    //     // if(message){
+    //     //   message.seen = true
+    //     //   await message.save()
+    //     // }
+    //     io.emit('seen update', conversationId)
+    //   } catch(error){
+    //     console.log(error)
+    //   }
+    // })
+
+
   })
 }
 

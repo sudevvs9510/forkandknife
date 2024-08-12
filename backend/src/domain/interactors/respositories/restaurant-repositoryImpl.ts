@@ -7,12 +7,12 @@ import tableSlotsModel from "../../../frameworks/database/models/restaurantTable
 import restaurantTimeSlotsModel from "../../../frameworks/database/models/restaurantTimeSlotsModel"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
-import { time } from "console";
 import bookingModel from "../../../frameworks/database/models/bookingModel";
 
 
 
 export class sellerRepository implements restaurantRepository {
+   
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
@@ -366,6 +366,40 @@ export class sellerRepository implements restaurantRepository {
          throw error
       }
    }
+
+
+   async dashboardRepo(restaurantId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const totalBookings = await bookingModel.find({ restaurantId })
+
+         //filter the status paid
+         const bookingPaidFilter = totalBookings.filter(booking => booking.paymentStatus === 'PAID')
+
+         // total revenue of status paid
+         const totalRevenue =  bookingPaidFilter
+         .reduce((acc, booking)=> acc + booking.totalAmount,0)
+         console.log('totalRevenue:', totalRevenue)
+
+         // total Booking count
+         const totalBookingCount = totalBookings.length
+         console.log(totalBookingCount)
+
+         //total booking paid status count
+         const totalBookingPaidCount = bookingPaidFilter.length
+         console.log('totalBookingCount:',totalBookingPaidCount)
+
+         
+
+         
+
+         console.log(totalBookings)
+         return { message:"dashboard details fetched successfully", status: true }
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
 
 
 

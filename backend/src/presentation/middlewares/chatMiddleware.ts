@@ -85,3 +85,13 @@ export async function getChatMessages(req: Request, res: Response, next: NextFun
    }
 }
 
+export async function messageSeenUpdate (req:Request, res:Response, next:NextFunction){
+   try{
+      const {messageId} = req.params
+      const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {seen:true}, {new:true})
+      return res.status(200).json(updatedMessage)
+   } catch(error){
+      console.log(error)
+      return res.status(500).json({ message:"Error ",error})
+   }
+}

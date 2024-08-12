@@ -10,7 +10,8 @@ import { getUserDetails } from '../../api/RestaurantApis';
 import { getConversations, getMessages, sendMessage } from '../../api/ChatApis';
 import { io, Socket } from 'socket.io-client';
 import { IoIosSend } from 'react-icons/io';
-import { IoClose } from 'react-icons/io5'; // Import close icon
+import { IoClose } from 'react-icons/io5';
+// import authAxios from '../../redux/api/authApi';
 
 interface ConversationType {
   _id: string;
@@ -20,15 +21,19 @@ interface ConversationType {
 interface MessageType {
   _id: string;
   conversationId: string;
+  senderId?: string;
+  receiverId?: string
   sender: string;
   content: string;
+  seen: boolean;
   createdAt: string;
   updatedAt: string;
+
 }
 
 interface UserDetails {
   username: string;
-  email: string; // Add other details you want to display
+  email: string;
 }
 
 const RestaurantChat: React.FC = () => {
@@ -39,7 +44,7 @@ const RestaurantChat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
-  const [showMessages, setShowMessages] = useState<boolean>(false); // State to manage section visibility
+  const [showMessages, setShowMessages] = useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -84,7 +89,7 @@ const RestaurantChat: React.FC = () => {
 
   useEffect(() => {
     if (restaurantId) {
-      socketRef.current = io('http://localhost:4000'); // Replace with your server URL
+      socketRef.current = io('http://localhost:4000');
 
       socketRef.current.emit("join", restaurantId)
 
@@ -105,8 +110,12 @@ const RestaurantChat: React.FC = () => {
         console.log('Received message:', message);
         if (message.conversationId === selectedConversation?._id) {
           setMessages((prevMessages) => [...prevMessages, message]);
+          const userId = selectedConversation?.members.filter(item => item !== restaurantId)[0]
+          socketRef.current?.emit("set_messages_seen", { sender: userId, conversationId: selectedConversation._id, currentId: restaurantId })
         }
       });
+
+
 
       socketRef.current.on('disconnect', () => {
         console.log('Disconnected from socket server');
@@ -120,23 +129,58 @@ const RestaurantChat: React.FC = () => {
   }, [restaurantId, selectedConversation]);
 
   useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on("set_messages_seen", () => {
+        if (messages.length > 0) {
+          const seenMessage = [...messages]
+          for (const msg of messages) {
+            if (msg.sender === restaurantId) {
+              msg.seen = true
+            }
+          }
+          setMessages(seenMessage)
+        }
+
+      })
+    }
+  }, [messages, restaurantId])
+
+
+  useEffect(() => {
+    if (selectedConversation && restaurantId) {
+      const restoId = selectedConversation?.members.filter(item => item !== restaurantId)[0]
+      socketRef.current?.emit("set_messages_seen", { sender: restoId, conversationId: selectedConversation._id, currentId: restaurantId })
+    }
+  }, [selectedConversation, restaurantId])
+
+  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedConversation && restaurantId && newMessage) {
-      await sendMessage(selectedConversation._id, restaurantId, newMessage);
-      setNewMessage('');
+      if (selectedConversation && restaurantId && newMessage) {
+        await sendMessage(selectedConversation._id, restaurantId, newMessage);
+        setNewMessage('');
+        const message: MessageType = {
+          senderId: restaurantId + "",
+          receiverId: selectedConversation.members.find((member) => member !== restaurantId),
+          content: newMessage,
+          conversationId: selectedConversation._id,
+          _id: '',
+          sender: restaurantId,
+          seen: false,
+          createdAt: '',
+          updatedAt: ''
+        }
+        socketRef.current?.emit('chat message', message);
 
-      socketRef.current?.emit('chat message', {
-        senderId: restaurantId,
-        receiverId: selectedConversation.members.find((member) => member !== restaurantId),
-        content: newMessage,
-        conversationId: selectedConversation._id,
-      });
+        setMessages([...messages, message])
+      }
     }
   };
 
@@ -225,8 +269,13 @@ const RestaurantChat: React.FC = () => {
                     <p className={`inline-block px-4 py-2 rounded-lg ${msg.sender === restaurantId ? 'bg-teal-600 text-white' : 'bg-gray-300 text-black'}`}>
                       {msg.content}
                     </p>
+                    {msg.sender === restaurantId && (
+                      <small className="block text-gray-500 mt-1">
+                        {msg.seen ? 'Seen' : 'Delivered'}
+                      </small>
+                    )}
                     <div className="text-xs text-gray-500 mb-3">
-                      {format(new Date(msg.updatedAt))}
+                      {format(new Date(msg.createdAt))}
                     </div>
                   </div>
                 ))

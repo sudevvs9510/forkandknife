@@ -10,6 +10,11 @@ const messageSchema = new Schema({
   content: {
     type: String,
   },
+  seen:{
+    type:Boolean,
+    default: false
+  }
+
 },
   { timestamps: true },
 );

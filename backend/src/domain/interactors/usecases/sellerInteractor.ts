@@ -6,6 +6,7 @@ import { restaurantInteractor } from "../../interfaces/usecases/restaurantIntera
 export class sellerInteractor implements restaurantInteractor {
    constructor(private readonly repository: restaurantRepository) { }
    
+   
    async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
       try {
          console.log("Inside restaurant registration usecase")
@@ -181,6 +182,16 @@ export class sellerInteractor implements restaurantInteractor {
       }
    }
 
+
+   async dashboardInteractor(restaruantId: string): Promise<{ message: string; status: boolean; }> {
+      try{
+         const { message, status } = await this.repository.dashboardRepo(restaruantId)
+         return { message, status}
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
 
 
 
