@@ -27,6 +27,8 @@ adminRouter.put('/restaurant-reject/:adminId', authenticateToken('admin') ,contr
 adminRouter.get("/user-management",authenticateToken('admin'),controller.getUserLists.bind(controller))
 adminRouter.patch("/block-user",authenticateToken('admin'), controller.blockUser.bind(controller))
 
+adminRouter.get("/dashboard", controller.adminDashboard.bind(controller))
+
 adminRouter.post('/logout', controller.adminLogout.bind(controller))
 
 export default adminRouter

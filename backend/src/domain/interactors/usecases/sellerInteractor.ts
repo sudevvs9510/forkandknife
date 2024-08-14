@@ -5,8 +5,8 @@ import { restaurantInteractor } from "../../interfaces/usecases/restaurantIntera
 
 export class sellerInteractor implements restaurantInteractor {
    constructor(private readonly repository: restaurantRepository) { }
-   
-   
+
+
    async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
       try {
          console.log("Inside restaurant registration usecase")
@@ -163,8 +163,8 @@ export class sellerInteractor implements restaurantInteractor {
 
    async getReservationDetailsInteractor(bookingId: string): Promise<{ message: string; reservationDatas: object | null; }> {
       try {
-      const { reservationDatas, message } = await this.repository.getReservationDetails(bookingId)
-      return {reservationDatas, message }
+         const { reservationDatas, message } = await this.repository.getReservationDetails(bookingId)
+         return { reservationDatas, message }
       } catch (error) {
          console.log(error)
          throw error
@@ -173,21 +173,32 @@ export class sellerInteractor implements restaurantInteractor {
 
 
    async updateBookingStatusInteractor(bookingId: string, bookingStatus: string): Promise<{ message: string; status: boolean; }> {
-      try{
+      try {
          const { status, message } = await this.repository.updateBookingStatus(bookingId, bookingStatus)
-         return { message, status}
-      } catch(error){
+         return { message, status }
+      } catch (error) {
          console.log(error)
          throw error
       }
    }
 
 
-   async dashboardInteractor(restaruantId: string): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { message, status } = await this.repository.dashboardRepo(restaruantId)
-         return { message, status}
-      } catch(error){
+   async dashboardInteractor(restaurantId: string, month: number): Promise<{
+      message: string;
+      status: boolean;
+      totalRevenue: number;
+      totalBookingCount: number;
+      totalBookingPaidCount: number;
+      totalCompletedBookingCount: number;
+      totalConfirmedBookingCount: number;
+      totalPendingBookingCount: number;
+      totalCancelledBookingCount: number,
+      reviewCount: number,
+      dailyRevenue: object;
+   }> {
+      try {
+        return await this.repository.dashboardRepo(restaurantId, month)
+      } catch (error) {
          console.log(error)
          throw error
       }

@@ -107,6 +107,17 @@ export class AdminInteractorImpl implements AdminInteractor {
          throw error
       }
    }
+
+   async adminDashboardInteractor(): Promise<{ message: string; status: boolean;usersCount: number;restaurantsCount: number, bookingCount: number,sortedRevenueByRestaurantObject: object }> {
+      try{
+         const { message, status, usersCount, restaurantsCount ,bookingCount,sortedRevenueByRestaurantObject } =await this.repository.adminDashboard()
+         return { message, status, usersCount, restaurantsCount, bookingCount, sortedRevenueByRestaurantObject}
+
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
    
 
 

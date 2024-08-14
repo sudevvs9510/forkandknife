@@ -174,8 +174,8 @@ export class restaurantController {
 
 
          const table = await restaurantTableModel.findById(tableId)
-         if(!table){
-            return res.status(404).json({message: "Table not found" })
+         if (!table) {
+            return res.status(404).json({ message: "Table not found" })
          }
          const restaruantId = table.restaurantId.toString()
 
@@ -221,48 +221,48 @@ export class restaurantController {
       }
    }
 
-   async deleteRestaurantTimeSlot(req:Request, res: Response, next: NextFunction){
+   async deleteRestaurantTimeSlot(req: Request, res: Response, next: NextFunction) {
       console.log("delete time slot controller")
-      try{
-         const {timeSlotId, restaurantId} = req.body
+      try {
+         const { timeSlotId, restaurantId } = req.body
          console.log("Restaurant ID:", restaurantId);
          console.log("Time slot ID:", timeSlotId);
-         const {message, status} = await this.interactor.deleteTimeSlotInteractor(timeSlotId, restaurantId)
+         const { message, status } = await this.interactor.deleteTimeSlotInteractor(timeSlotId, restaurantId)
          return res.status(200).json({ message, status })
 
-      } catch(error){
-        console.log(error)
-        return res.status(500).json({ message: "Internal server error"})
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
 
-   async getUserDetails(req: Request, res: Response, next: NextFunction){
+   async getUserDetails(req: Request, res: Response, next: NextFunction) {
       console.log("Get user details controller")
-      try{
-         const {userId} = req.params
+      try {
+         const { userId } = req.params
          console.log("User ID:", userId);
          const userDetails = await userModel.findById(userId)
          console.log(userDetails)
          return res.status(200).json({ userDetails })
-      } catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message: "Internal server error"})
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
 
 
-   async tableReservation (req:Request, res: Response, next: NextFunction){
+   async tableReservation(req: Request, res: Response, next: NextFunction) {
       console.log("Table reservation controller")
       const restaurantId = req.params.restaurantId
       console.log("restaurantId :", restaurantId)
-      try{
-         const { bookingDatas , message } = await this.interactor.getBookingDetailsInteractor(restaurantId)
+      try {
+         const { bookingDatas, message } = await this.interactor.getBookingDetailsInteractor(restaurantId)
          return res.status(200).json({ bookingDatas, message })
-      }catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message: "Internal server error"})
+         return res.status(500).json({ message: "Internal server error" })
       }
    }
 
@@ -284,54 +284,71 @@ export class restaurantController {
    }
 
 
-   async getBookingDetails(req:Request, res: Response, next: NextFunction){
+   async getBookingDetails(req: Request, res: Response, next: NextFunction) {
       console.log("Get booking details controller")
-      const {bookingId} = req.params
+      const { bookingId } = req.params
       console.log(bookingId)
-      try{
-         const { reservationDatas, message} = await this.interactor.getReservationDetailsInteractor(bookingId)
+      try {
+         const { reservationDatas, message } = await this.interactor.getReservationDetailsInteractor(bookingId)
          return res.status(200).json({ reservationDatas, message })
-      } catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message: "error while fetching booking details controller"})
+         return res.status(500).json({ message: "error while fetching booking details controller" })
       }
    }
 
-   async editBookingStatus(req:Request, res:Response, next:NextFunction){
+   async editBookingStatus(req: Request, res: Response, next: NextFunction) {
       console.log("Edit booking status controller")
-      const { bookingId} = req.params
+      const { bookingId } = req.params
       console.log(bookingId)
 
-      const {bookingStatus} = req.body
+      const { bookingStatus } = req.body
       console.log(bookingStatus)
-      try{
-         const { message, status } = await this.interactor.updateBookingStatusInteractor(bookingId ,bookingStatus)
-         if(!status){
+      try {
+         const { message, status } = await this.interactor.updateBookingStatusInteractor(bookingId, bookingStatus)
+         if (!status) {
             return res.status(400).json({ message: "Invalid booking status" })
          }
-         return res.status(200).json({ message: "Booking status updated", status: true})
-      } catch(error){
+         return res.status(200).json({ message: "Booking status updated", status: true })
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message: "Error during updating booking status controller"})
+         return res.status(500).json({ message: "Error during updating booking status controller" })
       }
    }
 
 
-   async dashboard(req:Request, res: Response, next:NextFunction){
+   async dashboard(req: Request, res: Response, next: NextFunction) {
       console.log("Dashboard controller")
-      const {restaurantId} = req.body
-      console.log(restaurantId)
-      try{
-         const { message, status } = await this.interactor.dashboardInteractor(restaurantId)
-         return { message, status }
+      const { restaurantId } = req.params
+      const month = Number(req.query.month ?? new Date().getMonth() + 1) 
+      console.log(restaurantId, month)
+      try {
+         const { message, status, totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue} = await this.interactor.dashboardInteractor(restaurantId, month)
+         console.log({data:{ totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue}})
+         // res.setHeader('Content-Type',"application/json")
+         return res.status(200).json({
+            message, status, data: {
+               totalRevenue,
+               totalBookingCount,
+               totalBookingPaidCount,
+               totalCompletedBookingCount,
+               totalConfirmedBookingCount,
+               totalPendingBookingCount,
+               totalCancelledBookingCount,
+               reviewCount,
+               dailyRevenue,
+            }
+         })
 
-      } catch(error){
+        
+
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({  message: "Error in dashboard controller"})
+         return res.status(500).json({ message: "Error in dashboard controller" })
       }
    }
 
-   
+
 
 
 

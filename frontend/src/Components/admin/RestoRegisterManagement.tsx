@@ -18,7 +18,7 @@ const RestoRegisterManagement: React.FC = () => {
    }, []);
 
    return (
-      <div className="flex flex-col md:flex-row text-gray-900 bg-gray-100 min-h-screen">
+      <div className="w-full md:flex-row text-gray-900 bg-gray-100 min-h-screen">
          <div className="flex-1 p-4">
             <div className="flex w-full justify-between items-center">
                <h1 className="text-3xl font-bold">New Restaurant Registrations </h1>

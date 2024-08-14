@@ -13,5 +13,7 @@ export interface AdminInteractor {
    getUsersListInteractor(): Promise<{ users: object | null, message: string}>
    blockUserInteractor(userId: string, isBlocked: boolean): Promise<{ message: string, status: boolean }>
 
+   adminDashboardInteractor(): Promise<{message: string, status: boolean;  usersCount: number; restaurantsCount: number, bookingCount: number, sortedRevenueByRestaurantObject: object}>
+
    
 }

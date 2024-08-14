@@ -31,7 +31,9 @@ export interface restaurantRepository {
    getReservationDetails(bookingId: string) : Promise<{ message: string, reservationDatas: object | null}>
    updateBookingStatus(bookingId: string, bookingStatus: string): Promise<{ message: string, status:boolean}>
 
-   dashboardRepo(restaurantId:string): Promise<{ message: string, status: boolean }>
+   dashboardRepo(restaurantId:string, month:number): Promise<{ message: string, status: boolean, totalRevenue: number, totalBookingCount: number, totalBookingPaidCount: number,totalCompletedBookingCount: number, totalConfirmedBookingCount: number, totalPendingBookingCount:number, totalCancelledBookingCount: number, reviewCount: number, dailyRevenue: object, }>
+   // dashboardRepo(restaurantId:string): Promise<{ message: string, status: boolean }>
+
    
 
 

@@ -23,7 +23,7 @@ export interface restaurantInteractor{
    updateBookingStatusInteractor(bookingId: string, bookingStatus: string): Promise<{ message: string, status: boolean}>
 
 
-   dashboardInteractor(restaruantId: string): Promise<{ message:string, status: boolean }>
+   dashboardInteractor(restaruantId: string, month: number): Promise<{ message:string, status: boolean , totalRevenue: number; totalBookingCount: number; totalBookingPaidCount: number; totalCompletedBookingCount: number; totalConfirmedBookingCount: number;totalPendingBookingCount:number, totalCancelledBookingCount: number, reviewCount:number, dailyRevenue: object,  }>
 
    
 }

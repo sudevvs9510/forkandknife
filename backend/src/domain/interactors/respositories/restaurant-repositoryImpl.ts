@@ -8,11 +8,13 @@ import restaurantTimeSlotsModel from "../../../frameworks/database/models/restau
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt"
 import bcrypt from 'bcryptjs'
 import bookingModel from "../../../frameworks/database/models/bookingModel";
+import reviewModel from "../../../frameworks/database/models/reviewModel";
 
 
 
 export class sellerRepository implements restaurantRepository {
-   
+
+
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
@@ -350,12 +352,12 @@ export class sellerRepository implements restaurantRepository {
 
    async updateBookingStatus(bookingId: string, bookingStatus: string): Promise<{ message: string; status: boolean; }> {
       try {
-      
+
          const bookingData = await bookingModel.findOneAndUpdate(
             { bookingId },
             { $set: { bookingStatus } },
             { new: true })
-          
+
          if (!bookingData) {
             return { message: "Booking not found", status: false };
          }
@@ -368,33 +370,83 @@ export class sellerRepository implements restaurantRepository {
    }
 
 
-   async dashboardRepo(restaurantId: string): Promise<{ message: string; status: boolean; }> {
-      try{
+   async dashboardRepo(restaurantId: string,month:number): Promise<{ message: string; status: boolean; totalRevenue: number; totalBookingCount: number; totalBookingPaidCount: number; totalCompletedBookingCount: number; totalConfirmedBookingCount: number, totalPendingBookingCount: number, totalCancelledBookingCount: number, reviewCount: number, dailyRevenue: object }> {
+
+      try {
          const totalBookings = await bookingModel.find({ restaurantId })
 
-         //filter the status paid
-         const bookingPaidFilter = totalBookings.filter(booking => booking.paymentStatus === 'PAID')
+         const review = await reviewModel.find({ restaurantId })
+
+         //filter booking status paid
+         const bookingPaidFilter = totalBookings.filter(booking => booking.paymentStatus === 'PAID').sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+         //filter booking status completed
+         const bookingCompletedFilter = totalBookings.filter(booking => booking.bookingStatus === 'COMPLETED')
+
+         const bookingConfirmedFitler = totalBookings.filter(booking => booking.bookingStatus === 'CONFIRMED')
+
+         const bookingPendingFilter = totalBookings.filter(booking => booking.bookingStatus === "PENDING")
+
+         const bookingCancelledFilter = totalBookings.filter(booking => booking.bookingStatus === "CANCELLED")
+
+
+         const obj: any = {}
+         for (const val of bookingPaidFilter) {
+            const key = val.createdAt.toString().split(" ")
+            const monthOfData = new Date(val.createdAt).getMonth() + 1;
+            if (monthOfData === month) {
+               if (obj[key[2]] !== undefined) {
+                  obj[key[2]] += val.totalAmount
+               } else {
+                  obj[key[2]] = val.totalAmount
+               }
+            }
+         }
+         const dailyRevenue = {
+            key: Object.keys(obj),
+            values: Object.values(obj)
+         }
 
          // total revenue of status paid
-         const totalRevenue =  bookingPaidFilter
-         .reduce((acc, booking)=> acc + booking.totalAmount,0)
+         const totalRevenue = bookingPaidFilter
+            .reduce((acc, booking) => acc + booking.totalAmount, 0)
          console.log('totalRevenue:', totalRevenue)
+
 
          // total Booking count
          const totalBookingCount = totalBookings.length
-         console.log(totalBookingCount)
+         console.log("totalBookingCount:", totalBookingCount)
 
          //total booking paid status count
          const totalBookingPaidCount = bookingPaidFilter.length
-         console.log('totalBookingCount:',totalBookingPaidCount)
+         console.log('totalPaidBookingCount:', totalBookingPaidCount)
 
-         
+         //total completed booking status count
+         const totalCompletedBookingCount = bookingCompletedFilter.length
+         console.log('totalCompletedBookingCount:', totalCompletedBookingCount)
 
-         
+
+         const totalConfirmedBookingCount = bookingConfirmedFitler.length
+         console.log("totalConfirmedBookingCount:", totalConfirmedBookingCount)
+
+         const totalPendingBookingCount = bookingPendingFilter.length
+         console.log("totalPendingBookingCount:", totalPendingBookingCount)
+
+         const totalCancelledBookingCount = bookingCancelledFilter.length
+         console.log("bookingCancelledFilter:", bookingCancelledFilter)
+
+         const reviewCount = review.length
+         console.log("reviewCount:", reviewCount)
+
+
 
          console.log(totalBookings)
-         return { message:"dashboard details fetched successfully", status: true }
-      } catch(error){
+
+         console.log(bookingPaidFilter, dailyRevenue, "this is bab that okay")
+
+         return { message: "dashboard details fetched successfully", status: true, totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue }
+
+      } catch (error) {
          console.log(error)
          throw error
       }

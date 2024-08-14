@@ -7,9 +7,10 @@ import nodeMailerRestaurantApprovalMail from "../../../functions/sendMailApprova
 import nodeMailerRestaurantRejectMail from "../../../functions/restoRejectMail"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt";
 import userModel from "../../../frameworks/database/models/userModel";
+import bookingModel from "../../../frameworks/database/models/bookingModel";
 
 export class adminRepositoryImpl implements AdminRepositories {
-   
+
    async adminLoginRepo(credentials: { email: string; password: string; }): Promise<{ admin: UserType | null; message: string; token: string | null; refreshToken: string | null }> {
       try {
          console.log("inside interactor repo")
@@ -51,16 +52,16 @@ export class adminRepositoryImpl implements AdminRepositories {
    }
 
    async blockRestaurant(restaurantId: string, isBlocked: boolean): Promise<{ message: string; status: boolean; }> {
-      try{
-         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, { isBlocked }, { new: true})
+      try {
+         const restaurant = await restaurantModel.findByIdAndUpdate(restaurantId, { isBlocked }, { new: true })
          console.log(restaurant)
-         if(restaurant){
+         if (restaurant) {
             console.log(restaurant)
-            return { message:"User blocked successfully", status: true}
+            return { message: "User blocked successfully", status: true }
          } else {
-            return { message: "restaurant not found", status: false}
+            return { message: "restaurant not found", status: false }
          }
-      } catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -145,6 +146,99 @@ export class adminRepositoryImpl implements AdminRepositories {
       }
    }
 
+   async adminDashboard(): Promise<{
+      message: string;
+      status: boolean;
+      usersCount: number;
+      restaurantsCount: number;
+      bookingCount: number;
+      sortedRevenueByRestaurantObject: object
+
+   }> {
+      try {
+         const usersCount = await userModel.countDocuments({ role: "user" });
+         const restaurantsCount = await restaurantModel.countDocuments({ role: "seller" });
+         console.log("usersCount:", usersCount, "restaurantsCount:", restaurantsCount);
+
+         const bookingCount = await bookingModel.countDocuments({ paymentStatus: "PAID" });
+         console.log("bookingCount:", bookingCount);
+
+         const currentDayRevenue = await bookingModel.aggregate([
+            {
+               $match: { paymentStatus: "PAID", bookingStatus: "COMPLETED" }
+            },
+            {
+               $group: {
+                  _id: null,
+                  totalRevenue: { $sum: "$totalAmount" }
+               }
+            }
+         ]);
+
+         const revenue = currentDayRevenue.length > 0 ? currentDayRevenue[0].totalRevenue : 0;
+         console.log(`Total Revenue for Paid Bookings: ${revenue}`);
+
+
+         // Get revenue by each restaurant, using restaurantName as key
+         const revenueByEachRestaurant = await bookingModel.aggregate([
+            {
+               $match: {
+                  paymentStatus: "PAID",
+                  bookingStatus: "COMPLETED"
+               }
+            },
+            {
+               $lookup: {
+                  from: "restaurants",
+                  localField: "restaurantId",
+                  foreignField: "_id",
+                  as: "restaurantDetails"
+               }
+            },
+            {
+               $unwind: "$restaurantDetails"
+            },
+            {
+               $group: {
+                  _id: "$restaurantDetails.restaurantName",
+                  totalRevenue: { $sum: "$totalAmount" }
+               }
+            }
+         ]);
+
+         // Transforming the result into an object with restaurantName as keys
+         const revenueByRestaurantObject: { [restaurantName: string]: number } = {};
+         revenueByEachRestaurant.forEach((item) => {
+            revenueByRestaurantObject[item._id] = item.totalRevenue;
+         });
+
+         // Sort the object by revenue in descending order
+         const sortedRevenueArray = Object.entries(revenueByRestaurantObject).sort(([, a], [, b]) => b - a);
+         const sortedRevenueByRestaurantObject = Object.fromEntries(sortedRevenueArray);
+
+         console.log(sortedRevenueByRestaurantObject);
+
+
+
+         return {
+            message: "Fetched data successfully",
+            status: true,
+            usersCount,
+            restaurantsCount,
+            bookingCount,
+            sortedRevenueByRestaurantObject
+
+         };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
+
+
 
 
 }
+
+// total revenue current day
+//

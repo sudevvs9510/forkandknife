@@ -9,11 +9,12 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex flex-1 ">
-      <div className='bg-gray-100'>
-        <Sidebar />
+        <div className='bg-gray-100'>
+          <Sidebar />
         </div>
         <Dashboard />
       </div>
+
     </div>
   );
 };

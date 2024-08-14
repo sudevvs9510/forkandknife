@@ -147,5 +147,19 @@ export class adminController {
    }
 
 
+   async adminDashboard(req:Request, res:Response, next:NextFunction){
+      console.log("Dashboard controller")
+
+      try{
+         const { message, status,  usersCount, restaurantsCount, bookingCount,sortedRevenueByRestaurantObject} = await this.interactor.adminDashboardInteractor()
+         return res.status(200).json({ message, status, usersCount, restaurantsCount,bookingCount,sortedRevenueByRestaurantObject })
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({ message: "Error fetching admin dashbaord"})
+      }
+   }
+
+
 
 }
+

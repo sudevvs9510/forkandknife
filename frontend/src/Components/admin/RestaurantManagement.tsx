@@ -87,37 +87,37 @@ const RestaurantManagement: React.FC = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center mb-4 p-4">
+    <div className="w-full  md:flex-row justify-between items-center mb-4 p-4 ">
       <div className="flex-1">
         <div className="flex w-full justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Restaurant Management</h1>
-          <div className="relative flex-shrink-0 w-full md:w-auto">
+          <div className="relative md:w-auto">
             <HiOutlineSearch fontSize={24} className="text-gray-400 absolute top-1/2 -translate-y-1/2 left-3" />
             <input
               type="text"
               placeholder="Search restaurants..."
-              className="text-sm focus:outline-none border active:outline-none border-gray-300 h-14 w-full md:w-96 pl-10 pr-4 rounded-lg"
+              className="flex justify-end me-auto text-sm focus:outline-none border active:outline-none border-gray-300 p-3 pl-10   rounded-lg"
               value={searchItem}
               onChange={handleSearchInput}
             />
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-md bg-white shadow-md rounded mb-4">
+          <table className="w-full text-md bg-gray-100 shadow-md rounded mb-4">
             <thead>
               <tr className="border-b">
-                <th className="text-left p-3 px-5">Name</th>
-                <th className="text-left p-3 px-5">Email</th>
-                <th className="text-left p-3 px-5">Location</th>
-                <th className="text-left p-3 px-5">Contact</th>
-                <th className="text-left p-3 px-5 flex justify-end">Status</th>
+                <th className="text-left p-3 px-5">NAME</th>
+                <th className="text-left p-3 px-5">EMAIL</th>
+                <th className="text-left p-3 px-5">LOCATION</th>
+                <th className="text-left p-3 px-5">CONTACT</th>
+                <th className="text-left p-3 px-5 flex justify-end">STATUS</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               {currentRestaurants.length > 0 ? (
                 currentRestaurants.map((restaurant: any) => (
-                  <tr className="border-b bg-gray-100" key={restaurant._id}>
+                  <tr className="border-b bg-white" key={restaurant._id}>
                     <td className="p-3 px-5">
                       <input
                         type="text"
