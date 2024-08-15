@@ -24,7 +24,7 @@ const NavBar: React.FC = () => {
   }
 
   return (
-    <header className="w-full bg-teal-600 text-white flex justify-between items-center p-4 px-8 md:px-8">
+    <div className="w-full bg-teal-600 text-white  flex flex-shrink-0 justify-between p-4">
       <h1 className="text-2xl font-bold">Fork & Knife</h1>
       <div className='flex items-center'>
         {isRestaurantLoggedIn ? (
@@ -42,7 +42,7 @@ const NavBar: React.FC = () => {
           </Link>
         )}
       </div>
-    </header>
+    </div>
   );
 };
 

@@ -5,264 +5,7 @@
 // import authAxios from '../../redux/api/authApi';
 // import { FaCalendarAlt, FaUserFriends } from 'react-icons/fa';
 // import ReviewModal from './AddReview';
-
-// interface Booking {
-//   bookingId: string;
-//   restaurantId: string;
-//   featuredImage: string;
-//   restaurantName: string;
-//   bookingStatus: string;
-//   guests: number;
-//   bookingDate: string;
-//   bookingTime: string
-// }
-
-// interface ReviewData {
-//   username?: string;
-//   description: string;
-//   rating: number;
-// }
-
-// type BookingHistoryProps = {
-//   userId: string;
-// };
-
-// const getStatusColor = (status: string) => {
-//   switch (status.toLowerCase()) {
-//     case 'confirmed':
-//       return 'text-green-600';
-//     case 'cancelled':
-//       return 'text-red-600';
-//     case 'checkedin':
-//       return 'text-blue-600';
-//     case 'pending':
-//       return 'text-orange-600';
-//     case 'completed':
-//       return 'text-gray-600';
-//     default:
-//       return 'text-gray-600';
-//   }
-// };
-
-// const Shimmer = () => (
-//   <div className="animate-pulse flex space-x-4 p-4 bg-gray-200 rounded-lg">
-//     <div className="bg-gray-300 h-[120px] w-[200px] rounded-lg"></div>
-//     <div className="flex-1 space-y-4 py-1">
-//       <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-//       <div className="space-y-2">
-//         <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-//         <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-//       </div>
-//     </div>
-//   </div>
-// );
-
-// const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
-//   const navigate = useNavigate();
-
-//   const [bookingDetails, setBookingDetails] = useState<Booking[]>([]);
-//   const [loading, setLoading] = useState<boolean>(true);
-//   const [isReviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
-//   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-
-//   const [currentPage, setCurrentPage] = useState(1)
-//   const bookingPerPage = 5
-
-//   useEffect(() => {
-//     const fetchBookingData = async () => {
-//       try {
-//         if (userId) {
-//           setLoading(true);
-//           const res = await authAxios.get(`/booking-history/${userId}`);
-//           const bookings = res.data.bookingDatas.map((booking: any) => ({
-//             bookingId: booking.bookingId,
-//             restaurantId: booking.restaurantId._id,
-//             featuredImage: booking.restaurantId.featuredImage,
-//             restaurantName: booking.restaurantId.restaurantName,
-//             bookingStatus: booking.bookingStatus,
-//             guests: booking.tableId.tableCapacity,
-//             bookingDate: booking.bookingDate,
-//             bookingTime: booking.bookingTime,
-//           }));
-//           setBookingDetails(bookings);
-//           setLoading(false);
-//         } else {
-//           console.error("Unauthorized access or invalid role");
-//           setLoading(false);
-//         }
-//       } catch (error) {
-//         console.error("Error fetching booking data", error);
-//         setLoading(false);
-//       }
-//     };
-//     fetchBookingData();
-//   }, [userId]);
-
-//   const handleBookingClick = (bookingId: string) => {
-//     navigate(`/booking-details/${bookingId}`);
-//   };
-
-//   const handleAddReview = (restaurantId: string) => {
-//     setSelectedRestaurantId(restaurantId);
-//     setReviewModalOpen(true);
-//   };
-
-
-//   const handleReviewSubmit = async (reviewData: ReviewData) => {
-//     if (!selectedRestaurantId) return;
-
-//     try {
-//       await authAxios.post(`/add-review/${selectedRestaurantId}`, {
-//         ...reviewData,
-//         userId,
-//       });
-//       console.log("Review submitted successfully");
-//     } catch (error) {
-//       console.error("Error submitting review:", error);
-//     } finally {
-//       setReviewModalOpen(false);
-//     }
-//   };
-
-
-//   const indexOfLastBooking = currentPage * bookingPerPage
-//   const indexOfFirstBooking = indexOfLastBooking - bookingPerPage
-//   const currentBookings = bookingDetails.slice(indexOfFirstBooking, indexOfLastBooking)
-
-//   const totalPages = Math.ceil(bookingDetails.length / bookingPerPage)
-
-//   const handlePrevPage = () => {
-//     if (currentPage > 1) {
-//       setCurrentPage(currentPage - 1);
-//     }
-//   };
-
-//   const handleNextPage = () => {
-//     if (currentPage < totalPages) {
-//       setCurrentPage(currentPage + 1);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h2 className="text-2xl font-bold mb-4">Booking History</h2>
-//       <div className="space-y-4">
-//         {loading ? (
-//           Array.from({ length: 3 }).map((_, index) => <Shimmer key={index} />)
-//         ) : currentBookings.length > 0 ? (
-//           currentBookings.map((booking, index) => (
-//             <div
-//               key={index}
-//               className="bg-gray-100 p-4 rounded-lg shadow-md cursor-pointer"
-//               onClick={() => handleBookingClick(booking.bookingId)}
-//             >
-//               <div className="flex items-center space-x-4">
-//                 <img
-//                   src={booking.featuredImage}
-//                   alt={booking.restaurantName}
-//                   className="w-[200px] h-[120px] object-cover rounded-lg"
-//                 />
-//                 <div className="flex-grow">
-//                   <h3 className="text-xl text-teal-700 font-bold mb-2">{booking.restaurantName}</h3>
-//                   <p className="flex items-center">
-//                     <FaCalendarAlt className="mr-2" />
-//                     {new Date(booking.bookingDate).toLocaleDateString()}
-//                   </p>
-//                   <span>
-//                     {booking.bookingTime}
-//                   </span>
-//                   <p className="flex items-center">
-//                     <FaUserFriends className="mr-2" />
-//                     Guests: {booking.guests}
-//                   </p>
-//                   <p>
-//                     <span className="font-medium">Status:</span>
-//                     <span className={`ml-2 ${getStatusColor(booking.bookingStatus)}`}>
-//                       {booking.bookingStatus}
-//                     </span>
-//                   </p>
-//                 </div>
-//                 {booking.bookingStatus.toLowerCase() === 'completed' && (
-//                   <div className="flex-grow">
-//                     <button
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         handleAddReview(booking.restaurantId);
-//                       }}
-//                       className="bg-teal-600 hover:bg-teal-800 text-white p-2 rounded"
-//                     >
-//                       Add Review
-//                     </button>
-//                   </div>
-//                 )}
-
-//                 {booking.bookingStatus.toLowerCase() !== 'completed' && booking.bookingStatus.toLowerCase() !== 'cancelled' && (
-//                   <div className="flex-grow">
-//                     <button
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         handleCancellation(booking.restaurantId);
-//                       }}
-//                       className="bg-red-600 hover:bg-red-800 text-white p-2 rounded"
-//                     >
-//                       Cancel booking
-//                     </button>
-//                   </div>
-//                 )}
-
-
-//                 {booking.bookingStatus.toLowerCase() === ''}
-//               </div>
-//             </div>
-//           ))
-//         ) : (
-//           <p>No booking history found.</p>
-//         )}
-//       </div>
-
-//       {/* Pagination Controls */}
-//       <div className="flex justify-center mt-4">
-//         <button
-//           onClick={handlePrevPage}
-//           disabled={currentPage === 1}
-//           className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-teal-600 text-white'}`}
-//         >
-//           &lt; Previous
-//         </button>
-//         <span className="px-4 py-2 mx-1">
-//           Page {currentPage} of {totalPages}
-//         </span>
-//         <button
-//           onClick={handleNextPage}
-//           disabled={currentPage === totalPages}
-//           className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-teal-600 text-white'}`}
-//         >
-//           Next &gt;
-//         </button>
-//       </div>
-
-//       <ReviewModal
-//         isOpen={isReviewModalOpen}
-//         onClose={() => setReviewModalOpen(false)}
-//         onSubmit={handleReviewSubmit}
-//       />
-//     </div>
-//   );
-// };
-
-// export default BookingHistory;
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// import React, { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import authAxios from '../../redux/api/authApi';
-// import { FaCalendarAlt, FaUserFriends } from 'react-icons/fa';
-// import ReviewModal from './AddReview';
-// import ConfirmCancellationModal from '../../layouts/CancellationModal'; 
+// import ConfirmCancellationModal from '../../layouts/CancellationModal';
 
 // interface Booking {
 //   bookingId: string;
@@ -428,6 +171,12 @@
 //     }
 //   };
 
+//   const isBookingDatePassed = (bookingDate: string) => {
+//     const today = new Date();
+//     const booking = new Date(bookingDate);
+//     return booking < today;
+//   };
+
 //   return (
 //     <div>
 //       <h2 className="text-2xl font-bold mb-4">Booking History</h2>
@@ -480,7 +229,8 @@
 //                 )}
 
 //                 {booking.bookingStatus.toLowerCase() !== 'completed' &&
-//                   booking.bookingStatus.toLowerCase() !== 'cancelled' && (
+//                   booking.bookingStatus.toLowerCase() !== 'cancelled' &&
+//                   !isBookingDatePassed(booking.bookingDate) && (
 //                     <div className="flex-grow">
 //                       <button
 //                         onClick={(e) => {
@@ -541,6 +291,7 @@
 
 
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -589,7 +340,7 @@ const getStatusColor = (status: string) => {
 
 const Shimmer = () => (
   <div className="animate-pulse flex space-x-4 p-4 bg-gray-200 rounded-lg">
-    <div className="bg-gray-300 h-[120px] w-[200px] rounded-lg"></div>
+    <div className="bg-gray-300 h-[100px] w-[150px] md:h-[120px] md:w-[200px] rounded-lg"></div>
     <div className="flex-1 space-y-4 py-1">
       <div className="h-4 bg-gray-300 rounded w-3/4"></div>
       <div className="space-y-2">
@@ -721,7 +472,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Booking History</h2>
+      <h2 className="text-xl md:text-2xl font-bold mb-4">Booking History</h2>
       <div className="space-y-4">
         {loading ? (
           Array.from({ length: 3 }).map((_, index) => <Shimmer key={index} />)
@@ -732,20 +483,22 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
               className="bg-gray-100 p-4 rounded-lg shadow-md cursor-pointer"
               onClick={() => handleBookingClick(booking.bookingId)}
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <img
                   src={booking.featuredImage}
                   alt={booking.restaurantName}
-                  className="w-[200px] h-[120px] object-cover rounded-lg"
+                  className="w-[150px] h-[100px] md:w-[200px] md:h-[120px] object-cover rounded-lg"
                 />
-                <div className="flex-grow">
-                  <h3 className="text-xl text-teal-700 font-bold mb-2">{booking.restaurantName}</h3>
-                  <p className="flex items-center">
+                <div className="flex-grow text-center md:text-left">
+                  <h3 className="text-lg md:text-xl text-teal-700 font-bold mb-2">
+                    {booking.restaurantName}
+                  </h3>
+                  <p className="flex items-center justify-center md:justify-start">
                     <FaCalendarAlt className="mr-2" />
                     {new Date(booking.bookingDate).toLocaleDateString()}
                   </p>
                   <span>{booking.bookingTime}</span>
-                  <p className="flex items-center">
+                  <p className="flex items-center justify-center md:justify-start">
                     <FaUserFriends className="mr-2" />
                     Guests: {booking.guests}
                   </p>
@@ -756,35 +509,33 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
                     </span>
                   </p>
                 </div>
-                {booking.bookingStatus.toLowerCase() === 'completed' && (
-                  <div className="flex-grow">
+                <div className="flex-grow text-center md:text-right">
+                  {booking.bookingStatus.toLowerCase() === 'completed' && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddReview(booking.restaurantId);
                       }}
-                      className="bg-teal-600 hover:bg-teal-800 text-white p-2 rounded"
+                      className="bg-teal-600 hover:bg-teal-800 text-white p-2 rounded text-sm md:text-base"
                     >
                       Add Review
                     </button>
-                  </div>
-                )}
+                  )}
 
-                {booking.bookingStatus.toLowerCase() !== 'completed' &&
-                  booking.bookingStatus.toLowerCase() !== 'cancelled' &&
-                  !isBookingDatePassed(booking.bookingDate) && (
-                    <div className="flex-grow">
+                  {booking.bookingStatus.toLowerCase() !== 'completed' &&
+                    booking.bookingStatus.toLowerCase() !== 'cancelled' &&
+                    !isBookingDatePassed(booking.bookingDate) && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCancellation(booking.bookingId);
                         }}
-                        className="bg-red-600 hover:bg-red-800 text-white p-2 rounded"
+                        className="bg-red-600 hover:bg-red-800 text-white p-2 rounded text-sm md:text-base"
                       >
                         Cancel Booking
                       </button>
-                    </div>
-                  )}
+                    )}
+                </div>
               </div>
             </div>
           ))
@@ -798,37 +549,36 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
         <button
           onClick={handlePrevPage}
           disabled={currentPage === 1}
-          className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? 'bg-gray-200 text-gray-400' : 'bg-teal-600 text-white'}`}
+          className="bg-teal-600 hover:bg-teal-800 text-white p-2 rounded-l disabled:bg-gray-400"
         >
-          &lt; Previous
+          Prev
         </button>
-        <span className="px-4 py-2 mx-1">
-          Page {currentPage} of {totalPages}
-        </span>
         <button
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
-          className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-teal-600 text-white'}`}
+          className="bg-teal-600 hover:bg-teal-800 text-white p-2 rounded-r disabled:bg-gray-400"
         >
-          Next &gt;
+          Next
         </button>
       </div>
 
-      <ReviewModal
-        isOpen={isReviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        onSubmit={handleReviewSubmit}
-      />
-
-      <ConfirmCancellationModal
-        isOpen={isCancellationModalOpen}
-        onClose={() => setCancellationModalOpen(false)}
-        onConfirm={confirmCancellation}
-      />
+      {/* Modals */}
+      {isReviewModalOpen && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          onSubmit={handleReviewSubmit}
+        />
+      )}
+      {isCancellationModalOpen && (
+        <ConfirmCancellationModal
+          isOpen={isCancellationModalOpen}
+          onClose={() => setCancellationModalOpen(false)}
+          onConfirm={confirmCancellation}
+        />
+      )}
     </div>
   );
 };
 
 export default BookingHistory;
-
-

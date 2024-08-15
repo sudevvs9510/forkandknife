@@ -30,12 +30,12 @@ const sections: Section[] = [
    {
       title: "Restaurants",
       items: ["Pricing", "Documentation", "Guides", 'Status'],
-      link: '/restaurant'
+      link: '/'
    },
    {
       title: "Book Table",
       items: ["About", "Blog", "Jobs", 'Press'],
-      link: '/book-table'
+      link: '/'
    },
    {
       title: "Policies",

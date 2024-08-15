@@ -111,7 +111,7 @@ const ReservationComponent: React.FC = () => {
   };
 
   return (
-    <div className="w-[88%] lg:w-full p-4">
+    <div className="w-full lg:w-full p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Reservations</h2>
         <div className="relative">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaTable, FaRupeeSign, FaDownload } from 'react-icons/fa';
 import { MdReviews } from "react-icons/md";
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { RootState, useAppSelector } from '../../redux/app/store';
 import authAxios from '../../redux/api/authApi';
 import { LineChart } from '@mui/x-charts/LineChart';
@@ -84,10 +84,10 @@ const Dashboard: React.FC = () => {
 
   // Prepare dynamic data for the PieChart
   const pieChartData = [
-    { id: 0, value: dashboardData?.data.totalCompletedBookingCount || 0, label: 'Booking Completed' },
-    { id: 1, value: dashboardData?.data.totalConfirmedBookingCount || 0, label: 'Booking Confirmed' },
-    { id: 2, value: dashboardData?.data.totalPendingBookingCount || 0, label: 'Booking Pending' },
-    { id: 3, value: dashboardData?.data.totalCancelledBookingCount || 0, label: 'Booking Cancelled' },
+    { id: 0, value: dashboardData?.data.totalCompletedBookingCount || 0, label: 'Completed' },
+    { id: 1, value: dashboardData?.data.totalConfirmedBookingCount || 0, label: 'Confirmed' },
+    { id: 2, value: dashboardData?.data.totalPendingBookingCount || 0, label: 'Pending' },
+    { id: 3, value: dashboardData?.data.totalCancelledBookingCount || 0, label: 'Cancelled' },
   ];
 
 
@@ -105,12 +105,11 @@ const Dashboard: React.FC = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="w-full p-4">
-      <Toaster />
+    <div className="w-[88%] p-4">
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
 
       {/* Dashboard Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 w-full sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="flex items-center p-4 bg-white rounded shadow">
           <FaTable className="text-4xl text-blue-500 mr-4" />
           <div>
@@ -159,8 +158,8 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts */}
-      <div className="flex flex-col lg:flex-row justify-evenly mb-8">
-        <div className="w-full lg:w-1/2 mb-4 lg:mb-0">
+      <div className="w-full flex flex-col lg:flex-row justify-evenly mb-8">
+        <div className="lg:w-1/2 mb-4 lg:mb-0">
           <h1 className="font-semibold text-[22px] text-teal-600 text-center">Revenue Status</h1>
           <div className="flex justify-end mb-4">
             <label htmlFor="month" className="mr-2 font-semibold text-teal-600">Select Month:</label>
@@ -187,13 +186,9 @@ const Dashboard: React.FC = () => {
           {xAxis.length > 1 && yAxis.length > 1 ? (
             <LineChart
               xAxis={[{ data: xAxis }]}
-              series={[
-                {
-                  data: yAxis,
-                },
-              ]}
-              width={500}
-              height={350}
+              series={[{ data: yAxis, }]}
+              width={450}
+              height={300}
               className="mx-auto"
             />
           ) : (
@@ -204,21 +199,23 @@ const Dashboard: React.FC = () => {
 
         <div className="w-full lg:w-1/2 ">
           <h1 className="font-semibold text-[22px] text-teal-600 text-center mb-10">Booking Status</h1>
+
           <PieChart
             series={[
               {
-                data: pieChartData,
+                data:pieChartData,
+                highlightScope: { faded: 'global', highlighted: 'item' },
+                faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
               },
             ]}
-            width={550}
+            width={450}
             height={250}
-            className="mx-auto"
           />
         </div>
       </div>
 
       {/* Upcoming Reservations Section */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="items-center mb-4 w-full">
         <Reservation />
       </div>
     </div>

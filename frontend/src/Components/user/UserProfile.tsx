@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 // import React, { useEffect, useState } from 'react';
 // import { FaUser, FaHistory } from 'react-icons/fa';
-// import { Link, useParams } from 'react-router-dom';
+// import { Link, useParams, Routes, Route } from 'react-router-dom';
 // import { fetchUserProfile, updateUserDetails } from "../../api/api";
 // import toast from 'react-hot-toast';
 // import ProfileDetails from './UserProfileDetails';
@@ -18,8 +17,6 @@
 //         email: '',
 //     });
 
-//     const [nav, setNavigate] = useState("profile");
-
 //     const [originalUser, setOriginalUser] = useState({
 //         username: '',
 //         phone: '',
@@ -27,7 +24,6 @@
 //     });
 
 //     const { userId } = useParams<{ userId: string }>();
-//     console.log("user:", userId)
 
 //     useEffect(() => {
 //         const fetchUserData = async () => {
@@ -87,10 +83,6 @@
 //         );
 //     };
 
-//     const handleNavigate = (query: string) => {
-//         setNavigate(query);
-//     }
-
 //     return (
 //         <div className="bg-white min-h-screen">
 //             <div className="max-w-7xl mx-auto py-8 px-20">
@@ -111,28 +103,25 @@
 //                             <nav className="w-1/4">
 //                                 <ul className="space-y-4">
 //                                     <li>
-//                                         <button
-//                                             className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${nav === 'profile' ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}
-//                                             onClick={() => handleNavigate("profile")}
-//                                         >
-//                                             <FaUser className="mr-2" /> Profile
-//                                         </button>
+//                                         <Link to="about-user">
+//                                             <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('about-user') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+//                                                 <FaUser className="mr-2" /> Profile
+//                                             </button>
+//                                         </Link>
 //                                     </li>
 //                                     <li>
-//                                         <button
-//                                             className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${nav === 'booking' ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}
-//                                             onClick={() => handleNavigate("booking")}
-//                                         >
-//                                             <FaHistory className="mr-2" /> Booking History
-//                                         </button>
+//                                         <Link to="booking">
+//                                             <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('booking') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+//                                                 <FaHistory className="mr-2" /> Booking History
+//                                             </button>
+//                                         </Link>
 //                                     </li>
 //                                     <li>
-//                                         <button
-//                                             className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${nav === 'wallet' ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}
-//                                             onClick={() => handleNavigate("wallet")}
-//                                         >
-//                                             <CiWallet className="mr-2" /> Wallet
-//                                         </button>
+//                                         <Link to="wallet">
+//                                             <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('wallet') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+//                                                 <CiWallet className="mr-2" /> Wallet
+//                                             </button>
+//                                         </Link>
 //                                     </li>
 //                                     <li>
 //                                         <Link to='/reset-password'>
@@ -147,15 +136,11 @@
 //                             {/* Right section */}
 //                             <div className="w-3/4">
 //                                 <div className="bg-white p-6 rounded-lg shadow-lg">
-//                                     {nav === "profile" && (
-//                                         <ProfileDetails user={user} handleInputChange={handleInputChange} handleSubmit={handleSubmit} isFormDirty={isFormDirty} />
-//                                     )}
-//                                     {nav === "booking" && (
-//                                         <BookingHistory userId={userId as string} />
-//                                     )}
-//                                     {nav === "wallet" && (
-//                                         <Wallet userId={userId as string} />
-//                                     )}
+//                                     <Routes>
+//                                         <Route path="about-user" element={<ProfileDetails user={user} handleInputChange={handleInputChange} handleSubmit={handleSubmit} isFormDirty={isFormDirty} />} />
+//                                         <Route path="booking" element={<BookingHistory userId={userId as string} />} />
+//                                         <Route path="wallet" element={<Wallet userId={userId as string} />} />
+//                                     </Routes>
 //                                 </div>
 //                             </div>
 //                         </div>
@@ -168,19 +153,9 @@
 
 // export default ProfilePage;
 
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from 'react';
 import { FaUser, FaHistory } from 'react-icons/fa';
-import { Link, useParams, useNavigate, Routes, Route } from 'react-router-dom';
+import { Link, useParams, Routes, Route } from 'react-router-dom';
 import { fetchUserProfile, updateUserDetails } from "../../api/api";
 import toast from 'react-hot-toast';
 import ProfileDetails from './UserProfileDetails';
@@ -203,7 +178,6 @@ const ProfilePage: React.FC = () => {
     });
 
     const { userId } = useParams<{ userId: string }>();
-    const Navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -265,48 +239,54 @@ const ProfilePage: React.FC = () => {
 
     return (
         <div className="bg-white min-h-screen">
-            <div className="max-w-7xl mx-auto py-8 px-20">
-                <div className="bg-white rounded-lg p-8">
+            <div className="w-full mx-auto sm:px-2 md:px-6 lg:px-20">
+                <div className="bg-white rounded-lg p-4 md:p-4 sm:-p-2">
                     <div className="flex items-center">
                         <div className="relative">
-                            <div className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center text-white text-4xl">
+                            <div className="w-14 h-14 sm:w-14 sm:h-14 lg:w-24 lg:h-24 bg-teal-500 rounded-full flex items-center justify-center text-white text-2xl sm:text-3xl lg:text-4xl">
                                 {user.username.charAt(0).toUpperCase()}
                             </div>
                         </div>
-                        <div className="ml-4">
-                            <h1 className="text-3xl font-bold">Hi, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}</h1>
+                        <div className="ml-2 sm:ml-3 lg:ml-4">
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                                Hi, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
+                            </h1>
                         </div>
                     </div>
                     <div className="mt-6 border-t pt-6">
-                        <div className="flex space-x-4">
+                        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                             {/* Left section */}
-                            <nav className="w-1/4">
-                                <ul className="space-y-4">
-                                    <li>
+                            <nav className="w-full md:w-1/4 flex flex-col md:flex-col space-y-2 md:space-y-2">
+                                <ul className="flex flex-row md:flex-col w-full md:w-auto md:space-y-2 space-x-2 md:space-x-0">
+                                    <li className="w-full md:w-auto">
                                         <Link to="about-user">
-                                            <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('about-user') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
-                                                <FaUser className="mr-2" /> Profile
+                                            <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('about-user') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+                                                <FaUser className="mr-2 text-xl md:text-2xl" />
+                                                <span className="hidden md:inline">Profile</span>
                                             </button>
                                         </Link>
                                     </li>
-                                    <li>
+                                    <li className="w-full md:w-auto">
                                         <Link to="booking">
-                                            <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('booking') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
-                                                <FaHistory className="mr-2" /> Booking History
+                                            <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('booking') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+                                                <FaHistory className="mr-2 text-xl md:text-2xl" />
+                                                <span className="hidden md:inline">Booking History</span>
                                             </button>
                                         </Link>
                                     </li>
-                                    <li>
+                                    <li className="w-full md:w-auto">
                                         <Link to="wallet">
-                                            <button className={`flex items-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('wallet') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
-                                                <CiWallet className="mr-2" /> Wallet
+                                            <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('wallet') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+                                                <CiWallet className="mr-2 text-xl md:text-2xl" />
+                                                <span className="hidden md:inline">Wallet</span>
                                             </button>
                                         </Link>
                                     </li>
-                                    <li>
+                                    <li className="w-full md:w-auto">
                                         <Link to='/reset-password'>
-                                            <button className="flex items-center w-full p-4 text-left bg-gray-200 rounded-lg hover:bg-gray-300">
-                                                <RiLockPasswordLine className="mr-2" /> Change Password
+                                            <button className="flex items-center justify-center w-full p-4 text-left bg-gray-200 rounded-lg hover:bg-gray-300">
+                                                <RiLockPasswordLine className="mr-2 text-xl md:text-2xl" />
+                                                <span className="hidden md:inline">Change Password</span>
                                             </button>
                                         </Link>
                                     </li>
@@ -314,13 +294,12 @@ const ProfilePage: React.FC = () => {
                             </nav>
 
                             {/* Right section */}
-                            <div className="w-3/4">
+                            <div className="w-full md:w-3/4">
                                 <div className="bg-white p-6 rounded-lg shadow-lg">
                                     <Routes>
                                         <Route path="about-user" element={<ProfileDetails user={user} handleInputChange={handleInputChange} handleSubmit={handleSubmit} isFormDirty={isFormDirty} />} />
                                         <Route path="booking" element={<BookingHistory userId={userId as string} />} />
                                         <Route path="wallet" element={<Wallet userId={userId as string} />} />
-                                        {/* <Route path="/" element={<Navigate to="profile" />} /> */}
                                     </Routes>
                                 </div>
                             </div>

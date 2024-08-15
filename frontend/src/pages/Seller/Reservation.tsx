@@ -7,7 +7,7 @@ import ChatIcon from '../../Components/restaurant/ChatIcon';
 
 const RestaurantReservation: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col ">
       <Header />
       <div className="flex flex-1 ">
       <div className='bg-gray-100'>
