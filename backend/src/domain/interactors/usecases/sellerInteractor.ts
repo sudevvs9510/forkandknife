@@ -5,8 +5,7 @@ import { restaurantInteractor } from "../../interfaces/usecases/restaurantIntera
 
 export class sellerInteractor implements restaurantInteractor {
    constructor(private readonly repository: restaurantRepository) { }
-
-
+   
    async restaurantRegistration(credentials: RestaurantType): Promise<{ restaurant: object | null; message: string; }> {
       try {
          console.log("Inside restaurant registration usecase")
@@ -203,6 +202,19 @@ export class sellerInteractor implements restaurantInteractor {
          throw error
       }
    }
+
+   async downloadReportInteractor(restaurantId: string, period: string): Promise<{ message: string; status: boolean, doc?:PDFKit.PDFDocument }> {
+      try{
+         const { message, status, doc } = await this.repository.downloadReport(restaurantId, period)
+         return {message, status, doc}
+
+      } catch(error){
+         console.log(error)
+         throw new Error('Failed to download report.');
+      }
+   }
+
+   
 
 
 

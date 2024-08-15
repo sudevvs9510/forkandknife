@@ -25,5 +25,6 @@ export interface restaurantInteractor{
 
    dashboardInteractor(restaruantId: string, month: number): Promise<{ message:string, status: boolean , totalRevenue: number; totalBookingCount: number; totalBookingPaidCount: number; totalCompletedBookingCount: number; totalConfirmedBookingCount: number;totalPendingBookingCount:number, totalCancelledBookingCount: number, reviewCount:number, dailyRevenue: object,  }>
 
+   downloadReportInteractor(restaurantId: string, period: string):Promise<{ message: string, status: boolean, doc?:PDFKit.PDFDocument}>
    
 }

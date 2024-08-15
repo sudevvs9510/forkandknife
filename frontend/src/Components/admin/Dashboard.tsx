@@ -1,7 +1,7 @@
 // src/components/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
-import { FaTable, FaRupeeSign, FaUsers } from 'react-icons/fa';
-import { Toaster } from 'react-hot-toast';
+import { FaTable, FaRupeeSign, FaUsers, FaDownload } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
 import authAxios from '../../redux/api/authApi';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { IoRestaurant } from 'react-icons/io5';
@@ -17,6 +17,8 @@ interface DashboardData {
 
 const AdminDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [reportPeriod, setReportPeriod] = useState<string>('Month');
+
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -33,6 +35,32 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   console.log(dashboardData);
+
+
+  const handleDownloadReport = async () => {
+    try {
+      const response = await authAxios.get(`/admin/download-report?period=${reportPeriod}`, {
+        responseType: 'blob',
+
+      });
+      console.log(response)
+
+      if (response.data) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${reportPeriod}_report.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        toast.error('Failed to download the report.');
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.error('Failed to download the report.');
+    }
+  };
 
 
   // Prepare data for LineChart
@@ -77,6 +105,28 @@ const AdminDashboard: React.FC = () => {
             <div className="text-xl font-bold">{Object.values(dashboardData?.sortedRevenueByRestaurantObject || {}).reduce((acc, val) => acc + val, 0)}</div>
             <div className="text-gray-500">Total Revenue</div>
           </div>
+        </div>
+      </div>
+
+
+      {/* Report Download Section */}
+      <div className="flex justify-end items-center mb-8 mr-10">
+        <div className="flex items-center">
+          <select
+            value={reportPeriod}
+            onChange={(e) => setReportPeriod(e.target.value)}
+            className="mr-4 border border-gray-200 rounded px-2 py-1"
+          >
+            <option value="Week">Week</option>
+            <option value="Month">Month</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+          <button
+            onClick={handleDownloadReport}
+            className="flex items-center bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600"
+          >
+            <FaDownload className="mr-2" /> Download Report
+          </button>
         </div>
       </div>
 

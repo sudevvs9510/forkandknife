@@ -9,6 +9,7 @@ import { generateAccessToken } from "../../../functions/jwt"
 export class AdminInteractorImpl implements AdminInteractor {
    constructor (private readonly repository : AdminRepositories) { }
    
+   
    async adminLogin(credentials: { email: string; password: string; }): Promise<{ message: string; token: string | null; admin: UserType | null; refreshToken: string| null }> {
       console.log(" adminLogin interactor impl")
       try{
@@ -119,6 +120,17 @@ export class AdminInteractorImpl implements AdminInteractor {
       }
    }
    
+
+   async downloadAdminReportInteractor(period: string): Promise<{ message: string; status: boolean; doc?: PDFKit.PDFDocument; }> {
+      try{
+         const { message, status, doc } = await this.repository.downloadAdminReport(period)
+         return {message, status, doc}
+
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
 
 
 }

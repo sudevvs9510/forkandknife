@@ -12,4 +12,6 @@ export interface AdminRepositories{
    getUserLists(): Promise<{ users:object | null, message: string}>
    blockUser(userId: string, isBlocked: boolean): Promise<{ message: string, status: boolean}>
    adminDashboard() : Promise<{ message: string, status: boolean,usersCount: number;restaurantsCount: number, bookingCount: number, sortedRevenueByRestaurantObject: object}>
+
+   downloadAdminReport(period: string): Promise<{ message: string, status: boolean, doc?:PDFKit.PDFDocument}>
 }

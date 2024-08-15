@@ -41,6 +41,8 @@ restaurantRouter.patch('/booking-status-edit/:bookingId', controller.editBooking
 
 restaurantRouter.get("/dashboard/:restaurantId", controller.dashboard.bind(controller))
 
+restaurantRouter.get('/download-report/:restaurantId', controller.downloadReport.bind(controller))
+
 restaurantRouter.post('/logout', controller.restaurantLogout.bind(controller))
 
 export default restaurantRouter

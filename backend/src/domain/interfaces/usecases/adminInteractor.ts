@@ -14,6 +14,7 @@ export interface AdminInteractor {
    blockUserInteractor(userId: string, isBlocked: boolean): Promise<{ message: string, status: boolean }>
 
    adminDashboardInteractor(): Promise<{message: string, status: boolean;  usersCount: number; restaurantsCount: number, bookingCount: number, sortedRevenueByRestaurantObject: object}>
+   downloadAdminReportInteractor(period: string): Promise<{message: string, status:boolean, doc?:PDFKit.PDFDocument}>
 
    
 }

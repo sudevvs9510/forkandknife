@@ -160,6 +160,23 @@ export class adminController {
    }
 
 
+   async downloadAdminReport(req:Request, res:Response, next:NextFunction){
+      console.log("Download admin report controller")
+      const { period } = req.query as { period: string };
+      console.log(period)
+      try{
+         const { message, status, doc} = await this.interactor.downloadAdminReportInteractor(period)
+         doc?.pipe(res)
+         doc?.end()
+         // return res.status(200).json({ message, status }); 
+
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({message:"Error during downloading admin report"})
+      }
+   }
+
+
 
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaTable, FaRupeeSign } from 'react-icons/fa';
+import { FaTable, FaRupeeSign, FaDownload } from 'react-icons/fa';
 import { MdReviews } from "react-icons/md";
 import { Toaster, toast } from 'react-hot-toast';
 import { RootState, useAppSelector } from '../../redux/app/store';
@@ -30,7 +30,9 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [reportPeriod, setReportPeriod] = useState<string>('Month');
 
+  console.log(reportPeriod)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -52,6 +54,33 @@ const Dashboard: React.FC = () => {
 
     fetchDashboardData();
   }, [restaurantId, selectedMonth]);
+
+
+  const handleDownloadReport = async () => {
+    try {
+      const response = await authAxios.get(`/restaurant/download-report/${restaurantId}?period=${reportPeriod}`, {
+        responseType: 'blob',
+
+      });
+      console.log(response)
+
+      if (response.data) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${reportPeriod}_report_${restaurantId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        toast.error('Failed to download the report.');
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.error('Failed to download the report.');
+    }
+  };
+
 
   // Prepare dynamic data for the PieChart
   const pieChartData = [
@@ -104,6 +133,28 @@ const Dashboard: React.FC = () => {
             <div className="text-xl font-bold">{(dashboardData?.data.totalRevenue)?.toFixed(2)}</div>
             <div className="text-gray-500">Total Revenue</div>
           </div>
+        </div>
+      </div>
+
+
+      {/* Report Download Section */}
+      <div className="flex justify-end items-center mb-8 mr-10">
+        <div className="flex items-center">
+          <select
+            value={reportPeriod}
+            onChange={(e) => setReportPeriod(e.target.value)}
+            className="mr-4 border border-gray-200 rounded px-2 py-1"
+          >
+            <option value="Week">Week</option>
+            <option value="Month">Month</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+          <button
+            onClick={handleDownloadReport}
+            className="flex items-center bg-teal-500 text-white font-bold py-2 px-4 rounded hover:bg-teal-600"
+          >
+            <FaDownload className="mr-2" /> Download Report
+          </button>
         </div>
       </div>
 

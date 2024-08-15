@@ -5,6 +5,8 @@ import axios from "axios";
 import { setCookieAuthToken } from "../../functions/cookieFun";
 import restaurantTableModel from "../../frameworks/database/models/restaurantTableModel";
 import userModel from "../../frameworks/database/models/userModel";
+import path from 'path';
+import fs from "fs"
 
 export class restaurantController {
    constructor(private readonly interactor: restaurantInteractor) { }
@@ -320,11 +322,11 @@ export class restaurantController {
    async dashboard(req: Request, res: Response, next: NextFunction) {
       console.log("Dashboard controller")
       const { restaurantId } = req.params
-      const month = Number(req.query.month ?? new Date().getMonth() + 1) 
+      const month = Number(req.query.month ?? new Date().getMonth() + 1)
       console.log(restaurantId, month)
       try {
-         const { message, status, totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue} = await this.interactor.dashboardInteractor(restaurantId, month)
-         console.log({data:{ totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue}})
+         const { message, status, totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue } = await this.interactor.dashboardInteractor(restaurantId, month)
+         console.log({ data: { totalRevenue, totalBookingCount, totalBookingPaidCount, totalCompletedBookingCount, totalConfirmedBookingCount, totalPendingBookingCount, totalCancelledBookingCount, reviewCount, dailyRevenue } })
          // res.setHeader('Content-Type',"application/json")
          return res.status(200).json({
             message, status, data: {
@@ -340,7 +342,7 @@ export class restaurantController {
             }
          })
 
-        
+
 
       } catch (error) {
          console.log(error)
@@ -349,71 +351,22 @@ export class restaurantController {
    }
 
 
+   async downloadReport(req: Request, res: Response, next: NextFunction) {
+      console.log("Download report controller")
+      const { restaurantId } = req.params
+      const { period } = req.query as { period: string };
+      try {
 
-
-
-
-   // async uploadImage(req: Request, res: Response, next: NextFunction) {
-   //    try {
-   //      if (!req.file) {
-   //        return res.status(400).json({ message: "No file uploaded" });
-   //      }
-
-   //      const result = await cloudinary.uploader.upload(req.file.path);
-   //      return res.status(200).json({ url: result.secure_url });
-   //    } catch (error) {
-   //      console.error("Error uploading image to Cloudinary:", error);
-   //      res.status(500).json({ message: "Failed to upload image" });
-   //    }
-   //  }
-
-   // async restaurant_updation(req: Request, res: Response, next: NextFunction) {
-   //    const { datas } = req.body;
-   //    console.log("Received data:", datas);
-
-   //    try {
-   //       // Check if there are image files to upload
-   //       const uploadedImages = await Promise.all(
-   //          datas.secondaryImages.map(async (image: any) => {
-   //             const formData = new FormData();
-   //             formData.append('file', image);
-   //             formData.append('upload_preset', 'hg75472a');
-   //             formData.append('cloud_name', 'sudev99');
-
-   //             const response = await axios.post(
-   //                'https://api.cloudinary.com/v1_1/sudev99/image/upload',
-   //                formData,
-   //                {
-   //                   headers: {
-   //                      'Content-Type': 'multipart/form-data'
-   //                   }
-   //                }
-   //             );
-
-   //             return response.data.secure_url;
-   //          })
-   //       );
-
-   //       // Update `datas` with uploaded image URLs
-   //       datas.secondaryImages = uploadedImages;
-
-   //       // Update restaurant details
-   //       const { message, restaurant } = await this.interactor.restaurantDetailsUpdateInteractor(datas);
-   //       if (!restaurant) {
-   //          return res.status(401).json({ message: "Restaurant update failed" });
-   //       }
-   //       return res.status(201).json({ message: "Restaurant details updated successfully" });
-   //    } catch (error) {
-   //       console.error("Error updating restaurant details:", error);
-   //       return res.status(500).json({ message: "Internal server error" });
-   //    }
-   // }
-
-
-
+         const { message, status, doc } = await this.interactor.downloadReportInteractor(restaurantId, period);
+         doc?.pipe(res)
+         doc?.end()
+         // return res.status(200).json({ message, status }); 
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Error during report downloading", error })
+      }
+   }
 
 
 
 }
-
-

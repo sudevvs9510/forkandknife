@@ -8,8 +8,11 @@ import nodeMailerRestaurantRejectMail from "../../../functions/restoRejectMail"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt";
 import userModel from "../../../frameworks/database/models/userModel";
 import bookingModel from "../../../frameworks/database/models/bookingModel";
+import PDFDocument from 'pdfkit';
+
 
 export class adminRepositoryImpl implements AdminRepositories {
+
 
    async adminLoginRepo(credentials: { email: string; password: string; }): Promise<{ admin: UserType | null; message: string; token: string | null; refreshToken: string | null }> {
       try {
@@ -235,10 +238,139 @@ export class adminRepositoryImpl implements AdminRepositories {
       }
    }
 
+   async downloadAdminReport(period: string): Promise<{ message: string; status: boolean; doc?: PDFKit.PDFDocument; }> {
+      try {
+         const reportDatas = await this.getAdminDashboardData(period);
+         console.log(reportDatas);
+
+         const doc = new PDFDocument();
+
+         const startDateStr = reportDatas.startDate.toLocaleDateString();
+         const endDateStr = reportDatas.endDate.toLocaleDateString();
+
+         // Title and period
+         doc.fontSize(20).text(`Admin Report - ${period}`, { align: 'center' });
+         doc.moveDown();
+         doc.fontSize(12).text(`Time period: ${startDateStr} - ${endDateStr}`, { align: 'center' });
+         doc.moveDown();
+
+         // Report summary
+         doc.text(`Total Revenue: ₹${reportDatas.revenue.toFixed(2)}`);
+         doc.moveDown();
+         doc.text(`Admin Profit (12%): ₹${reportDatas.adminProfit.toFixed(2)}`);
+         doc.moveDown();
+         doc.text(`Total users: ${reportDatas.usersCount}`);
+         doc.moveDown();
+         doc.text(`Total Restaurants: ${reportDatas.restaurantsCount}`);
+         doc.moveDown();
+         doc.text(`Total Bookings: ${reportDatas.bookingCount}`);
+         doc.moveDown();
+         doc.text(`Revenue by Restaurants:`);
+         doc.moveDown();
+
+         for (const [restaurantName, revenue] of Object.entries(reportDatas.revenueByRestaurantObject)) {
+            doc.text(`- ${restaurantName}: ${revenue.toFixed(2)}`);
+            doc.moveDown();
+         }
+
+         return { message: "Report generated successfully", status: true, doc };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
 
 
+
+   private async getAdminDashboardData(period: string) {
+      console.log("getAdminDashboardData")
+
+      let startDate: Date;
+      let endDate: Date;
+      const now = new Date();
+
+      switch (period) {
+         case 'Week':
+            startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+            endDate = new Date(now.setDate(startDate.getDate() + 7));
+            break;
+         case 'Month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            break;
+         case 'Yearly':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            endDate = new Date(now.getFullYear() + 1, 0, 0);
+            break;
+         default:
+            throw new Error('Invalid period');
+      }
+
+      const usersCount = await userModel.countDocuments({ role: "user" });
+      const restaurantsCount = await restaurantModel.countDocuments({ role: "seller" });
+      const bookingCount = await bookingModel.countDocuments({ paymentStatus: "PAID" });
+      console.log("bookingCount:", bookingCount, usersCount, restaurantsCount);
+      const currentDayRevenue = await bookingModel.aggregate([
+         {
+            $match: { paymentStatus: "PAID", bookingStatus: "COMPLETED" }
+         },
+         {
+            $group: {
+               _id: null,
+               totalRevenue: { $sum: "$totalAmount" }
+            }
+         }
+      ]);
+
+      const revenue = currentDayRevenue.length > 0 ? currentDayRevenue[0].totalRevenue : 0;
+      console.log(`Total Revenue for Paid Bookings: ${revenue}`);
+      // Get revenue by each restaurant, using restaurantName as key
+      const revenueByEachRestaurant = await bookingModel.aggregate([
+         {
+            $match: {
+               paymentStatus: "PAID",
+               bookingStatus: "COMPLETED"
+            }
+         },
+         {
+            $lookup: {
+               from: "restaurants",
+               localField: "restaurantId",
+               foreignField: "_id",
+               as: "restaurantDetails"
+            }
+         },
+         {
+            $unwind: "$restaurantDetails"
+         },
+         {
+            $group: {
+               _id: "$restaurantDetails.restaurantName",
+               totalRevenue: { $sum: "$totalAmount" }
+            }
+         }
+      ]);
+
+      // Transforming the result into an object with restaurantName as keys
+      const revenueByRestaurantObject: { [restaurantName: string]: number } = {};
+      revenueByEachRestaurant.forEach((item) => {
+         revenueByRestaurantObject[item._id] = item.totalRevenue;
+      });
+
+      const adminProfit = revenue * 0.12;
+
+      return {
+         usersCount,
+         restaurantsCount,
+         bookingCount,
+         revenue,
+         revenueByRestaurantObject,
+         startDate,
+         endDate,
+         adminProfit
+
+      }
+   }
 
 }
 
-// total revenue current day
-//

@@ -29,6 +29,8 @@ adminRouter.patch("/block-user",authenticateToken('admin'), controller.blockUser
 
 adminRouter.get("/dashboard", controller.adminDashboard.bind(controller))
 
+adminRouter.get("/download-report", controller.downloadAdminReport.bind(controller))
+
 adminRouter.post('/logout', controller.adminLogout.bind(controller))
 
 export default adminRouter

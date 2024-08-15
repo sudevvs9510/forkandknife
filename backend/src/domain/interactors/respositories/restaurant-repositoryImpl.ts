@@ -9,11 +9,12 @@ import { generateAccessToken, generateRefreshToken } from "../../../functions/jw
 import bcrypt from 'bcryptjs'
 import bookingModel from "../../../frameworks/database/models/bookingModel";
 import reviewModel from "../../../frameworks/database/models/reviewModel";
+import PDFDocument from 'pdfkit';
+
 
 
 
 export class sellerRepository implements restaurantRepository {
-
 
 
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
@@ -370,7 +371,7 @@ export class sellerRepository implements restaurantRepository {
    }
 
 
-   async dashboardRepo(restaurantId: string,month:number): Promise<{ message: string; status: boolean; totalRevenue: number; totalBookingCount: number; totalBookingPaidCount: number; totalCompletedBookingCount: number; totalConfirmedBookingCount: number, totalPendingBookingCount: number, totalCancelledBookingCount: number, reviewCount: number, dailyRevenue: object }> {
+   async dashboardRepo(restaurantId: string, month: number): Promise<{ message: string; status: boolean; totalRevenue: number; totalBookingCount: number; totalBookingPaidCount: number; totalCompletedBookingCount: number; totalConfirmedBookingCount: number, totalPendingBookingCount: number, totalCancelledBookingCount: number, reviewCount: number, dailyRevenue: object }> {
 
       try {
          const totalBookings = await bookingModel.find({ restaurantId })
@@ -454,11 +455,123 @@ export class sellerRepository implements restaurantRepository {
 
 
 
+   async downloadReport(restaurantId: string, period: string): Promise<{ message: string, status: boolean, doc?: PDFKit.PDFDocument }> {
+      try {
+         const restaurantData = await this.getRestaurantData(restaurantId, period);
+         console.log(restaurantData);
+
+         if (!restaurantData) {
+            return { message: 'No data found for the given period', status: false };
+         }
+
+         const doc = new PDFDocument();
+
+         const startDateStr = restaurantData.startDate.toLocaleDateString();
+         const endDateStr = restaurantData.endDate.toLocaleDateString();
+
+         
+         doc.fontSize(20).text(`${period} Report - ${restaurantData.restaurantName}`, { align: 'center' });
+         doc.moveDown();
+         doc.fontSize(12).text(`Time period: ${startDateStr} - ${endDateStr}`, { align: 'center' }); 
+         doc.moveDown();
+         doc.text(`Total Revenue: ₹${restaurantData.totalRevenue.toFixed(2)}`);
+         doc.moveDown();
+         doc.text(`Total Bookings: ${restaurantData.totalBookingCount}`);
+         doc.moveDown();
+         doc.text(`Completed Bookings: ${restaurantData.totalCompletedBookingCount}`);
+         doc.moveDown();
+         doc.text(`Confirmed Bookings: ${restaurantData.totalConfirmedBookingCount}`);
+         doc.moveDown();
+         doc.text(`Cancelled Bookings: ${restaurantData.totalCancelledBookingCount}`);
+         doc.moveDown();
+         doc.text(`Pending Bookings: ${restaurantData.totalPendingBookingCount}`);
+         doc.moveDown();
+         doc.text(`Total Reviews: ${restaurantData.reviewCount}`);
+         doc.moveDown();
+         
 
 
+         return { message: 'Report generated successfully', status: true, doc }
 
+      } catch (error) {
+         console.log(error);
+         throw new Error('Error generating the report.');
+      }
+   }
+
+
+   private async getRestaurantData(restaurantId: string, period: string) {
+      console.log("getRestaurantData pdf download")
+      let startDate: Date;
+      let endDate: Date;
+
+      const now = new Date();
+
+      switch (period) {
+         case 'Week':
+            startDate = new Date(now.setDate(now.getDate() - now.getDay())); 
+            endDate = new Date(now.setDate(startDate.getDate() + 7)); 
+            break;
+         case 'Month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1); 
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
+            break;
+         case 'Yearly':
+            startDate = new Date(now.getFullYear(), 0, 1); 
+            endDate = new Date(now.getFullYear() + 1, 0, 0); 
+            break;
+         default:
+            throw new Error('Invalid period');
+      }
+
+      // Fetch restaurant details
+      const restaurant = await restaurantModel.findById(restaurantId).select('restaurantName');
+      if (!restaurant) {
+         throw new Error('Restaurant not found');
+      }
+
+      // Query the database for bookings within the given period
+      const bookings = await bookingModel.find({
+         restaurantId: restaurantId,
+         createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+         },
+      });
+
+      console.log(bookings, startDate, endDate)
+
+      // Calculate the required data
+      const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
+      const totalBookingCount = bookings.length;
+      const totalCompletedBookingCount = bookings.filter(booking => booking.bookingStatus === 'COMPLETED').length;
+      const totalCancelledBookingCount = bookings.filter(booking => booking.bookingStatus === 'CANCELLED').length;
+      const totalPendingBookingCount = bookings.filter(booking => booking.bookingStatus === 'PENDING').length;
+      const totalConfirmedBookingCount = bookings.filter(booking => booking.bookingStatus === 'CONFIRMED').length;
+
+      const reviewCount = await reviewModel.countDocuments({ restaurantId })
+
+      console.log("PDF DATAS", totalRevenue, totalBookingCount, totalCompletedBookingCount, totalCancelledBookingCount, totalPendingBookingCount, totalConfirmedBookingCount, reviewCount)
+
+      return {
+         restaurantName: restaurant.restaurantName,
+         totalRevenue,
+         totalBookingCount,
+         totalCompletedBookingCount,
+         totalCancelledBookingCount,
+         totalPendingBookingCount,
+         totalConfirmedBookingCount,
+         reviewCount,
+         startDate,
+         endDate
+      };
+   }
 
 
 
 
 }
+
+
+
+
