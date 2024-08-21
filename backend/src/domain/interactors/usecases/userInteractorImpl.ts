@@ -50,6 +50,7 @@ export class UserInteractorImpl implements UserInteractor {
       try {
          console.log("verify otp")
          const { message, status } = await this.Repository.verifyOtp(otp, userId)
+         console.log("interactor verify otp:",message, status)
          return { message, status }
       }
       catch (err) {
@@ -248,9 +249,9 @@ export class UserInteractorImpl implements UserInteractor {
    }
 
 
-   async cancelBookingInteractor(bookingId: string, userId: string): Promise<{ message: string; status: boolean; }> {
+   async cancelBookingInteractor(bookingId: string, userId: string, cancellationReason: string): Promise<{ message: string; status: boolean; }> {
       try{
-         const { status, message } = await this.Repository.cancelBooking(bookingId, userId)
+         const { status, message } = await this.Repository.cancelBooking(bookingId, userId,cancellationReason)
          return { status, message }
       } catch(error){
          console.log(error)

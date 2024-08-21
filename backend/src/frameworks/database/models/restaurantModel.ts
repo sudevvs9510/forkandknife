@@ -9,7 +9,7 @@ const restaurantSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      index: true,
+      enum: ["Vegetarian & Non-Vegetarian", "Vegetarian", "Non-Vegetarian"]
     },
     email: {
       type: String,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { restaurantLoginValidate } from "../../helpers/validation";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,11 +6,20 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import background from "../../assets/images/pexels-photo-776538.webp";
 import { useAppDispatch } from "../../redux/app/store";
 import { login } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
+import authAxios from "../../redux/api/authApi";
 
 const RestaurantLoginForm: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const verify = async () => {
+      const res = await authAxios.get('/restaurant/verify')
+      if (res.status === 200) return navigate("/restaurant/dashboard")
+    }
+    verify()
+  }, [])
 
   const formik = useFormik({
     initialValues: {

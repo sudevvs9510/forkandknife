@@ -152,22 +152,22 @@ const ReservationComponent: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {currentReservations.map((reservation, index) => (
+              {currentReservations.length > 0 && currentReservations.map((reservation, index) => (
                 <tr key={index} className='border-b border-gray-100'>
                   <td className="px-6 py-1 whitespace-no-wrap">
                     <span title={reservation.bookingId}>{reservation.bookingId.substring(0, 10)}...</span>
                   </td>
-                  <td className="px-6 py-2 whitespace-no-wrap">{reservation.userId.username}</td>
-                  <td className="px-6 py-2 whitespace-no-wrap">{new Date(reservation.bookingDate).toLocaleDateString()}</td>
-                  <td className="px-6 py-2 whitespace-no-wrap">{reservation.bookingTime}</td>
-                  <td className="px-6 py-2 whitespace-no-wrap">{reservation.tableId.tableNumber}</td>
-                  <td className="px-6 py-2 whitespace-no-wrap">{reservation.tableId.tableCapacity}</td>
-                  <td className={`px-6 py-2 whitespace-no-wrap ${getStatusColor(reservation.bookingStatus)}`}>
-                    {reservation.bookingStatus}
+                  <td className="px-6 py-2 whitespace-no-wrap">{reservation?.userId?.username}</td>
+                  <td className="px-6 py-2 whitespace-no-wrap">{new Date(reservation?.bookingDate).toLocaleDateString()}</td>
+                  <td className="px-6 py-2 whitespace-no-wrap">{reservation?.bookingTime}</td>
+                  <td className="px-6 py-2 whitespace-no-wrap">{reservation?.tableId?.tableNumber}</td>
+                  <td className="px-6 py-2 whitespace-no-wrap">{reservation?.tableId?.tableCapacity}</td>
+                  <td className={`px-6 py-2 whitespace-no-wrap ${getStatusColor(reservation?.bookingStatus)}`}>
+                    {reservation?.bookingStatus}
                   </td>
                   <td className="px-6 py-2 whitespace-no-wrap">
                     <button
-                      onClick={() => handleViewDetails(reservation.bookingId)}
+                      onClick={() => handleViewDetails(reservation?.bookingId)}
                       className=" text-white font-bold py-2 px-4 rounded">
                       <FaEdit className='text-teal-600' />
                     </button>

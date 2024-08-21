@@ -9,12 +9,14 @@ const PaymentSuccess: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const bookingId = queryParams.get('bookingId');
   const tableSlotId = queryParams.get('tableSlotId');
-  const status = queryParams.get('status'); // Get the status query parameter
+  const status = queryParams.get('status');
+
+  console.log(queryParams, bookingId, tableSlotId, status)
 
   useEffect(() => {
     const updateBookingAndSlotStatus = async () => {
+      console.log("bookingId:", bookingId, "tableSlotId:", tableSlotId)
       if (bookingId && tableSlotId) {
-        console.log(bookingId, tableSlotId)
         try {
           const response = await authAxios.post('/update-slot-and-booking-status', { bookingId, tableSlotId, status });
           console.log('Booking and table slot updated successfully', response);
@@ -25,6 +27,8 @@ const PaymentSuccess: React.FC = () => {
     };
 
     updateBookingAndSlotStatus();
+
+   
   }, [bookingId, tableSlotId, status]);
 
   return (
@@ -33,9 +37,13 @@ const PaymentSuccess: React.FC = () => {
         <FaCheckCircle className="text-green-500 text-6xl mx-auto" />
         <h1 className="text-2xl font-bold mt-4">Payment Successful!</h1>
         <p className="mt-2">Thank you for your payment. Your booking has been confirmed.</p>
+        <Link to={`/booking-details/${bookingId}`} className="inline-block mt-4 bg-green-500 text-white py-2 px-4 mr-3 rounded hover:bg-green-600 transition duration-200">
+          Bookings
+        </Link>
         <Link to="/" className="inline-block mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200">
           Go to Home
         </Link>
+
       </div>
     </div>
   );

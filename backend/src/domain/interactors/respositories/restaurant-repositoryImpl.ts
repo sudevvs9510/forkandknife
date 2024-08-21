@@ -9,7 +9,7 @@ import { generateAccessToken, generateRefreshToken } from "../../../functions/jw
 import bcrypt from 'bcryptjs'
 import bookingModel from "../../../frameworks/database/models/bookingModel";
 import reviewModel from "../../../frameworks/database/models/reviewModel";
-import PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit-table';
 
 
 
@@ -164,6 +164,7 @@ export class sellerRepository implements restaurantRepository {
          const bookingDatas = await bookingModel.find({ restaurantId })
             .populate('userId', 'username email',)
             .populate('tableId', 'tableNumber tableCapacity tableLocation')
+            .sort({ createdAt: -1 })
 
          console.log(bookingDatas)
          return { message: "", bookingDatas }
@@ -240,6 +241,20 @@ export class sellerRepository implements restaurantRepository {
    //Restaurant add table slot 
    async addTableSlot(tableSlotTimeData: { slotStartTime: string; slotEndTime: string; tableSlotDate: Date }, tableId: string): Promise<{ message: string; status: boolean; }> {
       try {
+
+         const existingSlot = await tableSlotsModel.findOne({
+            tableId: tableId,
+            slotStartTime: tableSlotTimeData.slotStartTime,
+            slotEndTime: tableSlotTimeData.slotEndTime,
+            slotDate: tableSlotTimeData.tableSlotDate
+         });
+
+         console.log(existingSlot)
+
+         if (existingSlot) {
+            return { message: "Table slot already exists.", status: false };
+         }
+
          const tableSlotDatas = await tableSlotsModel.create({
             tableId: tableId,
             slotStartTime: tableSlotTimeData.slotStartTime,
@@ -469,12 +484,12 @@ export class sellerRepository implements restaurantRepository {
          const startDateStr = restaurantData.startDate.toLocaleDateString();
          const endDateStr = restaurantData.endDate.toLocaleDateString();
 
-         
+
          doc.fontSize(20).text(`${period} Report - ${restaurantData.restaurantName}`, { align: 'center' });
          doc.moveDown();
-         doc.fontSize(12).text(`Time period: ${startDateStr} - ${endDateStr}`, { align: 'center' }); 
+         doc.fontSize(12).text(`Time period: ${startDateStr} - ${endDateStr}`, { align: 'center' });
          doc.moveDown();
-         doc.text(`Total Revenue: ₹${restaurantData.totalRevenue.toFixed(2)}`);
+         doc.text(`Total Revenue: INR ${restaurantData.totalRevenue.toFixed(2)}`);
          doc.moveDown();
          doc.text(`Total Bookings: ${restaurantData.totalBookingCount}`);
          doc.moveDown();
@@ -484,11 +499,38 @@ export class sellerRepository implements restaurantRepository {
          doc.moveDown();
          doc.text(`Cancelled Bookings: ${restaurantData.totalCancelledBookingCount}`);
          doc.moveDown();
+         doc.text(`Payment Refunded : ${restaurantData.totalPaymentRefunded}`);
+         doc.moveDown();
          doc.text(`Pending Bookings: ${restaurantData.totalPendingBookingCount}`);
          doc.moveDown();
          doc.text(`Total Reviews: ${restaurantData.reviewCount}`);
          doc.moveDown();
-         
+         // doc.text(`Booking Details: ${restaurantData.fullBookingDetails}`);
+         // doc.moveDown();
+
+         const table = {
+            title: "Full Booking Details",
+            headers: ["Username", "Email", "Booking ID", "Booking Date", "Booking Time", "Payment Method", "Payment Status", "Booking Status", "Amount", "Cancellation Reason"],
+            rows: restaurantData.fullBookingDetails.map((booking: any) => [
+               booking.userId.username,
+               booking.userId.email,
+               booking.bookingId,
+               new Date(booking.bookingDate).toLocaleDateString(),
+               booking.bookingTime,
+               booking.paymentMethod,
+               booking.paymentStatus,
+               booking.bookingStatus,
+               `INR ${booking.totalAmount.toFixed(2)}`,
+               booking.cancellationReason || '-',
+            ]),
+         };
+
+         // Add the table to the PDF
+         await doc.table(table, {
+            prepareHeader: () => doc.fontSize(6).font('Helvetica-Bold'),
+            prepareRow: (row, i) => doc.fontSize(6).font('Helvetica')
+         });
+
 
 
          return { message: 'Report generated successfully', status: true, doc }
@@ -509,16 +551,16 @@ export class sellerRepository implements restaurantRepository {
 
       switch (period) {
          case 'Week':
-            startDate = new Date(now.setDate(now.getDate() - now.getDay())); 
-            endDate = new Date(now.setDate(startDate.getDate() + 7)); 
+            startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+            endDate = new Date(now.setDate(startDate.getDate() + 7));
             break;
          case 'Month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1); 
-            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
             break;
          case 'Yearly':
-            startDate = new Date(now.getFullYear(), 0, 1); 
-            endDate = new Date(now.getFullYear() + 1, 0, 0); 
+            startDate = new Date(now.getFullYear(), 0, 1);
+            endDate = new Date(now.getFullYear() + 1, 0, 0);
             break;
          default:
             throw new Error('Invalid period');
@@ -539,13 +581,31 @@ export class sellerRepository implements restaurantRepository {
          },
       });
 
-      console.log(bookings, startDate, endDate)
+      console.log("bookings:", bookings, startDate, endDate)
+
+      const fullBookingDetails = await bookingModel.find({
+         restaurantId: restaurantId,
+         createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+         },
+      })
+         .select('-_id userId bookingId bookingDate bookingTime paymentMethod paymentStatus bookingStatus totalAmount cancellationReason ') // Exclude specific fields
+         .populate({
+            path: 'userId',
+            select: 'email username -_id',
+         });
+      console.log(fullBookingDetails)
+
+      
+
 
       // Calculate the required data
       const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
       const totalBookingCount = bookings.length;
       const totalCompletedBookingCount = bookings.filter(booking => booking.bookingStatus === 'COMPLETED').length;
       const totalCancelledBookingCount = bookings.filter(booking => booking.bookingStatus === 'CANCELLED').length;
+      const totalPaymentRefunded = bookings.filter(booking => booking.paymentStatus === 'REFUNDED').length;
       const totalPendingBookingCount = bookings.filter(booking => booking.bookingStatus === 'PENDING').length;
       const totalConfirmedBookingCount = bookings.filter(booking => booking.bookingStatus === 'CONFIRMED').length;
 
@@ -555,6 +615,7 @@ export class sellerRepository implements restaurantRepository {
 
       return {
          restaurantName: restaurant.restaurantName,
+         fullBookingDetails,
          totalRevenue,
          totalBookingCount,
          totalCompletedBookingCount,
@@ -563,7 +624,8 @@ export class sellerRepository implements restaurantRepository {
          totalConfirmedBookingCount,
          reviewCount,
          startDate,
-         endDate
+         endDate,
+         totalPaymentRefunded
       };
    }
 

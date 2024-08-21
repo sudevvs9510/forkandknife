@@ -17,7 +17,7 @@ interface TableSlotTime {
   tableSlotTime: string;
 }
 
-const AddTableSlot: React.FC<{ onClose: () => void; onSubmit: (slot: TableSlotTime) => void; }> = ({  onClose, onSubmit }) => {
+const AddTableSlot: React.FC<{ onClose: () => void; onSubmit: (slot: TableSlotTime) => void; }> = ({ onClose, onSubmit }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
 
@@ -48,29 +48,57 @@ const AddTableSlot: React.FC<{ onClose: () => void; onSubmit: (slot: TableSlotTi
     onClose();
   };
 
-  const {tableId} = useParams()
+  const { tableId } = useParams()
+
+  // const handleAddTableSlot = async (values: TableSlotTime) => {
+  //   try {
+
+  //     const [startTime, endTime] = values.tableSlotTime.split(' - ');
+  //     const tableSlotTimeData = {
+  //       slotStartTime: startTime.trim(),
+  //       slotEndTime: endTime.trim(),
+  //       tableSlotDate: values.tableSlotDate,
+  //     };
+  //     const response = await addTableSlot(tableSlotTimeData, tableId as string);
+  //     console.log(response.data)
+  //     console.log(tableSlotTimeData)
+  //     toast.success(response.data.message);
+  //     onSubmit(values);
+  //     console.log(values)
+  //     setIsModalOpen(false);
+  //   } catch (error) {
+  //     console.log(error)
+  //     toast.error('Failed to create slot.');
+  //   }
+  // };
+
   const handleAddTableSlot = async (values: TableSlotTime) => {
     try {
-      
       const [startTime, endTime] = values.tableSlotTime.split(' - ');
       const tableSlotTimeData = {
         slotStartTime: startTime.trim(),
         slotEndTime: endTime.trim(),
         tableSlotDate: values.tableSlotDate,
       };
+
       const response = await addTableSlot(tableSlotTimeData, tableId as string);
-      console.log(response.data)
-      console.log(tableSlotTimeData)
-      toast.success(response.data.message);
-      onSubmit(values);
-      console.log(values)
-      setIsModalOpen(false);
+
+      if (!response.data.status) {
+        // Display an error message if the slot already exists
+        toast.error(response.data.message);
+      } else {
+        // Display a success message if the slot was added successfully
+        toast.success(response.data.message);
+        onSubmit(values);
+        setIsModalOpen(false);
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error('Failed to create slot.');
     }
   };
-  
+
+
 
   return (
     <div>

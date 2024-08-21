@@ -10,9 +10,7 @@ export async function getConversationMembers(req: Request, res: Response, next: 
          members: { $in: [userId] }
       })
       console.log('Conversations found:', conversation);
-      if (conversation.length === 0) {
-         return res.status(404).json({ message: 'No conversations found' });
-      }
+
       return res.status(200).json(conversation)
    } catch (error) {
       console.log("Error fetching chat messages:", error)

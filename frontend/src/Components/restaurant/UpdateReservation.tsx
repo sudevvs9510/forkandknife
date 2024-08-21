@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaUser, FaEnvelope, FaCalendarAlt, FaClock, FaUsers, FaIdBadge, FaCreditCard, FaInfoCircle, FaRupeeSign } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
-import { MdTableRestaurant } from 'react-icons/md';
+import { MdTableRestaurant, MdCancel } from 'react-icons/md';
 import Loader from '../Loader';
 import formatDateString from "../../helpers/DateFormat";
 import { getReservationDetails, updateBookingStatus } from '../../api/RestaurantApis';
@@ -16,8 +16,10 @@ interface ReservationDetails {
   guests: number;
   bookingId: string;
   paymentMethod: string;
+  paymentStatus: string;
   bookingStatus: string;
   amountPaid: number;
+  cancellationReason?: string
 }
 
 const UpdateReservation: React.FC = () => {
@@ -39,8 +41,10 @@ const UpdateReservation: React.FC = () => {
           guests: data.tableId.tableCapacity,
           bookingId: data.bookingId,
           paymentMethod: data.paymentMethod,
+          paymentStatus: data.paymentStatus,
           bookingStatus: data.bookingStatus,
           amountPaid: data.totalAmount,
+          cancellationReason: data.cancellationReason
         };
 
         setReservation(reservationData);
@@ -70,7 +74,7 @@ const UpdateReservation: React.FC = () => {
         const updatedData = await updateBookingStatus(reservation.bookingId, reservation.bookingStatus);
         console.log('Updated reservation:', updatedData);
         toast.success('Booking status updated successfully!');
-        setOriginalReservation(reservation); 
+        setOriginalReservation(reservation);
         setIsChanged(false);
       } catch (error) {
         console.log('Error updating reservation:', error);
@@ -122,6 +126,10 @@ const UpdateReservation: React.FC = () => {
               <span className="text-gray-700">Payment Method: <span className='text-green-600 font-semibold'>{reservation.paymentMethod}</span></span>
             </div>
             <div className="flex items-center space-x-2">
+              <FaCreditCard className="text-gray-700" />
+              <span className="text-gray-700">Payment Status: <span className='text-grey-600 font-semibold'>{reservation.paymentStatus}</span></span>
+            </div>
+            <div className="flex items-center space-x-2">
               <FaInfoCircle className="text-gray-700" />
               <span>Booking Status:</span>
               <select
@@ -136,6 +144,12 @@ const UpdateReservation: React.FC = () => {
                 <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
+            {reservation.cancellationReason && (
+              <div className="flex items-center space-x-2">
+                <MdCancel className="text-gray-700" />
+                <span className="text-gray-700 ">Cancellation Reason: <span className='font-semibold text-red-600'>{reservation.cancellationReason}</span></span>
+              </div>
+            )}
             <div className="flex items-center space-x-2">
               <FaRupeeSign className="text-gray-700" />
               <span className="text-gray-700 ">Amount Paid: <span className='font-bold'>₹{reservation.amountPaid.toFixed(2)}</span></span>

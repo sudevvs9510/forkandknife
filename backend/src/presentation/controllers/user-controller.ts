@@ -14,6 +14,7 @@ import reviewModel from '../../frameworks/database/models/reviewModel';
 import { createWalletTopUpPayment } from '../../functions/Wallet/walletPaymentIntegration'
 import { handleWalletTopUpSuccess } from "../../functions/Wallet/walletPaymentDataRetrieval"
 import WalletModel from "../../frameworks/database/models/walletModel"
+import walletModel from '../../frameworks/database/models/walletModel';
 
 export class userController {
 
@@ -422,6 +423,61 @@ export class userController {
       }
    }
 
+   async walletPayment(req: Request, res: Response, next: NextFunction) {
+      console.log("wallet payment")
+      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate } = req.body
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate)
+      try {
+         const userWallet = await walletModel.findOne({ userId: userId })
+         if (!userWallet) {
+            return res.status(404).json({ message: "User wallet not found" })
+         }
+         const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
+         const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`
+
+         if (userWallet.balance < totalAmount) {
+            return res.status(400).json({ message: "Insufficient wallet balance" })
+         }
+
+         userWallet.balance -= totalAmount
+
+
+         userWallet.transactions.push({
+            amount: totalAmount,
+            type: 'debit',
+            date: new Date(),
+         });
+
+         await userWallet.save()
+
+         
+
+         const newBooking = new bookingModel({
+            bookingId: bookingId,
+            userId,
+            tableId: tableId,
+            restaurantId: restaurantId,
+            bookingDate: bookingDate,
+            bookingTime,
+            paymentMethod: "Wallet",
+            paymentStatus: "PAID",
+            bookingStatus: "CONFIRMED",
+            totalAmount,
+         })
+
+         console.log("new booking", newBooking)
+         await newBooking.save()
+
+         console.log("Booking saved:", newBooking)
+
+         return res.status(200).json({ success: true, bookingId: newBooking.bookingId })
+
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Internal server error" })
+      }
+   }
+
 
    async updateSlotAndBookingStatus(req: Request, res: Response, next: NextFunction) {
       console.log("update slot and booking status controller");
@@ -563,7 +619,7 @@ export class userController {
             type: 'credit'
          });
 
-         if(wallet){
+         if (wallet) {
             wallet.balance += amount
          }
 
@@ -578,32 +634,32 @@ export class userController {
    };
 
 
-   async getWalletDetails(req: Request, res: Response, next:NextFunction){
+   async getWalletDetails(req: Request, res: Response, next: NextFunction) {
       console.log("get wallet details controller");
-      const {userId}  = req.params
+      const { userId } = req.params
       console.log(userId)
-      try{
+      try {
          const { walletDatas, message } = await this.interactor.getWalletInteractor(userId)
          return res.status(200).json({ walletDatas, message })
-      } catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message:"Error in fetching wallet datas" })
+         return res.status(500).json({ message: "Error in fetching wallet datas" })
       }
    }
 
 
-   async cancelBooking(req:Request, res: Response, next: NextFunction){
+   async cancelBooking(req: Request, res: Response, next: NextFunction) {
       console.log("cancel booking controller");
-      try{
-         const {bookingId} = req.params
-         const {userId} = req.body
-         console.log(bookingId, userId)
-         const {message, status} = await this.interactor.cancelBookingInteractor(bookingId, userId)
-         return res.status(200).json({ message,status})
+      try {
+         const { bookingId } = req.params
+         const { userId, cancellationReason } = req.body
+         console.log(bookingId, userId, cancellationReason)
+         const { message, status } = await this.interactor.cancelBookingInteractor(bookingId, userId, cancellationReason)
+         return res.status(200).json({ message, status })
 
-      } catch(error){
+      } catch (error) {
          console.log(error)
-         return res.status(500).json({ message:"Error in cancel booking"})
+         return res.status(500).json({ message: "Error in cancel booking" })
       }
    }
 

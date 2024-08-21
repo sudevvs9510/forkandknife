@@ -7,6 +7,7 @@ import { FiUsers } from "react-icons/fi";
 import { BsCalendarDate } from "react-icons/bs";
 import { RiHotelLine } from "react-icons/ri";
 import formatDateString from "../../helpers/DateFormat"
+import Loader from "../Loader"
 
 interface BookingData {
   restaurantName: string;
@@ -87,7 +88,7 @@ const BookingDetails: React.FC = () => {
   }, [bookingId]);
 
   if (!bookingData) {
-    return <div className="text-center py-10">Loading...</div>;
+    return <div className="text-center py-10"><Loader /></div>;
   }
 
   return (

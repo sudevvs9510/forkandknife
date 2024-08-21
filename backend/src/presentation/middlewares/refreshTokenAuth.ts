@@ -5,7 +5,8 @@ const  JWT_RESFRESH_SECRET_KEY = process.env.JWT_RESFRESH_SECRET_KEY as string
 
 
 export async function refreshAccessToken(req: Request, res: Response){
-  const refreshToken = req.cookies.refreshToken
+  console.log(req.cookies)
+  const refreshToken = req.cookies.RefreshAuthToken
   console.log("refreshToken:", refreshToken)
   if(!refreshToken){
     return res.status(402).json({ message: 'No refresh token provided'})

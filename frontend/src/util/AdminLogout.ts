@@ -4,8 +4,7 @@ import toast from "react-hot-toast"
 
 const AdminLogout = ( message: string) : void =>{
   store.dispatch(logout())
-  toast.error(message)
-
+  message.length > 0 && toast.error(message)
 }
 
 export default AdminLogout

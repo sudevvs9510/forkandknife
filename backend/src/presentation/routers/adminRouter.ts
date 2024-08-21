@@ -11,6 +11,11 @@ const controller = new adminController(interactor)
 
 const adminRouter = express.Router()
 
+
+adminRouter.get("/verify", authenticateToken("admin"), (_req, res) => {
+  res.status(200).json({ message: "Admin verified" })
+})
+
 adminRouter.post('/login',controller.adminLogins.bind(controller))
 adminRouter.get('/restaurant-lists', authenticateToken('admin'), controller.getRestaurants.bind(controller))
 adminRouter.patch("/block-restaurant", controller.blockRestaurant.bind(controller))

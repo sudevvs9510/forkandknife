@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // import React, { useState } from 'react';
 // import { FaClock, FaMapMarkerAlt, FaTable, FaUserFriends } from 'react-icons/fa';
 // import { useAppSelector, RootState } from '../../redux/app/store';
 // import { loadStripe } from "@stripe/stripe-js";
 // import authAxios from '../../redux/api/authApi';
+// import toast from 'react-hot-toast';
+// import { useNavigate } from 'react-router-dom';
 
 // const ReservationDetails: React.FC = () => {
+//   const navigate = useNavigate()
 //   const {
 //     selectedTable,
 //     slotStartTime,
@@ -12,18 +17,19 @@
 //     restaurantName,
 //     guests,
 //     tableRate,
-//     restaurantId
+//     restaurantId,
+//     tableSlotId,
+//     bookingDate
 //   } = useAppSelector((state: RootState) => state.bookingConfirmation);
 
 
-//   const userData = useAppSelector((state: RootState) => state.userAuth.user)
-//   console.log(userData)
+//   const userData = useAppSelector((state: RootState) => state.userAuth.user);
 
 //   const [paymentMethod, setPaymentMethod] = useState<string>('Online');
 //   const [loading, setLoading] = useState<boolean>(false);
 //   const [error, setError] = useState<string | null>(null);
 
-//   if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId) {
+//   if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId || !bookingDate) {
 //     return null;
 //   }
 
@@ -32,29 +38,62 @@
 //   const makePayment = async () => {
 //     setLoading(true);
 //     setError(null);
-//     // try{
-//     const stripe = await loadStripe(import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY as string)
-//     await authAxios.post("/make-payment", {
-//       restaurantDatas: {
-//         tableRate: tableRateNum,
-//         guests,
-//       },
-//       userId: userData._id,
-//       userEmail: userData.email,
-//       userUsername: userData.username,
-//       restaurantId: restaurantId,
-//       tableSlotId: selectedTable._id,
-//     })
+//     try {
+//       if (paymentMethod === "Online") {
+//         const stripe = await loadStripe(import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY as string);
+//         const response = await authAxios.post("/make-payment", {
+//           restaurantDatas: {
+//             tableRate: tableRateNum,
+//             guests,
+//           },
+//           userId: userData._id,
+//           userEmail: userData.email,
+//           userUsername: userData.username,
+//           restaurantId: restaurantId,
+//           tableId: selectedTable._id,
+//           bookingTime: slotStartTime,
+//           tableSlotId: tableSlotId,
+//           bookingDate
+//         });
+//         console.log(response.data)
 
-//       .then((res) => {
-//         console.log(res)
 //         stripe?.redirectToCheckout({
-//           sessionId: res.data.sessionId
+//           sessionId: response.data.sessionId
+//         });
+//       }
+//       else if (paymentMethod === "Wallet") {
+//         const response = await authAxios.post("/wallet-payment", {
+//           restaurantDatas: {
+//             tableRate: tableRateNum,
+//             guests,
+//           },
+//           userId: userData._id,
+//           userEmail: userData.email,
+//           userUsername: userData.username,
+//           amount: tableRateNum * guests,
+//           restaurantId: restaurantId,
+//           tableId: selectedTable._id,
+//           bookingTime: slotStartTime,
+//           tableSlotId: tableSlotId,
+//           bookingDate
 //         })
-//       }).catch((error) => {
-//         console.log(error)
-//       })
-//   }
+//         if (response.data.success) {
+//           console.log("Payment successfull:", response.data)
+//           toast.success("Booking successfull");
+//           navigate("/payment-success")
+//         } else {
+//           setError(response.data.message || "Failed to process wallet payment")
+//           navigate("/payment-failure")
+//         }
+//       }
+
+//     } catch (error) {
+//       setError("Failed to initiate payment. Please try again.");
+//       console.error(error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
 //   return (
 //     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -78,7 +117,7 @@
 
 //           <h3 className='font-bold'>Payment Method</h3>
 //           <div>
-//             <label className="inline-flex items-center mt-2">
+//             <label className="inline-flex items-center mt-2 mr-3">
 //               <input
 //                 type="radio"
 //                 className="form-radio"
@@ -89,13 +128,28 @@
 //               />
 //               <span className="ml-2">Online</span>
 //             </label>
+
+//             <label className="inline-flex items-center mt-2">
+//               <input
+//                 type="radio"
+//                 className="form-radio"
+//                 name="paymentMethod"
+//                 value="Wallet"
+//                 checked={paymentMethod === 'Wallet'}
+//                 onChange={(e) => setPaymentMethod(e.target.value)}
+//               />
+//               <span className="ml-2">Wallet</span>
+//             </label>
 //           </div>
 
+//           {error && <p className="text-red-500 mt-2">{error}</p>}
+
 //           <button
-//             className="bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-200 mt-4"
+//             className={`bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-200 mt-4 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
 //             onClick={makePayment}
+//             disabled={loading}
 //           >
-//             Continue
+//             {loading ? 'Processing...' : 'Continue'}
 //           </button>
 //         </div>
 //       </div>
@@ -112,8 +166,11 @@ import { FaClock, FaMapMarkerAlt, FaTable, FaUserFriends } from 'react-icons/fa'
 import { useAppSelector, RootState } from '../../redux/app/store';
 import { loadStripe } from "@stripe/stripe-js";
 import authAxios from '../../redux/api/authApi';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const ReservationDetails: React.FC = () => {
+  const navigate = useNavigate();
   const {
     selectedTable,
     slotStartTime,
@@ -123,9 +180,8 @@ const ReservationDetails: React.FC = () => {
     tableRate,
     restaurantId,
     tableSlotId,
-    bookingDate
+    bookingDate,
   } = useAppSelector((state: RootState) => state.bookingConfirmation);
-
 
   const userData = useAppSelector((state: RootState) => state.userAuth.user);
 
@@ -133,7 +189,7 @@ const ReservationDetails: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId ||!bookingDate) {
+  if (!selectedTable || !slotStartTime || !slotEndTime || !restaurantName || !guests || !tableRate || !restaurantId || !tableSlotId || !bookingDate) {
     return null;
   }
 
@@ -143,28 +199,57 @@ const ReservationDetails: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const stripe = await loadStripe(import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY as string);
-      const response = await authAxios.post("/make-payment", {
-        restaurantDatas: {
-          tableRate: tableRateNum,
-          guests,
-        },
-        userId: userData._id,
-        userEmail: userData.email,
-        userUsername: userData.username,
-        restaurantId: restaurantId,
-        tableId: selectedTable._id,
-        bookingTime: slotStartTime,
-        tableSlotId: tableSlotId,
-        bookingDate
-      });
-      console.log(response.data)
+      if (paymentMethod === "Online") {
+        const stripe = await loadStripe(import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY as string);
+        const response = await authAxios.post("/make-payment", {
+          restaurantDatas: {
+            tableRate: tableRateNum,
+            guests,
+          },
+          userId: userData._id,
+          userEmail: userData.email,
+          userUsername: userData.username,
+          restaurantId: restaurantId,
+          tableId: selectedTable._id,
+          bookingTime: slotStartTime,
+          tableSlotId: tableSlotId,
+          bookingDate,
+        });
+        console.log(response.data);
 
-      stripe?.redirectToCheckout({
-        sessionId: response.data.sessionId
-      });
-    } catch (error) {
-      setError("Failed to initiate payment. Please try again.");
+        stripe?.redirectToCheckout({
+          sessionId: response.data.sessionId,
+        });
+      } else if (paymentMethod === "Wallet") {
+        const response = await authAxios.post("/wallet-payment", {
+          restaurantDatas: {
+            tableRate: tableRateNum,
+            guests,
+          },
+          userId: userData._id,
+          userEmail: userData.email,
+          userUsername: userData.username,
+          // amount: tableRateNum * guests,
+          restaurantId: restaurantId,
+          tableId: selectedTable._id,
+          bookingTime: slotStartTime,
+          tableSlotId: tableSlotId,
+          bookingDate,
+        });
+
+        if (response.data.success) {
+          console.log("Payment successful:", response.data);
+          const bookingId = response.data.bookingId
+          toast.success("Booking successful");
+          navigate(`/payment-success?bookingId=${bookingId}&tableSlotId=${tableSlotId}&status=true`);
+        } else {
+          // Display the error message if the response indicates failure
+          setError(response.data.message || "Failed to process wallet payment");
+          navigate("/payment-failure");
+        }
+      }
+    } catch (error : any) {
+      setError(error.response?.data?.message  || "Failed to initiate payment. Please try again.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -193,7 +278,7 @@ const ReservationDetails: React.FC = () => {
 
           <h3 className='font-bold'>Payment Method</h3>
           <div>
-            <label className="inline-flex items-center mt-2">
+            <label className="inline-flex items-center mt-2 mr-3">
               <input
                 type="radio"
                 className="form-radio"
@@ -204,10 +289,22 @@ const ReservationDetails: React.FC = () => {
               />
               <span className="ml-2">Online</span>
             </label>
+
+            <label className="inline-flex items-center mt-2">
+              <input
+                type="radio"
+                className="form-radio"
+                name="paymentMethod"
+                value="Wallet"
+                checked={paymentMethod === 'Wallet'}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              />
+              <span className="ml-2">Wallet</span>
+            </label>
           </div>
 
           {error && <p className="text-red-500 mt-2">{error}</p>}
-          
+
           <button
             className={`bg-teal-600 text-white py-2 px-4 rounded hover:bg-teal-700 transition duration-200 mt-4 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={makePayment}
@@ -222,4 +319,3 @@ const ReservationDetails: React.FC = () => {
 };
 
 export default ReservationDetails;
-

@@ -151,14 +151,14 @@ export class restaurantController {
    async addRestaurantTableSlot(req: Request, res: Response, next: NextFunction) {
       console.log("Add table slot controller")
       const { tableId, tableSlotTimeData } = req.body
-
       console.log("Request body:", req.body);
       console.log("Table ID:", tableId);
       console.log("Table Slot Time Data:", tableSlotTimeData);
+
       try {
          const { message, status } = await this.interactor.addTableSlotInteractor(tableSlotTimeData, tableId)
          if (!status) {
-            return res.status(500).json({ message: "something went wrong", status })
+            return res.status(201).json({ message, status })
          }
          return res.status(201).json({ message, status })
       } catch (error) {

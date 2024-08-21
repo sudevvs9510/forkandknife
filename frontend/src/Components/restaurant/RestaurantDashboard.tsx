@@ -7,6 +7,7 @@ import authAxios from '../../redux/api/authApi';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import Reservation from "./Reservation"
+import Loader from "../Loader"
 
 
 interface DashboardData {
@@ -55,6 +56,8 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, [restaurantId, selectedMonth]);
 
+  console.log("dashboardData:",dashboardData)
+
 
   const handleDownloadReport = async () => {
     try {
@@ -101,7 +104,7 @@ const Dashboard: React.FC = () => {
   console.log(xAxis, yAxis)
   console.log(dashboardData?.data.dailyRevenue, "this is the daat daksjgkds")
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <center><Loader /></center>;
   if (error) return <div>{error}</div>;
 
   return (

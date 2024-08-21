@@ -17,6 +17,8 @@ const TimeSlotManager: React.FC = () => {
   const [endTime, setEndTime] = useState<string>('');
   const [error, setError] = useState<string>('');
 
+  console.log(timeSlots)
+
   const restaurantId = useAppSelector((state: RootState) => state.restaurantAuth.restaurantId);
 
 
@@ -41,6 +43,28 @@ const TimeSlotManager: React.FC = () => {
   const handleAddSlot = async () => {
     if (!startTime || !endTime) {
       setError('Start time and end time are required');
+      return;
+    }
+
+    // Convert times to Date objects for comparison
+    const start = new Date(`1970-01-01T${startTime}:00`);
+    const end = new Date(`1970-01-01T${endTime}:00`);
+
+    if (start >= end) {
+      setError('End time must be after start time');
+      return;
+    }
+
+    // Check for overlapping slots
+    const isOverlap = timeSlots.some((slot) => {
+      const existingStart = new Date(`1970-01-01T${slot.slotStartTime}:00`);
+      const existingEnd = new Date(`1970-01-01T${slot.slotEndTime}:00`);
+
+      return (start < existingEnd && end > existingStart);
+    });
+
+    if (isOverlap) {
+      setError('Time slot already exists');
       return;
     }
 

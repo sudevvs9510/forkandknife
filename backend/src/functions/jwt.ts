@@ -12,7 +12,7 @@ export const generateAccessToken = (userId:string, role: 'user' | 'restaurant' |
 // JWT REFRESH TOKEN 
 export const generateRefreshToken = (userId: string, role: 'user' | 'restaurant' | 'admin'): string => {
    const payload = { userId, role };
-   const refreshTokenSecret = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
+   const refreshTokenSecret = process.env.JWT_RESFRESH_SECRET_KEY || "xyZiopasf89asfaj";
    return jwt.sign(payload, refreshTokenSecret, { expiresIn: "2d" });
  };
 

@@ -8,7 +8,7 @@ import nodeMailerRestaurantRejectMail from "../../../functions/restoRejectMail"
 import { generateAccessToken, generateRefreshToken } from "../../../functions/jwt";
 import userModel from "../../../frameworks/database/models/userModel";
 import bookingModel from "../../../frameworks/database/models/bookingModel";
-import PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit-table';
 
 
 export class adminRepositoryImpl implements AdminRepositories {
@@ -155,7 +155,10 @@ export class adminRepositoryImpl implements AdminRepositories {
       usersCount: number;
       restaurantsCount: number;
       bookingCount: number;
-      sortedRevenueByRestaurantObject: object
+      sortedRevenueByRestaurantObject: object,
+      bookingCountCompleted: number,
+      bookingCountConfirmed: number,
+      bookingCountCancelled: number
 
    }> {
       try {
@@ -163,8 +166,19 @@ export class adminRepositoryImpl implements AdminRepositories {
          const restaurantsCount = await restaurantModel.countDocuments({ role: "seller" });
          console.log("usersCount:", usersCount, "restaurantsCount:", restaurantsCount);
 
-         const bookingCount = await bookingModel.countDocuments({ paymentStatus: "PAID" });
+         // const bookingCount = await bookingModel.countDocuments({ paymentStatus: "PAID" });
+         const bookingCount = await bookingModel.countDocuments();
+
+         const bookingCountCancelled = await bookingModel.countDocuments({ bookingStatus: "CANCELLED" });
+         console.log("cancelled booking count:", bookingCountCancelled)
+
+         const bookingCountConfirmed = await bookingModel.countDocuments({ bookingStatus: "CONFIRMED" });
+         console.log("confirmed booking count:", bookingCountConfirmed)
+
          console.log("bookingCount:", bookingCount);
+
+         const bookingCountCompleted = await bookingModel.countDocuments({ bookingStatus: "COMPLETED" })
+         console.log("bookingCompletedCount:", bookingCountCompleted);
 
          const currentDayRevenue = await bookingModel.aggregate([
             {
@@ -183,7 +197,7 @@ export class adminRepositoryImpl implements AdminRepositories {
 
 
          // Get revenue by each restaurant, using restaurantName as key
-         const revenueByEachRestaurant = await bookingModel.aggregate([
+         const bookingDetailsByEachRestaurant = await bookingModel.aggregate([
             {
                $match: {
                   paymentStatus: "PAID",
@@ -209,9 +223,11 @@ export class adminRepositoryImpl implements AdminRepositories {
             }
          ]);
 
+         console.log("bookingDetailsByEachRestaurant:", bookingDetailsByEachRestaurant)
+
          // Transforming the result into an object with restaurantName as keys
          const revenueByRestaurantObject: { [restaurantName: string]: number } = {};
-         revenueByEachRestaurant.forEach((item) => {
+         bookingDetailsByEachRestaurant.forEach((item) => {
             revenueByRestaurantObject[item._id] = item.totalRevenue;
          });
 
@@ -229,7 +245,11 @@ export class adminRepositoryImpl implements AdminRepositories {
             usersCount,
             restaurantsCount,
             bookingCount,
-            sortedRevenueByRestaurantObject
+            sortedRevenueByRestaurantObject,
+            bookingCountCompleted,
+            bookingCountConfirmed,
+            bookingCountCancelled
+
 
          };
       } catch (error) {
@@ -255,9 +275,9 @@ export class adminRepositoryImpl implements AdminRepositories {
          doc.moveDown();
 
          // Report summary
-         doc.text(`Total Revenue: ₹${reportDatas.revenue.toFixed(2)}`);
+         doc.text(`Total Revenue: INR ${reportDatas.revenue.toFixed(2)}`);
          doc.moveDown();
-         doc.text(`Admin Profit (12%): ₹${reportDatas.adminProfit.toFixed(2)}`);
+         doc.text(`Admin Profit (12%): INR ${reportDatas.adminProfit.toFixed(2)}`);
          doc.moveDown();
          doc.text(`Total users: ${reportDatas.usersCount}`);
          doc.moveDown();
@@ -265,13 +285,29 @@ export class adminRepositoryImpl implements AdminRepositories {
          doc.moveDown();
          doc.text(`Total Bookings: ${reportDatas.bookingCount}`);
          doc.moveDown();
-         doc.text(`Revenue by Restaurants:`);
+         doc.text(`Revenue & Bookings by Restaurants:`);
          doc.moveDown();
 
-         for (const [restaurantName, revenue] of Object.entries(reportDatas.revenueByRestaurantObject)) {
-            doc.text(`- ${restaurantName}: ${revenue.toFixed(2)}`);
-            doc.moveDown();
-         }
+         // Booking details table
+         const table = {
+            headers: ['Restaurant Name', 'Total Revenue', 'Total Bookings', 'Completed Bookings', 'Cancelled Bookings', 'Pending Bookings', 'Confirmed Bookings'],
+            rows: reportDatas.bookingDetailsArray.map(item => [
+               item.restaurantName,
+               `INR ${item.totalRevenue.toFixed(2)}`,
+               item.totalBookings,
+               item.completedBookings,
+               item.cancelledBookings,
+               item.pendingBookings,
+               item.confirmedBookings
+            ])
+         };
+
+         // Render the table using pdfkit-table
+         await doc.table(table, {
+            prepareHeader: () => doc.fontSize(10).font('Helvetica-Bold'),
+            prepareRow: (row, i) => doc.fontSize(8).font('Helvetica')
+         });
+
 
          return { message: "Report generated successfully", status: true, doc };
       } catch (error) {
@@ -324,14 +360,9 @@ export class adminRepositoryImpl implements AdminRepositories {
 
       const revenue = currentDayRevenue.length > 0 ? currentDayRevenue[0].totalRevenue : 0;
       console.log(`Total Revenue for Paid Bookings: ${revenue}`);
+      
       // Get revenue by each restaurant, using restaurantName as key
-      const revenueByEachRestaurant = await bookingModel.aggregate([
-         {
-            $match: {
-               paymentStatus: "PAID",
-               bookingStatus: "COMPLETED"
-            }
-         },
+      const bookingDetailsByEachRestaurant = await bookingModel.aggregate([
          {
             $lookup: {
                from: "restaurants",
@@ -346,16 +377,57 @@ export class adminRepositoryImpl implements AdminRepositories {
          {
             $group: {
                _id: "$restaurantDetails.restaurantName",
-               totalRevenue: { $sum: "$totalAmount" }
+               totalRevenue: {
+                  $sum: {
+                      $cond: [
+                          {
+                              $and: [
+                                  { $eq: ["$paymentStatus", "PAID"] },
+                                  { $in: ["$bookingStatus", ["COMPLETED", "CONFIRMED"]] }
+                              ]
+                          },
+                          "$totalAmount",
+                          0
+                      ]
+                  }
+              },
+               totalBookings: { $sum: 1 },
+               completedBookings: {
+                  $sum: {
+                     $cond: [{ $eq: ["$bookingStatus", "COMPLETED"] }, 1, 0]
+                  }
+               },
+               cancelledBookings: {
+                  $sum: {
+                     $cond: [{ $eq: ["$bookingStatus", "CANCELLED"] }, 1, 0]
+                  }
+               },
+               pendingBookings: {
+                  $sum: {
+                     $cond: [{ $eq: ["$bookingStatus", "PENDING"] }, 1, 0]
+                  }
+               },
+               confirmedBookings: {
+                  $sum: {
+                     $cond: [{ $eq: ["$bookingStatus", "CONFIRMED"] }, 1, 0]
+                  }
+               }
             }
          }
       ]);
 
-      // Transforming the result into an object with restaurantName as keys
-      const revenueByRestaurantObject: { [restaurantName: string]: number } = {};
-      revenueByEachRestaurant.forEach((item) => {
-         revenueByRestaurantObject[item._id] = item.totalRevenue;
-      });
+      console.log("bookingDetailsByEachRestaurant:", bookingDetailsByEachRestaurant)
+
+      // Transform the result into an array of objects
+      const bookingDetailsArray = bookingDetailsByEachRestaurant.map((item) => ({
+         restaurantName: item._id,
+         totalRevenue: item.totalRevenue,
+         totalBookings: item.totalBookings,
+         completedBookings: item.completedBookings,
+         cancelledBookings: item.cancelledBookings,
+         pendingBookings: item.pendingBookings,
+         confirmedBookings: item.confirmedBookings,
+      }));
 
       const adminProfit = revenue * 0.12;
 
@@ -364,7 +436,7 @@ export class adminRepositoryImpl implements AdminRepositories {
          restaurantsCount,
          bookingCount,
          revenue,
-         revenueByRestaurantObject,
+         bookingDetailsArray,
          startDate,
          endDate,
          adminProfit

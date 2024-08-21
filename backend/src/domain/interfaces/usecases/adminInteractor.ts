@@ -13,7 +13,7 @@ export interface AdminInteractor {
    getUsersListInteractor(): Promise<{ users: object | null, message: string}>
    blockUserInteractor(userId: string, isBlocked: boolean): Promise<{ message: string, status: boolean }>
 
-   adminDashboardInteractor(): Promise<{message: string, status: boolean;  usersCount: number; restaurantsCount: number, bookingCount: number, sortedRevenueByRestaurantObject: object}>
+   adminDashboardInteractor(): Promise<{message: string, status: boolean;  usersCount: number; restaurantsCount: number, bookingCount: number, sortedRevenueByRestaurantObject: object, bookingCountCompleted:number, bookingCountCancelled: number, bookingCountConfirmed: number }>
    downloadAdminReportInteractor(period: string): Promise<{message: string, status:boolean, doc?:PDFKit.PDFDocument}>
 
    

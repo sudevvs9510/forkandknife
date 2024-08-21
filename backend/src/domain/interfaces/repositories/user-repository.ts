@@ -27,7 +27,7 @@ export interface UserRepository {
 
    getWalletDetails(userId: string): Promise<{ message: string, walletDatas: object | null}>
 
-   cancelBooking(bookingId: string, userId: string): Promise<{ message: string, status: boolean}>
+   cancelBooking(bookingId: string, userId: string, cancellationReason: string): Promise<{ message: string, status: boolean}>
 
 
 

@@ -10,7 +10,9 @@ import { validateLogin } from '../../helpers/validation';
 import { removeStorageItem, setStorageItem } from '../../util/localStorage';
 import GoogleLoginAuth from './GoogleLoginAuth';
 import background from '../../assets/images/pexels-photo-776538.webp';
+// import Cookies from "js-cookie"
 
+import authAxios from '../../redux/api/authApi';
 const LoginForm: React.FC = () => {
   removeStorageItem('otpSession');
   const dispatch = useDispatch<AppDispatch>();
@@ -24,7 +26,15 @@ const LoginForm: React.FC = () => {
     if (token) {
       navigate('/');
     }
-  }, [token, navigate]);
+  }, [navigate]);
+
+  useEffect(() => {
+    const verify = async () => {
+      const res = await authAxios.get('/verify')
+      if (res.status === 200) return navigate("/");
+    }
+    verify()
+  }, [ ])
 
   const formik = useFormik({
     initialValues: {
@@ -36,6 +46,7 @@ const LoginForm: React.FC = () => {
       try {
         const response = await dispatch(login(credentials)).unwrap();
         setStorageItem("AuthToken", response.token);
+        navigate('/')
       } catch (error) {
         if (axios.isAxiosError(error)) {
           if (error.response && error.response.status === 401) {

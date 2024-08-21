@@ -48,6 +48,10 @@ const bookingSchema = new Schema({
     type: Number,
     required: true,
   },
+  cancellationReason: { 
+    type: String,
+    default: ''
+  }
 },{
   timestamps: true
 });

@@ -4,7 +4,9 @@ import { FaTable, FaRupeeSign, FaUsers, FaDownload } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import authAxios from '../../redux/api/authApi';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { IoRestaurant } from 'react-icons/io5';
+import { AiOutlineFileDone } from "react-icons/ai";
+import { MdOutlineRestaurant, MdCancelPresentation } from "react-icons/md";
+import { GiConfirmed } from "react-icons/gi";
 import RestaurantLists from "../../Components/admin/RestaurantManagement"
 
 
@@ -12,6 +14,9 @@ interface DashboardData {
   usersCount: number;
   restaurantsCount: number;
   bookingCount: number;
+  bookingCountCompleted: number;
+  bookingCountConfirmed: number;
+  bookingCountCancelled: number;
   sortedRevenueByRestaurantObject: { [restaurantName: string]: number };
 }
 
@@ -84,7 +89,7 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center p-4 bg-white rounded shadow">
-          <IoRestaurant className="text-4xl text-orange-500 mr-4" />
+          <MdOutlineRestaurant className="text-4xl text-orange-500 mr-4" />
           <div>
             <div className="text-xl font-bold">{dashboardData?.restaurantsCount || 0}</div>
             <div className="text-gray-500">Total Restaurants</div>
@@ -102,10 +107,35 @@ const AdminDashboard: React.FC = () => {
         <div className="flex items-center p-4 bg-white rounded shadow">
           <FaRupeeSign className="text-4xl text-green-500 mr-4" />
           <div>
-            <div className="text-xl font-bold">{Object.values(dashboardData?.sortedRevenueByRestaurantObject || {}).reduce((acc, val) => acc + val, 0)}</div>
+            <div className="text-xl font-bold">INR - {Object.values(dashboardData?.sortedRevenueByRestaurantObject || {}).reduce((acc, val) => acc + val, 0).toFixed(2)}</div>
             <div className="text-gray-500">Total Revenue</div>
           </div>
         </div>
+
+        <div className="flex items-center p-4 bg-white rounded shadow">
+          <AiOutlineFileDone className="text-4xl text-green-600 mr-4" />
+          <div>
+            <div className="text-xl font-bold">{dashboardData?.bookingCountCompleted || 0}</div>
+            <div className="text-gray-500">Completed Bookings</div>
+          </div>
+        </div>
+
+        <div className="flex items-center p-4 bg-white rounded shadow">
+          <GiConfirmed className="text-4xl text-teal-600 mr-4" />
+          <div>
+            <div className="text-xl font-bold">{dashboardData?.bookingCountConfirmed || 0}</div>
+            <div className="text-gray-500">Confirmed Bookings</div>
+          </div>
+        </div>
+
+        <div className="flex items-center p-4 bg-white rounded shadow">
+          <MdCancelPresentation className="text-4xl text-red-600 mr-4" />
+          <div>
+            <div className="text-xl font-bold">{dashboardData?.bookingCountCancelled || 0}</div>
+            <div className="text-gray-500">Cancelled Bookings</div>
+          </div>
+        </div>
+
       </div>
 
 

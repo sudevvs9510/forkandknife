@@ -160,65 +160,33 @@ const RestaurantProfile: React.FC = () => {
   };
 
 
-  // const handleChatClick = async () => {
-  //   try {
-  //     const senderId = userId;
-  //     const receiverId = restaurantId as string;
-
-  //     // Fetch existing conversations for the user
-  //     const conversations = await getConversations(senderId);
-  //     console.log(conversations);
-
-  //     // Check if a conversation already exists with the restaurant
-  //     let existingConversation = conversations.find(
-  //       (conversation: any) =>
-  //         conversation.members.includes(senderId) && conversation.members.includes(receiverId)
-  //     );
-  //     console.log(existingConversation);
-
-  //     // If no existing conversation, create a new one
-  //     if (!existingConversation) {
-  //       existingConversation = await addConversation(senderId, receiverId);
-  //     }
-  //     navigate('/chat', { state: { conversationId: existingConversation._id } });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   const handleChatClick = async () => {
     try {
       const senderId = userId;
       const receiverId = restaurantId as string;
 
-      // Try to create a new conversation
-      let existingConversation;
-      try {
-        existingConversation = await addConversation(senderId, receiverId);
-      } catch (error) {
-        // If an error occurs, it might be because the conversation already exists
-        console.log("Conversation already exists, fetching existing one.");
-      }
+      // Fetch existing conversations for the user
+      const conversations = await getConversations(senderId);
+      console.log("get conversation conversationsss",conversations);
 
-      // If creating a new conversation failed, fetch existing conversations to find the existing one
+      // Check if a conversation already exists with the restaurant
+      let existingConversation = conversations.find(
+        (conversation: any) =>
+          conversation.members.includes(senderId) && conversation.members.includes(receiverId)
+      );
+      console.log("existingConversation:",existingConversation);
+
+      // If no existing conversation, create a new one
       if (!existingConversation) {
-        const conversations = await getConversations(senderId);
-        existingConversation = conversations.find(
-          (conversation: any) =>
-            conversation.members.includes(senderId) && conversation.members.includes(receiverId)
-        );
+        console.log("not existing user condition")
+        existingConversation = await addConversation(senderId, receiverId);
       }
-
-      // Navigate to the chat page, passing the conversation ID to open the conversation section
-      if (existingConversation) {
-        navigate('/chat', { state: { conversationId: existingConversation._id } });
-      } else {
-        console.error('Failed to retrieve or create a conversation.');
-      }
+      navigate('/chat', { state: { conversationId: existingConversation._id } });
     } catch (error) {
       console.log(error);
     }
-  };
+  }
+
 
 
 

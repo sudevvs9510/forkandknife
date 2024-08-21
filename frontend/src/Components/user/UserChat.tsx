@@ -40,6 +40,9 @@ const Chat: React.FC = () => {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([])
   const [newMessage, setNewMessage] = useState('');
 
+  const [filteredConversations, setFilteredConversations] = useState<ConversationType[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -110,7 +113,7 @@ const Chat: React.FC = () => {
         console.log('Received message:', message);
         if (message.conversationId === selectedConversation?._id) {
           setMessages((prevMessages) => [...prevMessages, message])
-          const restoId:string = selectedConversation?.members.filter(item => item !== userId)[0]
+          const restoId: string = selectedConversation?.members.filter(item => item !== userId)[0]
           socketRef.current?.emit("set_messages_seen", { sender: restoId, conversationId: selectedConversation._id, currentId: userId });
         }
       });
@@ -156,6 +159,22 @@ const Chat: React.FC = () => {
       socketRef.current?.emit("set_messages_seen", { sender: restoId, conversationId: selectedConversation._id, currentId: userId })
     }
   }, [selectedConversation, userId])
+
+
+
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = conversations.filter((conv) => {
+        const restaurantId = conv.members.filter((member) => member !== userId)[0];
+        const restaurant = getRestaurantDetails(restaurantId);
+        return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+      setFilteredConversations(filtered);
+    } else {
+      setFilteredConversations(conversations);
+    }
+  }, [searchTerm, conversations, userId]);
 
 
 
@@ -210,26 +229,43 @@ const Chat: React.FC = () => {
         className={`fixed top-14  left-0 mt-[70px] bg-white border-r border-gray-300 p-4 md:static md:w-1/3 lg:w-1/4 xl:w-1/5`}
       >
         <h2 className="text-2xl font-bold mb-4">Messages</h2>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full mb-4 p-2 border border-gray-300 rounded-lg"
+          placeholder="Search restaurants..."
+        />
+
         <div>
-          <ul>
-            {conversations.map((conv) => (
-              <li
-                key={conv._id}
-                className={`p-2 border mb-1 rounded-lg bg-teal-50 font-medium cursor-pointer ${selectedConversation?._id === conv._id ? 'bg-gray-200' : ''}`}
-                onClick={() => handleSelectConversation(conv)}
-              >
-                {conv.members.filter((member) => member !== userId).map((restaurantId) => {
-                  const { name, image } = getRestaurantDetails(restaurantId);
-                  return (
-                    <div key={restaurantId} className="flex items-center">
-                      {image && <img src={image} alt={name} className="w-10 h-10 rounded-full mr-2" />}
-                      <span>{name}</span>
-                    </div>
-                  );
-                })}
-              </li>
-            ))}
-          </ul>
+          {filteredConversations.length > 0 ? (
+            <ul>
+              {filteredConversations.map((conv) => (
+                <li
+                  key={conv._id}
+                  className={`p-2 border mb-1 rounded-lg bg-teal-50 font-medium cursor-pointer ${selectedConversation?._id === conv._id ? 'bg-gray-200' : ''}`}
+                  onClick={() => handleSelectConversation(conv)}
+                >
+                  {conv.members.filter((member) => member !== userId).map((restaurantId) => {
+                    const { name, image } = getRestaurantDetails(restaurantId);
+                    return (
+                      <div key={restaurantId} className="flex items-center">
+                        {image && <img src={image} alt={name} className="w-10 h-10 rounded-full mr-2" />}
+                        <span>{name}</span>
+                      </div>
+                    );
+                  })}
+                </li>
+              ))}
+            </ul>
+          ) : (
+
+            <div className="p-4 text-center text-gray-500">
+              No search results
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import background from '../../assets/images/pexels-photo-776538.webp';
 import { useFormik } from 'formik';
@@ -7,12 +7,21 @@ import { RestaurantRegister } from '../../api/RestaurantApis';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import authAxios from '../../redux/api/authApi';
 
 
 const RestaurantSignup: React.FC = () => {
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        const verify = async () => {
+          const res = await authAxios.get('/restaurant/verify')
+          if (res.status === 200) return navigate("/restaurant/dashboard")
+        }
+        verify()
+      }, [])
 
     const formik = useFormik({
         initialValues: {

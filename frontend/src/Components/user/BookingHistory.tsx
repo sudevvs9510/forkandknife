@@ -309,6 +309,7 @@ interface Booking {
   guests: number;
   bookingDate: string;
   bookingTime: string;
+  cancellationReason: string
 }
 
 interface ReviewData {
@@ -424,25 +425,23 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
     setCancellationModalOpen(true);
   };
 
-  const confirmCancellation = async () => {
+  const confirmCancellation = async (cancellationReason: string) => {
     if (!selectedBookingId) return;
 
     try {
-      await authAxios.post(`/cancel-booking/${selectedBookingId}`, { userId });
+      await authAxios.post(`/cancel-booking/${selectedBookingId}`, { userId, cancellationReason });
       console.log('Booking cancelled successfully');
-      // Optionally refresh booking data or update the state
+      setBookingDetails((prevDetails) =>
+        prevDetails.map((booking) =>
+          booking.bookingId === selectedBookingId
+            ? { ...booking, bookingStatus: 'CANCELLED' }
+            : booking
+        )
+      );
     } catch (error) {
       console.error('Error cancelling booking:', error);
     } finally {
       setCancellationModalOpen(false);
-      // Optionally refresh booking data or update the state
-      setBookingDetails((prevDetails) =>
-        prevDetails.map((booking) =>
-          booking.bookingId === selectedBookingId
-            ? { ...booking, bookingStatus: 'cancelled' }
-            : booking
-        )
-      );
     }
   };
 

@@ -109,10 +109,10 @@ export class AdminInteractorImpl implements AdminInteractor {
       }
    }
 
-   async adminDashboardInteractor(): Promise<{ message: string; status: boolean;usersCount: number;restaurantsCount: number, bookingCount: number,sortedRevenueByRestaurantObject: object }> {
+   async adminDashboardInteractor(): Promise<{ message: string; status: boolean;usersCount: number;restaurantsCount: number, bookingCount: number,sortedRevenueByRestaurantObject: object, bookingCountCompleted: number, bookingCountCancelled: number, bookingCountConfirmed: number, }> {
       try{
-         const { message, status, usersCount, restaurantsCount ,bookingCount,sortedRevenueByRestaurantObject } =await this.repository.adminDashboard()
-         return { message, status, usersCount, restaurantsCount, bookingCount, sortedRevenueByRestaurantObject}
+         const { message, status, usersCount, restaurantsCount ,bookingCount,sortedRevenueByRestaurantObject,bookingCountCancelled,bookingCountCompleted, bookingCountConfirmed } =await this.repository.adminDashboard()
+         return { message, status, usersCount, restaurantsCount, bookingCount, sortedRevenueByRestaurantObject,bookingCountCancelled,bookingCountCompleted, bookingCountConfirmed }
 
       } catch(error){
          console.log(error)

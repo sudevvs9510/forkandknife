@@ -354,12 +354,12 @@ export class UserRepositoryImpl implements UserRepository {
    }
 
 
-   async cancelBooking(bookingId: string, userId: string): Promise<{ message: string; status: boolean; }> {
+   async cancelBooking(bookingId: string, userId: string, cancellationReason: string): Promise<{ message: string; status: boolean; }> {
       console.log(bookingId)
       try {
          const bookingData = await bookingModel.findOneAndUpdate(
             { bookingId },
-            { bookingStatus: "CANCELLED" },
+            { bookingStatus: "CANCELLED",cancellationReason, paymentStatus: "REFUNDED" },
             { new: true }
          )
          if (!bookingData) {
