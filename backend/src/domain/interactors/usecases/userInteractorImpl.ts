@@ -249,10 +249,20 @@ export class UserInteractorImpl implements UserInteractor {
    }
 
 
-   async cancelBookingInteractor(bookingId: string, userId: string, cancellationReason: string): Promise<{ message: string; status: boolean; }> {
+   async cancelBookingInteractor(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string; status: boolean; }> {
       try{
-         const { status, message } = await this.Repository.cancelBooking(bookingId, userId,cancellationReason)
+         const { status, message } = await this.Repository.cancelBooking(bookingId, userId,cancellationReason, tableId)
          return { status, message }
+      } catch(error){
+         console.log(error)
+         throw error
+      }
+   }
+
+   async downloadInvoiceinteractor(bookingId: string): Promise<{ message: string; status: boolean;invoicePdf:string}> {
+      try{
+         const { message, status, invoicePdf } = await this.Repository.downloadInvoice(bookingId)
+         return { message, status, invoicePdf }
       } catch(error){
          console.log(error)
          throw error

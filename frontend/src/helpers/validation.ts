@@ -166,6 +166,7 @@ export const validateRestaurantSignup = (values: Partial<RestaurantType>) => {
 export interface RestaurantValues {
   restaurantName: string;
   email: string;
+  restaurantType: "Veg & Non-Veg" | "Veg" | "Non-Veg",
   contact: string;
   address: string;
   location: {

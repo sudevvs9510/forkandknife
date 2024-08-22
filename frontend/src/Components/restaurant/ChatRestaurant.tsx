@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { format } from 'timeago.js';
@@ -46,6 +45,9 @@ const RestaurantChat: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [showMessages, setShowMessages] = useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([])
+
+  const [filteredConversations, setFilteredConversations] = useState<ConversationType[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -146,6 +148,9 @@ const RestaurantChat: React.FC = () => {
   }, [messages, restaurantId])
 
 
+
+
+
   useEffect(() => {
     if (selectedConversation && restaurantId) {
       const restoId = selectedConversation?.members.filter(item => item !== restaurantId)[0]
@@ -159,6 +164,20 @@ const RestaurantChat: React.FC = () => {
     }
 
   }, [messages]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = conversations.filter((conv) => {
+        const userId = conv.members.find((member) => member !== restaurantId);
+        const username = userId ? usernames[userId] : 'Unknown User';
+        return username.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+      setFilteredConversations(filtered);
+    } else {
+      setFilteredConversations(conversations);
+    }
+  }, [searchTerm, conversations, restaurantId, usernames]);
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,26 +233,43 @@ const RestaurantChat: React.FC = () => {
       {/* User list Section */}
       <div className={`w-full md:w-1/4 border-r border-gray-300 p-2 ${showMessages ? 'hidden md:block' : 'block'}`}>
         <h2 className="text-2xl font-bold mb-4">Chat</h2>
-        <ul>
-          {conversations.map((conv) => {
-            const userId = conv.members.find((member) => member !== restaurantId);
-            const username = userId ? usernames[userId] : 'Unknown User';
-            return (
-              <li
-                key={conv._id}
-                className={`p-2 border mb-1 rounded-lg bg-teal-50 font-[500] cursor-pointer ${selectedConversation?._id === conv._id ? 'bg-gray-200' : ''}`}
-                onClick={() => handleSelectConversation(conv)}
-              >
-                <div className="flex items-center">
-                  <div className="bg-teal-600 text-white rounded-full h-8 w-8 flex items-center justify-center">
-                    {username.charAt(0).toUpperCase()}
+
+        {/* Search Input */}
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full mb-4 p-2 border border-gray-300 rounded-lg"
+          placeholder="Search users..."
+        />
+
+        {filteredConversations.length > 0 ? (
+          <ul>
+            {filteredConversations.map((conv) => {
+              const userId = conv.members.find((member) => member !== restaurantId);
+              const username = userId ? usernames[userId] : 'Unknown User';
+              return (
+                <li
+                  key={conv._id}
+                  className={`p-2 border mb-1 rounded-lg bg-teal-50 font-[500] cursor-pointer ${selectedConversation?._id === conv._id ? 'bg-gray-200' : ''}`}
+                  onClick={() => handleSelectConversation(conv)}
+                >
+                  <div className="flex items-center">
+                    <div className="bg-teal-600 text-white rounded-full h-8 w-8 flex items-center justify-center">
+                      {username.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="ml-2">{username}</span>
                   </div>
-                  <span className="ml-2">{username}</span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+
+          <div className="p-4 text-center text-gray-500">
+            No search results
+          </div>
+        )}
       </div>
 
       {/* Messages show Section */}

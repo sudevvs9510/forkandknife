@@ -33,13 +33,10 @@ export const addTableData = createAsyncThunk(
   async (values: TableSlotTypes, { rejectWithValue }) => {
     try {
       const response = await addtableDatas(values);
-      if (response.data.status) {
-        return values;
-      } else {
-        return rejectWithValue(response.data.message);
-      }
-    } catch (error) {
-      return rejectWithValue('Error adding table data');
+        console.log(response)
+        return response;
+    } catch (error : any) {
+      return rejectWithValue(error.response.data.message);
     }
   }
 );

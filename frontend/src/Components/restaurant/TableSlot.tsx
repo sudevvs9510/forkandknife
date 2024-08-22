@@ -11,11 +11,7 @@ interface TableSlots {
   slotDate: string;
   slotStartTime: string;
   slotEndTime: string;
-}
-
-interface TableSlotTime {
-  tableSlotDate: string;
-  tableSlotTime: string;
+  isAvailable: boolean
 }
 
 const TableSlots: React.FC = () => {
@@ -27,29 +23,42 @@ const TableSlots: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const tableNumber = queryParams.get('tableNumber');
 
+
+  console.log(tableDatas)
+
   useEffect(() => {
-    const fetchTableData = async () => {
-      try {
-        if (tableId) {
-          const res = await getTableSlot(tableId);
-          console.log(res.data.tableSlotDatas);
-          setTableDatas(res.data.tableSlotDatas);
-        }
-      } catch (error) {
-        console.log('Error fetching table datas', error);
-      }
-    };
-    fetchTableData();
+    // const fetchTableData = async () => {
+    //   try {
+    //     if (tableId) {
+    //       const res = await getTableSlot(tableId);
+    //       console.log(res.data.tableSlotDatas);
+    //       setTableDatas(res.data.tableSlotDatas);
+    //     }
+    //   } catch (error) {
+    //     console.log('Error fetching table datas', error);
+    //   }
+    // };
+    if(tableId) {
+      fetchTableData(tableId);
+    }
   }, [tableId]);
 
-  const handleAddSlot = async (slot: TableSlotTime) => {
-    const newSlot: TableSlots = {
-      _id: Math.random().toString(36).substr(2, 9), 
-      slotDate: slot.tableSlotDate,
-      slotStartTime: slot.tableSlotTime.split(' - ')[0],
-      slotEndTime: slot.tableSlotTime.split(' - ')[1],
-    };
-    setTableDatas([...tableDatas, newSlot]);
+  const fetchTableData = async (tableId:string) => {
+    try {
+      if (tableId) {
+        const res = await getTableSlot(tableId);
+        console.log(res.data.tableSlotDatas);
+        setTableDatas(res.data.tableSlotDatas);
+      }
+    } catch (error) {
+      console.log('Error fetching table datas', error);
+    }
+  };
+
+  const handleAddSlot = async () => {
+    if(tableId){
+      fetchTableData(tableId)
+    }
   };
 
   const handleDeleteSlot = async () => {
@@ -106,6 +115,7 @@ const TableSlots: React.FC = () => {
                 <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Sl. No</th>
                 <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Date</th>
                 <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Time</th>
+                <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Slot Status</th>
                 <th className="px-6 py-3 border-b-2 text-left leading-4 text-teal-600 tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -115,6 +125,7 @@ const TableSlots: React.FC = () => {
                   <td className="px-6 py-3 whitespace-no-wrap">{index + 1}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{new Date(slot.slotDate).toLocaleDateString()}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{`${slot.slotStartTime} - ${slot.slotEndTime}`}</td>
+                  <td className="px-6 py-3 whitespace-no-wrap">{slot.isAvailable=== true ? <p className='font-semibold text-green-600 p-2 rounded'>Available</p> : <p className="font-semibold text-red-500 p-2 rounded">Not available</p> }</td>
                   <td className="px-6 py-3 whitespace-no-wrap">
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"

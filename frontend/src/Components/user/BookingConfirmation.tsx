@@ -204,7 +204,6 @@ const ReservationDetails: React.FC = () => {
         const response = await authAxios.post("/make-payment", {
           restaurantDatas: {
             tableRate: tableRateNum,
-            guests,
           },
           userId: userData._id,
           userEmail: userData.email,
@@ -214,6 +213,7 @@ const ReservationDetails: React.FC = () => {
           bookingTime: slotStartTime,
           tableSlotId: tableSlotId,
           bookingDate,
+          guests
         });
         console.log(response.data);
 
@@ -224,7 +224,6 @@ const ReservationDetails: React.FC = () => {
         const response = await authAxios.post("/wallet-payment", {
           restaurantDatas: {
             tableRate: tableRateNum,
-            guests,
           },
           userId: userData._id,
           userEmail: userData.email,
@@ -235,6 +234,7 @@ const ReservationDetails: React.FC = () => {
           bookingTime: slotStartTime,
           tableSlotId: tableSlotId,
           bookingDate,
+          guests
         });
 
         if (response.data.success) {

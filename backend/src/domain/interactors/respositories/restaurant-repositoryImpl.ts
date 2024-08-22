@@ -89,7 +89,7 @@ export class sellerRepository implements restaurantRepository {
    async restaurantAllDetails(restaurant: RestaurantType): Promise<{ restaurant: Partial<RestaurantType>; message: string; }> {
       console.log("restaurantAllDetails")
       try {
-         const { restaurantName, email, contact,
+         const { restaurantName, email, contact, restaurantType,
             address, description, location, place, openingTime,
             closingTime, TableRate, featuredImage, secondaryImages } = restaurant
 
@@ -113,6 +113,7 @@ export class sellerRepository implements restaurantRepository {
          const restaurantDetails = await restaurantModel.findOneAndUpdate({ email }, {
             restaurantName,
             contact,
+            restaurantType,
             address,
             description,
             place,
@@ -185,6 +186,17 @@ export class sellerRepository implements restaurantRepository {
             return { message: "Restaurant not found, please try again later", status: false }
          }
 
+         const existingTable = await restaurantTableModel.findOne({
+            restaurantId: restaurantData._id,
+            tableNumber: tableNumber,
+         });
+
+         console.log(existingTable)
+
+         if (existingTable) {
+            return { message: "Table number already exists.", status: false };
+         }
+
          const newTableSlot = await restaurantTableModel.create({
             restaurantId: restaurantData._id,
             tableNumber: tableNumber,
@@ -195,7 +207,7 @@ export class sellerRepository implements restaurantRepository {
          return { message: "Table created", status: true }
       } catch (error) {
          console.log("Error in add new table respository", error)
-         return { message: "Somthing went wrong please try again later", status: false }
+         return { message: "Something went wrong please try again later", status: false }
 
       }
    }
@@ -312,6 +324,10 @@ export class sellerRepository implements restaurantRepository {
          const restaurantData = await restaurantModel.findById(restaurantId)
          if (!restaurantData) {
             return { message: "Restaurant not found, please try again later", status: false }
+         }
+
+         if(slotStartTime > slotEndTime){
+            return { message:"End time must be after start time", status:false}
          }
 
          const newTimeSlot = await restaurantTimeSlotsModel.create({

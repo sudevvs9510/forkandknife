@@ -44,9 +44,12 @@ const AddTable: React.FC<AddTableProps> = ({ onAddTable }) => {
               }}
               onSubmit={async (values, { setSubmitting }) => {
                 try {
-                  await dispatch(addTableData(values)).unwrap();
+                  const response = await dispatch(addTableData(values)).unwrap();
+                  if(!response.status){
+                    toast.error(response.message);
+                  } 
                   toast.success('Table added successfully!');
-                  onAddTable(values); // Call the callback function to update the parent component's state
+                  onAddTable(values); 
                   setShowDialog(false);
                 } catch (error) {
                   toast.error(error as string);

@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { MdOutlineReviews } from "react-icons/md";
 import { RiRestaurantLine } from "react-icons/ri";
-import { IoPhonePortraitOutline } from "react-icons/io5";
-import { CiLocationOn } from "react-icons/ci";
+import { FaMobileAlt } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 import authAxios from '../../redux/api/authApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import GoogleMap from '../GoogleMap';
@@ -29,6 +29,7 @@ interface ReviewType {
 interface RestaurantType {
   location: { type: string, coordinates: [number, number] },
   _id: string,
+  restaurantType:string,
   restaurantName: string,
   email: string,
   contact: string,
@@ -239,23 +240,24 @@ const RestaurantProfile: React.FC = () => {
                     </div>
                     <div className="flex items-center">
                       <RiRestaurantLine className="text-gray-600 mr-1" />
-                      <span className="text-gray-600">Arabic</span>
+                      <span className="text-gray-600">{restaurant.restaurantType}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-start mt-2">
-                    <div className='flex'>
-                      <CiLocationOn />
-                      <span className="text-gray-600">{restaurant.place}</span>
+                    <div className='flex '>
+                      <FaLocationDot className='text-teal-600' />
+                      <span className="text-gray-600"> {restaurant.place}</span>
                     </div>
                     <div className='flex'>
-                      <IoPhonePortraitOutline />
-                      <span className="text-gray-600 mr-2">{restaurant.contact}</span>
+                      <FaMobileAlt  className="text-teal-600" />
+                      <span className="text-gray-600 mr-2">+91 {restaurant.contact}</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="mb-6">
                 <div className="bg-white py-2 rounded-lg ">
+                <h2 className="text-2xl font-bold mb-4">About Restaurant</h2>
                   <p className="text-gray-700">{restaurant.description}</p>
                 </div>
               </div>

@@ -109,9 +109,9 @@ export class restaurantController {
       try {
          const { message, status } = await this.interactor.addTableInteractor(tableAddingDatas, restaurantId)
          if (!status) {
-            return res.status(500).json({ message, status })
+            return res.status(400).json({ message, status:false })
          }
-         return res.status(201).json({ message, status })
+         return res.status(201).json({ message, status:true })
 
       } catch (error) {
          console.log("Error during add table", error)
@@ -158,7 +158,7 @@ export class restaurantController {
       try {
          const { message, status } = await this.interactor.addTableSlotInteractor(tableSlotTimeData, tableId)
          if (!status) {
-            return res.status(201).json({ message, status })
+            return res.status(201).json({ message, status:false })
          }
          return res.status(201).json({ message, status })
       } catch (error) {

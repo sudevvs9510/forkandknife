@@ -4,9 +4,6 @@ import { Server as SocketIOServer } from 'socket.io'
 import ChatMessageModel from "../frameworks/database/models/messageModel"
 
 
-
-
-
 let onlineUsers: string[] = [];
 
 export const initializeSocket = (server: HTTPServer) => {

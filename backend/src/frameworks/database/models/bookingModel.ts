@@ -30,6 +30,10 @@ const bookingSchema = new Schema({
     type: String,
     required : true
   },
+  guests: {
+    type: Number,
+    required: true
+  },
   paymentMethod :{
     type: String,
     enum : ["Online" , "Wallet"]

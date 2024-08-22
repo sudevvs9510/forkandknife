@@ -46,6 +46,7 @@ const Chat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
+  // Fetch conversations
   useEffect(() => {
     const fetchConversations = async () => {
       if (userId) {
@@ -67,22 +68,30 @@ const Chat: React.FC = () => {
   }, [userId, conversationIdFromLocation]);
 
 
+
+  // Fetch messages when a conversation is selected
   useEffect(() => {
     if (selectedConversation) {
       const fetchMessages = async () => {
-        const data = await getMessages(selectedConversation._id);
-        setMessages(data);
-      };
+        try {
+          const data = await getMessages(selectedConversation._id);
+          setMessages(data);
+        } catch (error) {
+          console.log("Error fetching messages", error)
+        }
+      }
       fetchMessages();
     }
   }, [selectedConversation]);
 
+
+  //fetch restaurants
   useEffect(() => {
     dispatch(fetchRestaurants());
   }, [dispatch]);
 
+  //auto scroll to the latest message
   useEffect(() => {
-    // Scroll to the bottom of the messages when they are updated
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -90,7 +99,7 @@ const Chat: React.FC = () => {
 
 
 
-
+  //socket connection
   useEffect(() => {
     if (userId) {
       socketRef.current = io('http://localhost:4000');
@@ -110,10 +119,9 @@ const Chat: React.FC = () => {
       })
 
       socketRef.current.on('chat message', (message: MessageType) => {
-        console.log('Received message:', message);
         if (message.conversationId === selectedConversation?._id) {
           setMessages((prevMessages) => [...prevMessages, message])
-          const restoId: string = selectedConversation?.members.filter(item => item !== userId)[0]
+          const restoId= selectedConversation.members.find(item => item !== userId)!
           socketRef.current?.emit("set_messages_seen", { sender: restoId, conversationId: selectedConversation._id, currentId: userId });
         }
       });
@@ -122,12 +130,6 @@ const Chat: React.FC = () => {
       socketRef.current.on('disconnect', () => {
         console.log('Disconnected from socket server');
       });
-
-      // socketRef.current.on("set_messages_seen",(id)=>{
-      //   if(id === userId) {
-      //     // 
-      //   }
-      // })
 
       return () => {
         socketRef.current?.emit('remove_online', userId)
@@ -151,7 +153,7 @@ const Chat: React.FC = () => {
       })
     }
   }, [messages, userId])
-  // No need to include messages in the dependency array
+
 
   useEffect(() => {
     if (selectedConversation && userId) {
@@ -162,7 +164,7 @@ const Chat: React.FC = () => {
 
 
 
-
+  //restaurant search  
   useEffect(() => {
     if (searchTerm) {
       const filtered = conversations.filter((conv) => {

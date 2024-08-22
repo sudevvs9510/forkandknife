@@ -70,7 +70,7 @@ const BookingDetails: React.FC = () => {
             bookingDate: booking.bookingDate,
             bookingTime: booking.bookingTime,
             tableNumber: booking.tableId.tableNumber,
-            guests: booking.tableId.tableCapacity,
+            guests: booking.guests,
             bookingId: booking.bookingId,
             paymentMethod: booking.paymentMethod,
             paymentStatus: booking.paymentStatus,
@@ -91,17 +91,46 @@ const BookingDetails: React.FC = () => {
     return <div className="text-center py-10"><Loader /></div>;
   }
 
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await authAxios.get(`/restaurant-invoice/${bookingId}`, {
+        responseType: 'blob', // This is important to handle the file blob response correctly
+      });
+
+      // Create a URL for the PDF blob
+      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.setAttribute('download', `invoice-${bookingId}.pdf`);
+
+      // Append the link to the body (required for Firefox)
+      document.body.appendChild(link);
+
+      // Trigger the download
+      link.click();
+
+      // Clean up and remove the link
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading invoice", error);
+    }
+  };
+
+
   return (
     <div className="p-6 max-w-5xl mx-auto bg-white rounded-xl mt-10 shadow-md flex flex-col justify-center items-center space-y-6 md:space-y-0 md:flex-row md:space-x-6">
       <div className="w-full md:w-auto px-4 md:px-0">
         <h2 className="text-xl md:text-3xl font-bold mb-10 text-center">Booking Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <p className="text-xl md:text-2xl font-medium mb-2"><RiHotelLine className="inline-block mr-2" size={24}/> <span className='text-teal-600 '>{bookingData.restaurantName}</span></p>
-            <p className="text-md md:text-lg mb-2 font-medium"><BsCalendarDate className="inline-block mr-2" size={24}/><span className="font-medium"></span> {formatDateString(bookingData.bookingDate)}</p>
-            <p className="text-md md:text-lg mb-2 font-medium"><MdOutlineAccessTime className="inline-block mr-2"size={24} /> {bookingData.bookingTime}</p>
-            <p className="text-md md:text-lg mb-2 font-medium"><MdOutlineTableRestaurant  className="inline-block mr-2" size={24}/> {bookingData.tableNumber}</p>
-            <p className="text-md md:text-lg mb-2 font-medium"><FiUsers className="inline-block mr-2" size={24}/> <span className='text-teal-600'>{bookingData.guests}</span> <span className="font-medium">Guests</span></p>
+            <p className="text-xl md:text-2xl font-medium mb-2"><RiHotelLine className="inline-block mr-2" size={24} /> <span className='text-teal-600 '>{bookingData.restaurantName}</span></p>
+            <p className="text-md md:text-lg mb-2 font-medium"><BsCalendarDate className="inline-block mr-2" size={24} /><span className="font-medium"></span> {formatDateString(bookingData.bookingDate)}</p>
+            <p className="text-md md:text-lg mb-2 font-medium"><MdOutlineAccessTime className="inline-block mr-2" size={24} /> {bookingData.bookingTime}</p>
+            <p className="text-md md:text-lg mb-2 font-medium"><MdOutlineTableRestaurant className="inline-block mr-2" size={24} /> {bookingData.tableNumber}</p>
+            <p className="text-md md:text-lg mb-2 font-medium"><FiUsers className="inline-block mr-2" size={24} /> <span className='text-teal-600'>{bookingData.guests}</span> <span className="font-medium">Guests</span></p>
           </div>
           <div>
             <p className="text-md md:text-xl mb-2"><span className="font-medium">Booking ID:</span> <span className='text-teal-600 '>{bookingData.bookingId}</span></p>
@@ -121,6 +150,13 @@ const BookingDetails: React.FC = () => {
             <p className="text-md md:text-lg mb-2 font-medium"><span className="font-medium">Amount Paid </span>  <span className='font-bold'>₹{bookingData.totalAmount.toFixed(2)}</span></p>
           </div>
         </div>
+        {bookingData.bookingStatus === "COMPLETED" ?( 
+        <div className='flex justify-center mt-10'>
+          <button className='border rounded p-2 bg-teal-600 text-white' onClick={handleDownloadInvoice}>Download Invoice</button>
+        </div>
+        ) : (
+          <p>.</p>
+        )}
       </div>
     </div>
   );

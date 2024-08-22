@@ -130,13 +130,14 @@ export const getTableDatas = async (restaurantId: string) => {
 
 export const addtableDatas = async (tableAddingDatas: TableSlotTypes) => {
   try {
-    const { data: { message, status } } = await authAxios.post("/restaurant/add-table", { tableAddingDatas })
-    return { data: { message, status } }
+      const { data } = await authAxios.post("/restaurant/add-table", { tableAddingDatas });
+      return data; 
   } catch (error) {
-    console.log(error)
-    throw error
+      console.log(error);
+      throw error;
   }
 }
+
 
 export const deleteTableDatas = async (restaurantId: string, tableId: string) => {
   try {

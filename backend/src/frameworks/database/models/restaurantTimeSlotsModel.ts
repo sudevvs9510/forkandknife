@@ -18,6 +18,6 @@ const restaurantTimeSlotsSchema = new Schema ({
 })
 
 
-const restaurantTimeSlotsModel = mongoose.model("Time-slot",restaurantTimeSlotsSchema)
+const restaurantTimeSlotsModel = mongoose.model("Timeslot",restaurantTimeSlotsSchema)
 
 export default restaurantTimeSlotsModel

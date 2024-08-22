@@ -50,7 +50,7 @@ const TimeSlotManager: React.FC = () => {
     const start = new Date(`1970-01-01T${startTime}:00`);
     const end = new Date(`1970-01-01T${endTime}:00`);
 
-    if (start >= end) {
+    if (start > end) {
       setError('End time must be after start time');
       return;
     }
@@ -77,7 +77,7 @@ const TimeSlotManager: React.FC = () => {
     try {
       const response = await addTimeSlot(newSlot);
       if (response.data.status) {
-        setTimeSlots([...timeSlots, newSlot]);
+        fetchTimeSlots()
         setStartTime('');
         setEndTime('');
         setError('');
@@ -97,7 +97,10 @@ const TimeSlotManager: React.FC = () => {
     try {
       const res = await deleteTimeSlot(timeSlotId, restaurantId || '');
       if (res.data.status) {
+
         fetchTimeSlots()
+        const data = [...timeSlots].filter(item => item._id !== timeSlotId)
+        setTimeSlots(data);
         toast.success('Time slot deleted successfully');
       } else {
         toast.error(res.data.message);

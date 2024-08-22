@@ -66,7 +66,8 @@ userRouter.get("/wallet-details/:userId", userBlock, controller.getWalletDetails
 
 userRouter.post("/cancel-booking/:bookingId", userBlock, controller.cancelBooking.bind(controller))
 
-// userRouter.post('/refresh-token', controller.refreshToken.bind(controller));
+
+userRouter.get("/restaurant-invoice/:bookingId", controller.restaurantInvoice.bind(controller))
 
 userRouter.post('/logout', controller.Logout.bind(controller))
 

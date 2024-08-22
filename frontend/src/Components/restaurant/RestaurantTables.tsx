@@ -14,29 +14,32 @@ const RestaurantTables: React.FC = () => {
   const { restaurantId } = useAppSelector((state: RootState) => state.restaurantAuth);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(2);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
-    const fetchTableData = async () => {
-      try {
-        if (restaurantId) {
-          const res = await getTableDatas(restaurantId);
-          setTableDatas(res.data.tableSlotDatas);
-        } else {
-          console.error("Unauthorized access or invalid role.");
-        }
-      } catch (error) {
-        console.log("Error fetching table data", error);
-      }
-    };
+ 
     fetchTableData();
   }, [restaurantId]);
 
-  const handleAddTable = (values: TableSlotTypes) => {
-    setTableDatas([...tableDatas, { ...values }]);
+  const fetchTableData = async () => {
+    try {
+      if (restaurantId) {
+        const res = await getTableDatas(restaurantId);
+        setTableDatas(res.data.tableSlotDatas);
+      } else {
+        console.error("Unauthorized access or invalid role.");
+      }
+    } catch (error) {
+      console.log("Error fetching table data", error);
+    }
+  };
+
+  const handleAddTable = () => {
+    fetchTableData()
   };
 
   const handleDeleteTable = async () => {
+    fetchTableData()
     if (selectedTableId && restaurantId) {
       try {
         const { message, status } = await deleteTableDatas(restaurantId, selectedTableId);
@@ -102,7 +105,7 @@ const RestaurantTables: React.FC = () => {
             ) : (
               currentItems.map((tableData: TableSlotTypes, index) => (
                 <tr key={index} className="border-b border-gray-200">
-                  <td className="px-6 py-3 whitespace-no-wrap">{index + 1}</td>
+                  <td className="px-6 py-3 whitespace-no-wrap">{index + currentPage}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableNumber}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableCapacity}</td>
                   <td className="px-6 py-3 whitespace-no-wrap">{tableData.tableLocation}</td>

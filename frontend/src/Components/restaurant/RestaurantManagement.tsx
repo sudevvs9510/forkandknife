@@ -1,7 +1,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import {  toast } from 'react-hot-toast';
 import { useFormik } from 'formik';
 import 'react-toastify/dist/ReactToastify.css';
 import { RestaurantValues, sellerRegistrationValidation } from "../../helpers/validation";
@@ -18,6 +18,7 @@ const RestaurantDetails: React.FC = () => {
     email: "",
     contact: "",
     restaurantName: "",
+    restaurantType: "" as "Veg & Non-Veg" | "Veg" | "Non-Veg",
     address: "",
     description: "",
     place: "",
@@ -145,14 +146,13 @@ const RestaurantDetails: React.FC = () => {
   const handleSecondaryImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (files) {
-      const filesArray = Array.from(files).filter((file)=>file instanceof File);
+      const filesArray = Array.from(files).filter((file) => file instanceof File);
       formik.setFieldValue("secondaryImages", filesArray);
     }
   };
 
   return (
     <div className="min-h-screen flex  ">
-      <ToastContainer position="top-center" hideProgressBar autoClose={1500}/>
       <div className="flex-grow flex flex-col items-center pb-10 ">
         <div className="w-full bg-white  rounded-lg pb-10 animate-fadeIn  ">
           <h1 className="p-5 text-2xl font-bold text-start text-black rounded-t-lg  border-gray-200">
@@ -175,6 +175,27 @@ const RestaurantDetails: React.FC = () => {
                     <div className="text-red-500">{formik.errors.restaurantName}</div>
                   ) : null}
                 </div>
+
+
+                <div className=''>
+                  <label className="block text-lg" htmlFor="restaurantType">Restaurant Type</label>
+                  <select
+                    id="restaurantType"
+                    name="restaurantType"
+                    className="input border rounded-lg p-2 border-gray-200 w-full"
+                    onChange={formik.handleChange}
+                    value={formik.values.restaurantType || ""}
+                  >
+                    <option value="" disabled>Select restaurant type</option>
+                    <option value="Veg & Non-Veg">Veg & Non-Veg</option>
+                    <option value="Veg">Veg</option>
+                    <option value="Non-Veg">Non-Veg</option>
+                  </select>
+                  {formik.errors.restaurantType ? (
+                    <div className="text-red-500">{formik.errors.restaurantType}</div>
+                  ) : null}
+                </div>
+
                 <div>
                   <label className="block text-lg">Email</label>
                   {/* <div className="text-teal-600">(Email cannot be changed)</div> */}

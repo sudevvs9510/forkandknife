@@ -50,27 +50,6 @@ const AddTableSlot: React.FC<{ onClose: () => void; onSubmit: (slot: TableSlotTi
 
   const { tableId } = useParams()
 
-  // const handleAddTableSlot = async (values: TableSlotTime) => {
-  //   try {
-
-  //     const [startTime, endTime] = values.tableSlotTime.split(' - ');
-  //     const tableSlotTimeData = {
-  //       slotStartTime: startTime.trim(),
-  //       slotEndTime: endTime.trim(),
-  //       tableSlotDate: values.tableSlotDate,
-  //     };
-  //     const response = await addTableSlot(tableSlotTimeData, tableId as string);
-  //     console.log(response.data)
-  //     console.log(tableSlotTimeData)
-  //     toast.success(response.data.message);
-  //     onSubmit(values);
-  //     console.log(values)
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.log(error)
-  //     toast.error('Failed to create slot.');
-  //   }
-  // };
 
   const handleAddTableSlot = async (values: TableSlotTime) => {
     try {

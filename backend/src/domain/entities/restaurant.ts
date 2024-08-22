@@ -3,6 +3,7 @@ export class RestaurantType {
    constructor(
        public readonly restaurantName: string,
        public readonly email:string,
+       public readonly restaurantType: "Veg & Non-Veg" | "Veg" | "Non-Veg",
        public readonly contact: string,
        public readonly address: string,
        public readonly password: string,

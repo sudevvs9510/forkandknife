@@ -16,6 +16,8 @@ import { handleWalletTopUpSuccess } from "../../functions/Wallet/walletPaymentDa
 import WalletModel from "../../frameworks/database/models/walletModel"
 import walletModel from '../../frameworks/database/models/walletModel';
 
+import atob from 'atob'
+
 export class userController {
 
    constructor(private readonly interactor: UserInteractor) { }
@@ -388,11 +390,12 @@ export class userController {
    async makePayment(req: Request, res: Response, next: NextFunction) {
       console.log("make payements")
 
-      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate } = req.body
+      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate, guests } = req.body
 
-      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate)
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate,guests)
       try {
-         const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
+         const totalAmount = restaurantDatas.tableRate * guests
+         console.log("totalAmount:",totalAmount, guests)
          const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`;
          const session = await createPayment({ userEmail, userUsername }, totalAmount, bookingId, tableSlotId);
          console.log(session)
@@ -408,6 +411,7 @@ export class userController {
             paymentStatus: "PENDING",
             bookingStatus: "PENDING",
             totalAmount,
+            guests,
          })
 
 
@@ -425,14 +429,14 @@ export class userController {
 
    async walletPayment(req: Request, res: Response, next: NextFunction) {
       console.log("wallet payment")
-      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate } = req.body
-      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate)
+      const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate, guests } = req.body
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate, guests)
       try {
          const userWallet = await walletModel.findOne({ userId: userId })
          if (!userWallet) {
             return res.status(404).json({ message: "User wallet not found" })
          }
-         const totalAmount = restaurantDatas.tableRate * restaurantDatas.guests
+         const totalAmount = restaurantDatas.tableRate * guests
          const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`
 
          if (userWallet.balance < totalAmount) {
@@ -450,7 +454,7 @@ export class userController {
 
          await userWallet.save()
 
-         
+
 
          const newBooking = new bookingModel({
             bookingId: bookingId,
@@ -463,6 +467,7 @@ export class userController {
             paymentStatus: "PAID",
             bookingStatus: "CONFIRMED",
             totalAmount,
+            guests,
          })
 
          console.log("new booking", newBooking)
@@ -652,14 +657,51 @@ export class userController {
       console.log("cancel booking controller");
       try {
          const { bookingId } = req.params
-         const { userId, cancellationReason } = req.body
-         console.log(bookingId, userId, cancellationReason)
-         const { message, status } = await this.interactor.cancelBookingInteractor(bookingId, userId, cancellationReason)
+         const { userId, cancellationReason, tableId } = req.body
+         console.log(bookingId, userId, cancellationReason, tableId)
+         const { message, status } = await this.interactor.cancelBookingInteractor(bookingId, userId, cancellationReason, tableId)
          return res.status(200).json({ message, status })
 
       } catch (error) {
          console.log(error)
          return res.status(500).json({ message: "Error in cancel booking" })
+      }
+   }
+
+
+   async restaurantInvoice(req: Request, res: Response, nectxt: NextFunction) {
+      console.log("restaurant invoice controller");
+      const { bookingId } = req.params
+      console.log(bookingId)
+      try {
+         const { message, status, invoicePdf } = await this.interactor.downloadInvoiceinteractor(bookingId)
+         if (status) {
+            // Convert the base64 string to a binary string
+            // const binaryString = atob(invoicePdf);
+
+            // Convert the binary string to a buffer
+            const pdfBuffer = Buffer.from(invoicePdf, 'base64');
+
+
+            // Validate the buffer length (optional)
+            if (pdfBuffer.length === 0) {
+               throw new Error('Buffer conversion failed, resulting in an empty buffer.');
+            }
+
+            // Set the content headers for file download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=invoice-${bookingId}.pdf`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+
+            // Send the PDF buffer
+            return res.status(200).send(pdfBuffer);
+         }
+         else {
+            return res.status(400).json({ message: "Failed to generate invoice", status });
+         }
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Error in fetching restaurant invoice" })
       }
    }
 

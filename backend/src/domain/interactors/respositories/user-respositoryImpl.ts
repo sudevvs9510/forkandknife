@@ -14,6 +14,11 @@ import mongoose from 'mongoose';
 import bookingModel from '../../../frameworks/database/models/bookingModel';
 import reviewModel from "../../../frameworks/database/models/reviewModel"
 import walletModel from '../../../frameworks/database/models/walletModel';
+import easyinvoice, { InvoiceData } from "easyinvoice";
+import { BookingDetails } from "../../entities/invoiceTypes"
+import tableSlotsModel from '../../../frameworks/database/models/restaurantTableSlotsModel';
+
+
 
 export class UserRepositoryImpl implements UserRepository {
 
@@ -279,8 +284,8 @@ export class UserRepositoryImpl implements UserRepository {
          const bookingDatas = await bookingModel.find({ userId })
             .populate('restaurantId', 'restaurantName featuredImage')
             .populate('tableId', 'tableNumber tableCapacity tableLocation')
-            .sort({ bookingDate: -1 });
-         console.log(bookingDatas)
+            .sort({ createdAt: -1 });
+         console.log("bookingDatas:",bookingDatas)
          return { message: "", bookingDatas }
       } catch (error) {
          console.log(error)
@@ -354,12 +359,12 @@ export class UserRepositoryImpl implements UserRepository {
    }
 
 
-   async cancelBooking(bookingId: string, userId: string, cancellationReason: string): Promise<{ message: string; status: boolean; }> {
+   async cancelBooking(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string; status: boolean; }> {
       console.log(bookingId)
       try {
          const bookingData = await bookingModel.findOneAndUpdate(
             { bookingId },
-            { bookingStatus: "CANCELLED",cancellationReason, paymentStatus: "REFUNDED" },
+            { bookingStatus: "CANCELLED", cancellationReason, paymentStatus: "REFUNDED" },
             { new: true }
          )
          if (!bookingData) {
@@ -368,19 +373,29 @@ export class UserRepositoryImpl implements UserRepository {
          console.log(bookingData)
          const totalAmount = bookingData.totalAmount;
 
+         if(tableId){
+            console.log("cancel tableId if")
+            const tableAvailability = await tableSlotsModel.findOneAndUpdate({tableId},{$set:{isAvailable: true}},{ new: true})
+            console.log(tableAvailability)
+         }
+         if(!tableId){
+            return { message: "Table not found", status: false };
+         }
+         
+
          const wallet = await walletModel.findOneAndUpdate(
             { userId },
-            { 
+            {
                $inc: { balance: totalAmount },
                $push: {
-                  transactions:{
+                  transactions: {
                      amount: totalAmount,
                      type: "credit",
                      createdAt: new Date(),
                      updatedAt: new Date()
                   }
                }
-             },
+            },
             { new: true }
          )
          if (!wallet) {
@@ -393,6 +408,151 @@ export class UserRepositoryImpl implements UserRepository {
          throw error
       }
    }
+
+
+
+
+   async downloadInvoice(bookingId: string): Promise<{ message: string; status: boolean; invoicePdf: string }> {
+      try {
+         const invoiceBookingDetails = await this.getInvoiceBookingDetails(bookingId);
+
+         if (!invoiceBookingDetails) {
+            throw new Error("Booking not found");
+         }
+
+         const invoiceData: InvoiceData = {
+            documentTitle: "INVOICE",
+            currency: "INR",
+            sender: {
+               company: invoiceBookingDetails.restaurantName,
+               address: invoiceBookingDetails.restaurantPlace,
+               contact: invoiceBookingDetails.restaurantContact
+            },
+            // client: {
+            //    company: invoiceBookingDetails.customerName,
+            //    email: invoiceBookingDetails.customerEmail
+            // },
+            // invoiceNumber: invoiceBookingDetails.invoiceNumber,
+            // invoiceDate: new Date().toISOString().split('T')[0],
+            client: {
+               company: invoiceBookingDetails.customerName || "N/A",
+               email: invoiceBookingDetails.customerEmail || "N/A"
+            },
+            invoiceNumber: invoiceBookingDetails.invoiceNumber || "000000",
+            invoiceDate: new Date().toISOString().split('T')[0] || "N/A",
+            products: invoiceBookingDetails.items,
+            bottomNotice: "Thank you for dining with us!",
+         };
+
+
+
+         var data = {
+            "customize": {},
+            // "images": {
+            //    "logo": "https://public.easyinvoice.cloud/img/logo_en_original.png",
+            //    "background": "https://public.easyinvoice.cloud/img/watermark-draft.jpg"
+            // },
+            "sender": {
+               "company": invoiceBookingDetails.restaurantName + "",
+               "address": invoiceBookingDetails.restaurantPlace,
+               "country": "",
+               "zip": invoiceBookingDetails.restaurantContact +  "",
+               "city": ""
+            },
+            "client": {
+               "company": invoiceBookingDetails.customerName + "",
+               "address": invoiceBookingDetails.customerEmail + "",
+               "phone": "",
+               // "country": invoiceBookingDetails.customerPhone+"" || "9207944068",
+               "zip": invoiceBookingDetails.customerPhone || "6282995964",
+               "city": ""
+            }, 
+            "information": {
+               "number": invoiceBookingDetails.bookingId.split("FKRTB-")[1]+"",
+               "date": new Date().toISOString().split('T')[0] || "N/A",
+               "due-date": "PAID"
+            },
+            "products": invoiceBookingDetails.items,
+            "bottom-notice": "Thank you for dining with us!",
+            "settings": {
+               "currency": "INR",
+            },
+            "translate": {},
+         };
+
+         console.log("invoiceData:", data)
+
+         // Generate the invoice
+         const result = await easyinvoice.createInvoice(data as any);
+
+         const invoicePdf = result.pdf; // The base64 encoded PDF string
+
+         // Return the PDF as a base64 string
+         return { message: "successfully created the invoice", status: true, invoicePdf };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
+
+
+
+
+   private async getInvoiceBookingDetails(bookingId: string): Promise<BookingDetails | null> {
+      try {
+         const bookingDetails = await bookingModel.findOne({ bookingId })
+            .populate<BookingDetails>({
+               path: 'restaurantId',
+               select: 'restaurantName contact place',
+            })
+            .populate<BookingDetails>({
+               path: 'userId',
+               select: 'username email phone',
+            })
+            .populate<BookingDetails>({
+               path: 'tableId',
+               select: 'tableNumber tableCapacity tableLocation',
+            }) as BookingDetails;
+
+         console.log("bookingDetails:", bookingDetails);
+
+         if (!bookingDetails) {
+            throw new Error("Booking not found");
+         }
+
+         return {
+            bookingId: bookingDetails.bookingId,
+            restaurantId: bookingDetails.restaurantId,
+            tableId: bookingDetails.tableId,
+            userId: bookingDetails.userId,
+            totalAmount: bookingDetails.totalAmount,
+            invoiceNumber: `${bookingDetails.bookingId}`,
+            restaurantName: bookingDetails.restaurantId.restaurantName,
+            restaurantContact: bookingDetails.restaurantId.contact,
+            restaurantPlace: bookingDetails.restaurantId.place,
+            customerName: bookingDetails.userId.username,
+            customerEmail: bookingDetails.userId.email,
+            customerPhone: bookingDetails.userId.phone || null,
+            items: [
+               {
+                  quantity: "1",
+                  description: `Table Reservation - 
+                  Table Number: ${bookingDetails.tableId.tableNumber}, 
+                  Capacity: ${bookingDetails.tableId.tableCapacity}, 
+                  Location: ${bookingDetails.tableId.tableLocation}`,
+                  tax: 0,
+                  price: bookingDetails.totalAmount,
+               }
+            ]
+         };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
+
+
+
 
 
 
