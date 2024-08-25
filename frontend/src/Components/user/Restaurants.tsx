@@ -108,9 +108,9 @@ const RestaurantList: React.FC = () => {
   const currentRestaurants = restaurants.slice(indexOfFirstRestaurant, indexOfLastRestaurant);
 
   // Function to handle page change
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
+  // const handlePageChange = (pageNumber: number) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
   // Handle next and previous page changes
   const handleNextPage = () => {

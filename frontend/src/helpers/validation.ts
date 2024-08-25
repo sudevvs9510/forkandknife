@@ -1,5 +1,6 @@
 import { FormikErrors } from "formik";
-import { credentials } from "../redux/reducers/restaurantSlices/RestaurantAuthSlice";
+import { credentials } from "../api/RestaurantApis";
+
 
 export interface UserType {
    username: string;

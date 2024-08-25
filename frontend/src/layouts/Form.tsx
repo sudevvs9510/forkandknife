@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Form = () => {
+const Form:React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   const toggleModal = () => {

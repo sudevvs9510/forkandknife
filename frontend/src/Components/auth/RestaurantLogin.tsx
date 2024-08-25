@@ -29,7 +29,7 @@ const RestaurantLoginForm: React.FC = () => {
     validate: restaurantLoginValidate,
     onSubmit: async (values) => {
       try {
-        const resultAction = await dispatch(login(values));
+        const resultAction = await dispatch(login({email:values.email as string, password: values.password as string}));
         if (login.fulfilled.match(resultAction)) {
           navigate("/restaurant/dashboard");
         } else {

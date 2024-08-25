@@ -444,7 +444,6 @@ const Chat: React.FC = () => {
   const userId = useAppSelector((state: RootState) => state.userAuth.user?._id);
   
   const {
-    conversations,
     selectedConversation,
     messages,
     onlineUsers,
