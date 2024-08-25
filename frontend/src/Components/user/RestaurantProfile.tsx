@@ -148,6 +148,14 @@ const RestaurantProfile: React.FC = () => {
 
   const { start, end } = getCurrentMonthRange();
 
+  function convertTo12HourFormat(time: string): string {
+    const [hours, minutes] = time.split(':');
+    const period = +hours >= 12 ? 'PM' : 'AM';
+    const adjustedHours = +hours % 12 || 12;
+    return `${adjustedHours}:${minutes} ${period}`;
+  }
+  
+
   if (!restaurant) {
     return <Loader />;
   }
@@ -167,11 +175,11 @@ const RestaurantProfile: React.FC = () => {
       const receiverId = restaurantId as string;
 
       // Fetch existing conversations for the user
-      const conversations = await getConversations(senderId);
-      console.log("get conversation conversationsss",conversations);
+      const response = await getConversations(senderId);
+      console.log("get conversation conversationsss",response);
 
       // Check if a conversation already exists with the restaurant
-      let existingConversation = conversations.find(
+      let existingConversation = response.conversation.find(
         (conversation: any) =>
           conversation.members.includes(senderId) && conversation.members.includes(receiverId)
       );
@@ -259,6 +267,13 @@ const RestaurantProfile: React.FC = () => {
                 <div className="bg-white py-2 rounded-lg ">
                 <h2 className="text-2xl font-bold mb-4">About Restaurant</h2>
                   <p className="text-gray-700">{restaurant.description}</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="bg-white py-2 rounded-lg ">
+                <h2 className="text-2xl font-bold mb-4">Opening & Closing Time</h2>
+                  <p className="text-teal-700 font-bold">{convertTo12HourFormat(restaurant.openingTime)} - {convertTo12HourFormat(restaurant.closingTime)}</p>
                 </div>
               </div>
 

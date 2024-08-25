@@ -2,6 +2,23 @@ import { Request, Response, NextFunction } from 'express'
 import messageModel from '../../frameworks/database/models/messageModel';
 import conversationModel from "../../frameworks/database/models/conversationModel"
 
+// export async function getConversationMembers(req: Request, res: Response, next: NextFunction) {
+//    try {
+//       const { userId } = req.params
+//       console.log('Fetching conversations for userId:', userId);
+//       const conversation = await conversationModel.find({
+//          members: { $in: [userId] }
+//       })
+//       console.log('Conversations found:', conversation);
+
+//       return res.status(200).json(conversation)
+//    } catch (error) {
+//       console.log("Error fetching chat messages:", error)
+//       return res.status(500).json({ message: 'Error fetching chat messages', error })
+//    }
+// }
+
+
 export async function getConversationMembers(req: Request, res: Response, next: NextFunction) {
    try {
       const { userId } = req.params
@@ -11,12 +28,34 @@ export async function getConversationMembers(req: Request, res: Response, next: 
       })
       console.log('Conversations found:', conversation);
 
-      return res.status(200).json(conversation)
+      const unseenMessageCount = await messageModel.aggregate([
+         {
+            $match: {
+               conversationId: { $in: conversation.map((convo: { _id: any; }) => convo._id.toString()) },
+               seen: false,
+               sender: { $ne: userId }
+            }
+         },
+         {
+            $group: {
+               _id: "$conversationId",
+               count: { $sum: 1 }
+            }
+         }
+      ]);
+      console.log(unseenMessageCount)
+
+      return res.status(200).json({ conversation, unseenMessageCount })
    } catch (error) {
       console.log("Error fetching chat messages:", error)
       return res.status(500).json({ message: 'Error fetching chat messages', error })
    }
 }
+
+
+
+
+
 
 
 export async function addConversationMembers(req: Request, res: Response, next: NextFunction) {
@@ -51,6 +90,8 @@ export async function addConversationMembers(req: Request, res: Response, next: 
 }
 
 
+
+
 export async function addChatMessages(req: Request, res: Response, next: NextFunction) {
    try {
       const newMessage = new messageModel(req.body)
@@ -83,13 +124,13 @@ export async function getChatMessages(req: Request, res: Response, next: NextFun
    }
 }
 
-export async function messageSeenUpdate (req:Request, res:Response, next:NextFunction){
-   try{
-      const {messageId} = req.params
-      const updatedMessage = await messageModel.findByIdAndUpdate(messageId, {seen:true}, {new:true})
+export async function messageSeenUpdate(req: Request, res: Response, next: NextFunction) {
+   try {
+      const { messageId } = req.params
+      const updatedMessage = await messageModel.findByIdAndUpdate(messageId, { seen: true }, { new: true })
       return res.status(200).json(updatedMessage)
-   } catch(error){
+   } catch (error) {
       console.log(error)
-      return res.status(500).json({ message:"Error ",error})
+      return res.status(500).json({ message: "Error ", error })
    }
 }
