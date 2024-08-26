@@ -65,11 +65,12 @@ export class adminController {
 
    async approveRestaurant(req: Request, res: Response, next: NextFunction) {
       console.log("Get approve restaurant")
-      const { id } = req.params
+      const { restaurantId } = req.params
+      console.log("Restaurant ID:", restaurantId)
       try {
-         const restaurantId = id.split(":")
-         console.log("Restaurant ID:", restaurantId[1])
-         const { message, restaurants } = await this.interactor.getRestaurantDetailsInteractor(restaurantId[1])
+         // const restaurantId = id.split(":")
+         
+         const { message, restaurants } = await this.interactor.getRestaurantDetailsInteractor(restaurantId)
          return res.status(200).json({ message, restaurants })
       } catch (error) {
          console.log("Error during admin get restaurant controller", error)
@@ -79,11 +80,10 @@ export class adminController {
 
    async restaurantApprovalConfirmation(req: Request, res: Response, next: NextFunction) {
       console.log("Restaurant approval confirmation controller")
-      const id = req.params.id
+      const {restaurantId} = req.params
       try {
-         const restaurantId = id.split(":");
-         console.log(restaurantId[1])
-         const { message, success } = await this.interactor.approvalRestaurantInteractor(restaurantId[1])
+         console.log("restaurantId:::",restaurantId)
+         const { message, success } = await this.interactor.approvalRestaurantInteractor(restaurantId)
          return res.status(200).json({ message, success })
       } catch (error) {
          console.log("Error during admin- restaurant approval controller", error)

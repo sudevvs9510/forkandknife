@@ -17,7 +17,7 @@ const nodemailerEmailSeller = async (email: string) : Promise <{success: boolean
       from: process.env.MAILER_USER,
       to: `${email}`,
       subject: "Fork & Knife",
-      html:`<p>Your registration on Fork & Knife is completed, wait for the confirmation</p>`
+      html:`<p>Your registration on Fork & Knife is completed, wait for the admin confirmation.</p>`
    }
 
    try{

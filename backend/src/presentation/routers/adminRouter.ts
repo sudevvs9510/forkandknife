@@ -23,10 +23,10 @@ adminRouter.patch("/block-restaurant", controller.blockRestaurant.bind(controlle
 adminRouter.get('/restaurants-approval-lists', authenticateToken('admin') ,controller.approveRestaurantList.bind(controller))
 
 
-adminRouter.get("/restaurant-approval/:adminId", authenticateToken('admin') ,controller.approveRestaurant.bind(controller))
-adminRouter.put("/restaurant-approval/:adminId", authenticateToken('admin') , controller.restaurantApprovalConfirmation.bind(controller))
+adminRouter.get("/restaurant-approval/:restaurantId", authenticateToken('admin') ,controller.approveRestaurant.bind(controller))
+adminRouter.put("/restaurant-approval/:restaurantId", authenticateToken('admin') , controller.restaurantApprovalConfirmation.bind(controller))
 
-adminRouter.put('/restaurant-reject/:adminId', authenticateToken('admin') ,controller.restaurantRejection.bind(controller))
+adminRouter.put('/restaurant-reject/:restaurantId', authenticateToken('admin') ,controller.restaurantRejection.bind(controller))
 
 
 adminRouter.get("/user-management",authenticateToken('admin'),controller.getUserLists.bind(controller))

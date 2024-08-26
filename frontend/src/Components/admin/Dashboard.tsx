@@ -24,6 +24,10 @@ const AdminDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [reportPeriod, setReportPeriod] = useState<string>('Month');
 
+  console.log("url logs1", import.meta.env.VITE_APP_BASE_URL)
+  console.log("url logs2", import.meta.env.VITE_APP_JWT_SECRET_KEY)
+  console.log("url logs3", import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN)
+  console.log("url logs4", import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
