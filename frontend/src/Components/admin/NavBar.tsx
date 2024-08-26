@@ -56,6 +56,8 @@ import React, { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../redux/app/store';
 import { logout } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
 import { Link, useNavigate } from 'react-router-dom';
+import logo from "../../assets/images/logo.png"
+
 
 const NavBar: React.FC = () => {
   const [isAdminLoggedIn, setisAdminLoggedIn] = useState(false);
@@ -79,8 +81,10 @@ const NavBar: React.FC = () => {
   };
 
   return (
-    <header className="bg-teal-600 text-white flex justify-between items-center p-4 w-full">
-      <h1 className="text-2xl font-bold">Fork & Knife</h1>
+    <header className="bg-[#008376] text-white flex justify-between items-center px-4 w-full">
+      {/* <h1 className="text-2xl font-bold">Fork & Knife</h1> */}
+      <img src={logo} className='h-[75px]' alt="logo" />
+
       <div>
         {isAdminLoggedIn ? (
           <button

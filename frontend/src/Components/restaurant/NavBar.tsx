@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../redux/app/store';
 import { logout } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
 import { Link } from 'react-router-dom';
+import logo from "../../assets/images/logo.png"
 
 const NavBar: React.FC = () => {
 
@@ -24,8 +25,9 @@ const NavBar: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-teal-600 text-white  flex flex-shrink-0 justify-between p-4">
-      <h1 className="text-2xl font-bold">Fork & Knife</h1>
+    <div className="w-full bg-[#008376] text-white  flex flex-shrink-0 justify-between px-4">
+      {/* <h1 className="text-2xl font-bold">Fork & Knife</h1> */}
+      <img src={logo} className='h-[75px]' alt="logo" />
       <div className='flex items-center'>
         {isRestaurantLoggedIn ? (
           <button

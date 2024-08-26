@@ -6,6 +6,7 @@ import { FaTimes } from "react-icons/fa";
 import { CiMenuBurger } from 'react-icons/ci';
 import { useAppDispatch, useAppSelector } from '../../redux/app/store';
 import { logout } from '../../redux/reducers/userSlices/UserAuthSlice';
+import logo from "../../assets/images/logo.png"
 
 const Navbar: React.FC = () => {
   const [click, setClick] = useState(false);
@@ -61,11 +62,12 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-[#008376] text-white fixed top-0 w-full z-40">
-      <div className="flex justify-between items-center h-10vh lg:py-5 px-4 lg:px-20 py-4 transition-all duration-300 ease-in-out">
+      <div className="flex justify-between items-center h-10vh  px-4 lg:px-20  transition-all duration-300 ease-in-out">
 
         <div className='flex items-center flex-1'>
           <Link to='/'>
-          <span className='text-2xl font-bold text-white'>Fork & Knife</span>
+          {/* <span className='text-2xl font-bold text-white'>Fork & Knife</span> */}
+          <img src={logo} className='h-[75px]' alt="logo" />
           </Link>
         </div>
 

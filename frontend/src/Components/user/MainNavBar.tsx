@@ -91,6 +91,7 @@
 
 import React, { useState } from 'react';
 import { FaMapMarkerAlt, FaSearch, FaTimes } from 'react-icons/fa';
+import logo from "../../assets/images/logo.png"
 
 const MainNavBar: React.FC = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -112,7 +113,8 @@ const MainNavBar: React.FC = () => {
   return (
     <nav className="fixed top-0 w-full z-10 flex items-center justify-between p-4 bg-teal-600 shadow">
       <div className="flex items-center">
-        <div className="text-2xl font-bold text-white">Fork & Knife</div>
+        {/* <div className="text-2xl font-bold text-white">Fork & Knife</div> */}
+        <img src={logo} alt="logo" />
       </div>
 
       {/* Centering the search section for screens above 840px */}
