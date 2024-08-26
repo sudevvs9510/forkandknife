@@ -13,7 +13,7 @@ import background from '../../assets/images/pexels-photo-776538.webp';
 
 // import Cookies from "js-cookie"
 
-import authAxios from '../../redux/api/authApi';
+
 const LoginForm: React.FC = () => {
   removeStorageItem('otpSession');
   const dispatch = useDispatch<AppDispatch>();
@@ -29,13 +29,13 @@ const LoginForm: React.FC = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    const verify = async () => {
-      const res = await authAxios.get('/verify')
-      if (res.status === 200) return navigate("/");
-    }
-    verify()
-  }, [ ])
+  // useEffect(() => {
+  //   const verify = async () => {
+  //     const res = await authAxios.get('/verify')
+  //     if (res.status === 200) return navigate("/");
+  //   }
+  //   verify()
+  // }, [ ])
 
   const formik = useFormik({
     initialValues: {

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, {  useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -9,23 +9,29 @@ import { signup } from '../../redux/reducers/userSlices/UserAuthSlice';
 import { validateSignup } from '../../helpers/validation';
 import { setStorageItem } from '../../util/localStorage';
 import background from '../../assets/images/pexels-photo-776538.webp';
-import authAxios from '../../redux/api/authApi';
+// import authAxios from '../../redux/api/authApi';
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loading, error } = useSelector((state: RootState) => state.userAuth);
+  const { token,loading, error } = useSelector((state: RootState) => state.userAuth);
 
 
   useEffect(() => {
-    const verify = async () => {
-      const res = await authAxios.get('/verify')
-      if (res.status === 200) return navigate("/")
+    if (token) {
+      navigate('/');
     }
-    verify()
-  }, [])
+  }, [navigate]);
+
+  // useEffect(() => {
+  //   const verify = async () => {
+  //     const res = await authAxios.get('/verify')
+  //     if (res.status === 200) return navigate("/")
+  //   }
+  //   verify()
+  // }, [])
 
   const formik = useFormik({
     initialValues: {

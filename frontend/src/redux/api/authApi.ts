@@ -5,7 +5,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import userLogout from "../../util/Logout"
 import restaurantLogout from '../../util/RestaurantLogout';
 import adminLogout from "../../util/AdminLogout";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 axios.defaults.withCredentials = true;
 
