@@ -5,13 +5,12 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import userLogout from "../../util/Logout"
 import restaurantLogout from '../../util/RestaurantLogout';
 import adminLogout from "../../util/AdminLogout";
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 axios.defaults.withCredentials = true;
 
 const authAxios = axios.create({
-  baseURL: "http://localhost:4000",
-  // baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -59,7 +58,7 @@ authAxios.interceptors.response.use(
       originalRequest._retry = true;
       try {
         console.log('Token expired, attempting to refresh token');
-        const res = await axios.post('http://localhost:4000/token/refresh-token', null, {
+        const res = await axios.post(`${import.meta.env.API_BASE_URL}/token/refresh-token`, null, {
           withCredentials: true
         });
         console.log(res)

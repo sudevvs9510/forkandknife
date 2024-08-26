@@ -27,7 +27,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   useEffect(() => {
     const id = userId || restaurantId;
     if (!socket) {
-      const response = io("http://localhost:4000")
+      const response = io(import.meta.env.VITE_APP_BASE_URL)
       console.log(response)
       setSocket(response)
     }
