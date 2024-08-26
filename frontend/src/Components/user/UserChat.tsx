@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IoIosSend, IoMdClose } from 'react-icons/io';
 import { BsCheck, BsCheck2All } from 'react-icons/bs';
 import { format } from 'timeago.js';
@@ -8,6 +9,7 @@ import { RootState, useAppSelector } from '../../redux/app/store';
 import dayjs from 'dayjs'; 
 
 const Chat: React.FC = () => {
+  const location = useLocation();
   const userId = useAppSelector((state: RootState) => state.userAuth.user?._id);
   
   const {
@@ -43,6 +45,18 @@ const Chat: React.FC = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+
+  useEffect(()=>{
+    // Check id we need to open a specific conversation 
+    const state = location.state as { conversationId?: string; openConversation?:boolean};
+    if(state?.conversationId && state?.openConversation){
+      const conversation = filteredConversations.find(conv => conv._id === state.conversationId)
+      if(conversation){
+        handleSelectConversation(conversation)
+      }
+    }
+  },[location, filteredConversations])
 
   if (!userId) {
     return <div>Please log in</div>;
