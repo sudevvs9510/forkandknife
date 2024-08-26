@@ -36,8 +36,8 @@ export const createWalletTopUpPayment = async (userData: UserData, amount: numbe
         userId: userId,
         amount: amount.toString()
       },
-      success_url: `http://localhost:3000/profile/${userData.userId}/wallet?status=success`,
-      cancel_url: `http://localhost:3000/profile/${userData.userId}/wallet?status=failure`,
+      success_url: `${process.env.ORIGIN}/profile/${userData.userId}/wallet?status=success`,
+      cancel_url: `${process.env.ORIGIN}/profile/${userData.userId}/wallet?status=failure`,
     });
 
     return session;

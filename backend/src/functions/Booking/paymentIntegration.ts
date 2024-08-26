@@ -31,8 +31,8 @@ export const createPayment = async (userData: userData, totalAmount: number, boo
         },
       ],
       mode: 'payment',
-      success_url: `http://localhost:3000/payment-success?bookingId=${bookingId}&tableSlotId=${tableSlotId}&status=true`,
-      cancel_url: `http://localhost:3000/payment-failure?bookingId=${bookingId}&tableSlotId=${tableSlotId}&status=false`,
+      success_url: `${process.env.ORIGIN}/payment-success?bookingId=${bookingId}&tableSlotId=${tableSlotId}&status=true`,
+      cancel_url: `${process.env.ORIGIN}/payment-failure?bookingId=${bookingId}&tableSlotId=${tableSlotId}&status=false`,
 
     })
     return session

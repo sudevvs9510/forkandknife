@@ -5,8 +5,8 @@ const nodeMailerRestaurantRejectMail = async (email: string): Promise<{success: 
    const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-         user: "sudevvs1999@gmail.com",
-         pass: "vgqa lnmt ssyq ivrk"
+         user: process.env.MAILER_USER,
+         pass: process.env.MAIL_PASS
       },
       tls: {
          rejectUnauthorized: false
@@ -14,7 +14,7 @@ const nodeMailerRestaurantRejectMail = async (email: string): Promise<{success: 
    })
 
    const rejectionMailOptions: nodemailer.SendMailOptions = {
-    from: 'sudevvs1999@gmail.com',
+    from: process.env.MAILER_USER,
     to: `${email}`,
     subject: "Fork & Knife - Restaurant Registration",
     html: `<p>We regret to inform you that your restaurant registration has been rejected.</p>

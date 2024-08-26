@@ -5,8 +5,8 @@ const nodemailerEmailSeller = async (email: string) : Promise <{success: boolean
    const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-         user: 'sudevvs1999@gmail.com',
-         pass: 'vgqa lnmt ssyq ivrk'
+         user: process.env.MAILER_USER,
+         pass: process.env.MAIL_PASS
       },
       tls: {
          rejectUnauthorized: false
@@ -14,7 +14,7 @@ const nodemailerEmailSeller = async (email: string) : Promise <{success: boolean
    });
 
    const mailOptions : nodemailer.SendMailOptions = {
-      from: 'sudevvs1999@gmail.com',
+      from: process.env.MAILER_USER,
       to: `${email}`,
       subject: "Fork & Knife",
       html:`<p>Your registration on Fork & Knife is completed, wait for the confirmation</p>`

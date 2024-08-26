@@ -5,8 +5,8 @@ const nodeMailerRestaurantApprovalMail = async (email: string): Promise<{success
    const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-         user: "sudevvs1999@gmail.com",
-         pass: "vgqa lnmt ssyq ivrk"
+         user: process.env.MAILER_USER,
+         pass: process.env.MAIL_PASS
       },
       tls: {
          rejectUnauthorized: false
@@ -14,11 +14,11 @@ const nodeMailerRestaurantApprovalMail = async (email: string): Promise<{success
    })
 
    const mailOptions : nodemailer.SendMailOptions = {
-      from : 'sudevvs1999@gmail.com',
+      from : process.env.MAILER_USER,
       to: `${email}`,
       subject: "Fork & Knife",
       html: `<p>Thank you for using our service. As requested , your restaurant is confirmed</p>
-      <h2 style="color : green"><strong><a href='http://localhost:3000/restaurant/login'>Login to your account</a></strong></h2>
+      <h2 style="color : green"><strong><a href=${process.env.ORIGIN}'/restaurant/login'>Login to your account</a></strong></h2>
 
       <p>Thank you,</p>
       <p>Fork & Knife</p>`,

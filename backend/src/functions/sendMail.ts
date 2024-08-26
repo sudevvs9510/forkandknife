@@ -7,8 +7,8 @@ export const createNodemailerOtp = async (email: string, otp: number): Promise<{
    const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-         user: "sudevvs1999@gmail.com",
-         pass: 'vgqa lnmt ssyq ivrk',
+         user: process.env.MAILER_USER,
+         pass: process.env.MAIL_PASS
       },
       tls: {
          rejectUnauthorized: false
@@ -16,7 +16,7 @@ export const createNodemailerOtp = async (email: string, otp: number): Promise<{
    });
 
    const mailOptions = {
-      from: 'sudevvs1999@gmail.com',
+      from: process.env.MAILER_USER,
       to: email,
       subject: 'Signup verification mail from Fork & Knife',
       text: `Your otp for verification is ${otp}`
