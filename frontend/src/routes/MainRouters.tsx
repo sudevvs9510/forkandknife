@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Loader from '../Components/Loader';  
 
 // user components
@@ -51,6 +51,10 @@ const UserProtected = lazy(() => import("./UserProtected"));
 const RestaurantProtected = lazy(() => import("./RestaurantProtected"));
 const AdminProtected = lazy(() => import("./AdminProtected"));
 
+
+//error routes
+import NotFoundPage from "../Components/Notfound.tsx"
+
 const MainRouter:React.FC = () => {
   return (
     <Suspense fallback={<Loader />}>
@@ -60,8 +64,8 @@ const MainRouter:React.FC = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<Otp />} />
         <Route path="/" element={<UserProtected element={<Home />} allowedRoles={['user']} />} />
-        <Route path="/profile/:userId/*" element={<UserProtected element={<UserProfile />} allowedRoles={['user']} />} />
-        <Route path="*" element={<Navigate  to="/profile/:userId" />} />
+        <Route path="/profile/:userId/:data" element={<UserProtected element={<UserProfile />} allowedRoles={['user']} />} />
+       
         
 
         <Route path="/restaurant-view/:restaurantId" element={<UserProtected  element={<RestaurantProfile />} allowedRoles={['user']} />} />
@@ -102,6 +106,10 @@ const MainRouter:React.FC = () => {
         <Route path="restaurant/tableslots/:tableId" element={<RestaurantProtected element={<TableSlots />} allowedRoles={['restaurant']} />} />
         <Route path="/restaurant/time-slots" element={<RestaurantProtected element={<TimeSlotManagement />} allowedRoles={['restaurant']} />} />
         <Route path="/restaurant/chat" element={<RestaurantProtected element={<RestaurantChat />} allowedRoles={['restaurant']} />} />
+      
+      
+      
+        <Route path="*" element={<NotFoundPage/>} />
       </Routes>
     </Suspense>
   );

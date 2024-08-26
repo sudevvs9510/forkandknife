@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // import React, { useEffect, useState } from 'react';
 // import { FaUser, FaHistory } from 'react-icons/fa';
@@ -155,7 +156,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FaUser, FaHistory } from 'react-icons/fa';
-import { Link, useParams, Routes, Route } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchUserProfile, updateUserDetails } from "../../api/api";
 import toast from 'react-hot-toast';
 import ProfileDetails from './UserProfileDetails';
@@ -163,8 +164,11 @@ import BookingHistory from './BookingHistory';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { CiWallet } from 'react-icons/ci';
 import Wallet from './Wallet';
+type DataType = (type: "about-user" | "booking" | "wallet") => void;
 
 const ProfilePage: React.FC = () => {
+
+    const { data } = useParams()
     const [user, setUser] = useState({
         username: '',
         phone: '',
@@ -176,10 +180,15 @@ const ProfilePage: React.FC = () => {
         phone: '',
         email: '',
     });
-
+    const navigate = useNavigate()
     const { userId } = useParams<{ userId: string }>();
-
     useEffect(() => {
+        function validateData(data: any): data is DataType {
+            return ["about-user", "booking", "wallet"].includes(data);
+        }
+        if(!validateData(data)) {
+            return navigate(`/not-found`)
+        }
         const fetchUserData = async () => {
             try {
                 const userData = await fetchUserProfile(userId as string);
@@ -259,15 +268,15 @@ const ProfilePage: React.FC = () => {
                             <nav className="w-full md:w-1/4 flex flex-col md:flex-col space-y-2 md:space-y-2">
                                 <ul className="flex flex-row md:flex-col w-full md:w-auto md:space-y-2 space-x-2 md:space-x-0">
                                     <li className="w-full md:w-auto">
-                                        <Link to="about-user">
-                                            <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('about-user') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
+                                        <Link to={`/profile/${userId}/about-user`}>
+                                            <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${data === 'about-user' ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
                                                 <FaUser className="mr-2 text-xl md:text-2xl" />
                                                 <span className="hidden md:inline">Profile</span>
                                             </button>
                                         </Link>
                                     </li>
                                     <li className="w-full md:w-auto">
-                                        <Link to="booking">
+                                        <Link to={`/profile/${userId}/booking`}>
                                             <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('booking') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
                                                 <FaHistory className="mr-2 text-xl md:text-2xl" />
                                                 <span className="hidden md:inline">Booking History</span>
@@ -275,7 +284,7 @@ const ProfilePage: React.FC = () => {
                                         </Link>
                                     </li>
                                     <li className="w-full md:w-auto">
-                                        <Link to="wallet">
+                                        <Link to={`/profile/${userId}/wallet`}>
                                             <button className={`flex items-center justify-center w-full p-4 text-left rounded-lg hover:bg-teal-600 ${window.location.pathname.includes('wallet') ? 'bg-teal-600 text-white' : 'bg-gray-200'}`}>
                                                 <CiWallet className="mr-2 text-xl md:text-2xl" />
                                                 <span className="hidden md:inline">Wallet</span>
@@ -296,11 +305,9 @@ const ProfilePage: React.FC = () => {
                             {/* Right section */}
                             <div className="w-full md:w-3/4">
                                 <div className="bg-white p-6 rounded-lg shadow-lg">
-                                    <Routes>
-                                        <Route path="about-user" element={<ProfileDetails user={user} handleInputChange={handleInputChange} handleSubmit={handleSubmit} isFormDirty={isFormDirty} />} />
-                                        <Route path="booking" element={<BookingHistory userId={userId as string} />} />
-                                        <Route path="wallet" element={<Wallet userId={userId as string} />} />
-                                    </Routes>
+                                    {data === "about-user" && <ProfileDetails user={user} handleInputChange={handleInputChange} handleSubmit={handleSubmit} isFormDirty={isFormDirty} />}
+                                    {data === "booking" && <BookingHistory userId={userId as string} />}
+                                    {data === "wallet" && <Wallet userId={userId as string} />}
                                 </div>
                             </div>
                         </div>
