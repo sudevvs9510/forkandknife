@@ -67,7 +67,7 @@ export const fetchLocationData = createAsyncThunk(
   async (query: string) => {
     try {
       const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${
-        import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN
+        import.meta.env.VITE_MAPBOX_API_KEY
       }`);
       const data = await res.json();
       return data.features;

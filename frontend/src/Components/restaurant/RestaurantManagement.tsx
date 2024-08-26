@@ -41,7 +41,7 @@ const RestaurantDetails: React.FC = () => {
 
   console.log("url logs1", import.meta.env.VITE_APP_BASE_URL)
   console.log("url logs2", import.meta.env.VITE_APP_JWT_SECRET_KEY)
-  console.log("url logs3", import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN)
+  console.log("url logs3", import.meta.env.VITE_MAPBOX_API_KEY)
   console.log("url logs4", import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY)
 
   useEffect(() => {

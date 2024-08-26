@@ -9,7 +9,7 @@ import { HiLocationMarker } from 'react-icons/hi';
 
 
 
-const mapboxToken = import.meta.env.VITE_APP_MAP_BOX_ACCESS_TOKEN;
+const mapboxToken = import.meta.env.VITE_MAPBOX_API_KEY;
 
 interface GoogleMapProps {
   longitude: any;
