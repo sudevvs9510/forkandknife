@@ -23,7 +23,7 @@ const authenticateToken = (requiredRole: 'user' | 'restaurant' | 'admin') => {
     console.log(token)
     if (!token) {
       console.log("No token found");
-      return res.status(401).json({ message: 'No token provided' });
+      return res.status(401).json({ message: 'Authentication required' });
     }
 
     const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET_KEY as string  ;

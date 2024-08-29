@@ -317,7 +317,7 @@ export class sellerRepository implements restaurantRepository {
 
    async addTimeSlot(timeSlotDatas: timeSlotTypes): Promise<{ message: string, status: boolean }> {
       try {
-         console.log()
+         console.log("Repository received data:", timeSlotDatas);
          const { slotStartTime, slotEndTime, restaurantId } = timeSlotDatas
          console.log("Time slot data received:", slotStartTime, slotEndTime, restaurantId);
 
@@ -326,7 +326,7 @@ export class sellerRepository implements restaurantRepository {
             return { message: "Restaurant not found, please try again later", status: false }
          }
 
-         if(slotStartTime > slotEndTime){
+         if(slotStartTime >= slotEndTime){
             return { message:"End time must be after start time", status:false}
          }
 

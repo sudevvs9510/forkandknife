@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import axios from "axios";
 import { RestaurantValues } from "../helpers/validation";
@@ -194,12 +195,17 @@ export const getTimeSlot = async () => {
 
 export const addTimeSlot = async (slotAddingDatas: TimeSlotTypes) => {
   try {
-    const { data: { message, status } } = await authAxios.post("restaurant/add-time-slot", slotAddingDatas)
-    console.log(slotAddingDatas)
-    return { data: { message, status } }
-  } catch (error) {
-    console.log(error)
-    throw error
+    console.log("Sending data to server:", slotAddingDatas);
+    const response = await authAxios.post("restaurant/add-time-slot", slotAddingDatas)
+    console.log("Server response:", response.data);
+    return response.data
+  } catch (error: any) {
+    console.error("Error in addTimeSlot:", error);
+    if (error.response) {
+      console.error("Server error response:", error.response.data);
+      return error.response.data;
+    }
+    throw error;
   }
 }
 

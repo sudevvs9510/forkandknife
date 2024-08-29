@@ -6,7 +6,7 @@ export const restaurantBlock = async (req:Request, res:Response, next: NextFunct
   console.log("Restaurant block middleware")
   try{
     const restaurantId = req.userId
-    console.log("blocke restaurantId:",restaurantId)
+    console.log("blocked restaurantId:",restaurantId)
     const restaurant = await restaurantModel.findOne({_id: restaurantId})
 
     if(restaurant && restaurant.isBlocked){

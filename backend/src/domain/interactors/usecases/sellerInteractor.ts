@@ -141,7 +141,9 @@ export class sellerInteractor implements restaurantInteractor {
 
    async addTimeSlotInteractor(timeSlotDatas: timeSlotTypes): Promise<{ message: string; status: boolean; }> {
       try {
+         console.log("Interactor received data:", timeSlotDatas);
          const { status, message } = await this.repository.addTimeSlot(timeSlotDatas)
+         console.log("Repository response:", { status, message });
          return { status, message }
       } catch (error) {
          console.group("Error in add time slot interactor", error)

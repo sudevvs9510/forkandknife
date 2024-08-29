@@ -216,6 +216,7 @@ export class restaurantController {
       console.log("Restaurant ID:", restaurantId);
       try {
          const { message, status } = await this.interactor.addTimeSlotInteractor({ slotStartTime, slotEndTime, restaurantId, timeSlotId: "" })
+         console.log("Interactor response:", { message, status });
          return res.status(200).json({ message, status })
       } catch (error) {
          console.log(error)
