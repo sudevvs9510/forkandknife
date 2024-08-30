@@ -9,7 +9,7 @@ export async function refreshAccessToken(req: Request, res: Response){
   const refreshToken = req.cookies.RefreshAuthToken
   console.log("refreshToken:", refreshToken)
   if(!refreshToken){
-    return res.status(402).json({ message: 'No refresh token provided'})
+    return res.status(403).json({ message: 'No refresh token provided'})
   }
 
   const decoded = verifyRefreshToken(refreshToken)
