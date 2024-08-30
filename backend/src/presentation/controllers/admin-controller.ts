@@ -18,6 +18,7 @@ export class adminController {
          res.cookie("RefreshAuthToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: 'none',
             maxAge: 86400000
          });
 
@@ -137,7 +138,7 @@ export class adminController {
          res.clearCookie("RefreshAuthToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
          })
          return res.status(200).json({ message: "Logout successfull" })
       } catch (error) {

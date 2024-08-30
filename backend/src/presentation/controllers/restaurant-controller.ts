@@ -36,11 +36,18 @@ export class restaurantController {
             return res.status(500).json({ message, token: null })
          }
 
+         // res.cookie("RefreshAuthToken", refreshtoken, {
+         //    httpOnly: true,
+         //    secure: process.env.NODE_ENV === "production",
+         //    sameSite: 'None',
+         //    maxAge: 86400000
+         // });
          res.cookie("RefreshAuthToken", refreshtoken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            maxAge: 86400000
-         });
+            sameSite: 'none', // Use lowercase 'none'
+            maxAge: 86400000,
+          });
 
          // setCookieAuthToken(res, "RefreshAuthToken", token);
          console.log("restaurnatLogin:", restaurant, token)
@@ -277,7 +284,7 @@ export class restaurantController {
          res.clearCookie("RefreshAuthToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
          })
          return res.status(200).json({ message: "Logout successfull" })
       } catch (error) {
