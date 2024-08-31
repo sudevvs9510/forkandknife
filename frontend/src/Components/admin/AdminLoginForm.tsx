@@ -6,6 +6,8 @@ import { useAppDispatch, useAppSelector } from '../../redux/app/store';
 import { adminLogin } from '../../redux/reducers/adminSlices/AdminAuthSlice';
 import background from '../../assets/images/pexels-photo-776538.webp';
 import authAxios from '../../redux/api/authApi';
+import logoWhite from "../../assets/images/logoWhite.png"
+
 
 interface Credentials {
   email: string;
@@ -61,10 +63,10 @@ const AdminLoginForm: React.FC = () => {
     <div className="h-screen bg-gray-100 overflow-hidden text-gray-900 flex justify-center">
       <div className="w-full bg-white shadow sm:rounded-lg flex h-full justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-          <div>
-            <h2 className="flex flex-col items-center text-[#05554D] font-bold text-2xl">Fork & Knife</h2>
+          <div className='flex flex-col items-center justify-center'>
+          <img src={logoWhite} className='h-[110px] ' alt="logo" />
           </div>
-          <div className="mt-12 flex flex-col items-center">
+          <div className="mt-5 flex flex-col items-center">
             <div className="w-full flex-1 mt-8">
               <p className="flex flex-col items-center mb-5 text-[#008376] font-bold text-2xl">Admin Login</p>
               <div className="mx-auto max-w-xs">

@@ -7,6 +7,8 @@ import background from "../../assets/images/pexels-photo-776538.webp";
 import { useAppDispatch } from "../../redux/app/store";
 import { login } from "../../redux/reducers/restaurantSlices/RestaurantAuthSlice";
 import authAxios from "../../redux/api/authApi";
+import logoWhite from "../../assets/images/logoWhite.png"
+
 
 const RestaurantLoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -50,12 +52,10 @@ const RestaurantLoginForm: React.FC = () => {
     <div className="h-screen bg-gray-100 overflow-hidden text-gray-900 flex justify-center">
       <div className="w-full bg-white shadow sm:rounded-lg flex h-full justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-          <div>
-            <h2 className="flex flex-col items-center text-green-600 font-bold text-2xl">
-              Fork & Knife
-            </h2>
+          <div className="flex flex-col items-center justify-center">
+          <img src={logoWhite} className='h-[110px] ' alt="logo" />
           </div>
-          <div className="mt-12 flex flex-col items-center">
+          <div className="mt-5 flex flex-col items-center">
             <p className="text-2xl font-bold mb-3 text-[#00655B]">
               Restaurant Login
             </p>
