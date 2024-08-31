@@ -69,11 +69,7 @@ const restaurantSchema = new mongoose.Schema(
     },
     featuredImage: String,
 
-    secondaryImages: [
-      {
-        type: String,
-      },
-    ],
+    secondaryImages: [String],
     verificationToken: String,
   },
   { timestamps: true }
