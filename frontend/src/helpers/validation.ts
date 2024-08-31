@@ -1,5 +1,6 @@
 import { FormikErrors } from "formik";
 import { credentials } from "../api/RestaurantApis";
+// import Secondaryimages from "../layouts/Secondaryimage";
 
 
 export interface UserType {
@@ -180,7 +181,7 @@ export interface RestaurantValues {
   openingTime: string;
   TableRate: string;
   secondaryImages: (File | string)[];
-  featuredImage: File | string;
+  featuredImage: string | File;
 }
 
 
@@ -301,6 +302,7 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
 
   // Validate featuredImage
   if (!values.featuredImage) {
+    console.log(values.featuredImage)
     errors.featuredImage = "Featured image is required!";
   } else if (
     !(values.featuredImage instanceof File) &&
@@ -311,6 +313,7 @@ export const sellerRegistrationValidation = (values: RestaurantValues) => {
 
   // Validate secondaryImages
   if (!values.secondaryImages || values.secondaryImages.length === 0) {
+    console.log(values.secondaryImages)
     errors.secondaryImages = "Secondary images are required!";
   } else if (
     !values.secondaryImages.every(

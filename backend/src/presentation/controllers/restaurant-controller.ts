@@ -92,6 +92,38 @@ export class restaurantController {
       }
    }
 
+   async restaurantFeaturedImageRemove(req:Request, res:Response, next:NextFunction){
+      console.log("restaurant featured Image Remove controller")
+      const { restaurantId, featuredImage }= req.body
+      try{
+         const {message, status} = await this.interactor.removeFeaturedImageInteractor(restaurantId, featuredImage)
+         if(!restaurantId){
+            return res.status(403).json({message, status})
+         }
+         return res.status(201).json({ message:"Succssfully removed the featuredImage ", status:true})
+
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({message: "Error during removing featuredImage "})
+      }
+   }
+
+   async restaurantSecondaryImageRemove(req:Request, res:Response, next:NextFunction){
+      console.log("restaurant Secondary Image Remove controller")
+      const { restaurantId, secondaryImage }= req.body
+      try{
+         const {message, status} = await this.interactor.removeSecondaryImageInteractor(restaurantId, secondaryImage)
+         if(!restaurantId){
+            return res.status(403).json({message, status})
+         }
+         return res.status(201).json({ message:"Succssfully removed the secondary Image", status:true})
+
+      } catch(error){
+         console.log(error)
+         return res.status(500).json({message: "Error during removing secondary images"})
+      }
+   }
+
 
    //Restaurant table view 
    async getRestaurantTable(req: Request, res: Response, next: NextFunction) {

@@ -11,9 +11,11 @@ import getLocations from '../../util/getLocationApi';
 import { RestaurantFullDetails, uploadCloudImage } from '../../api/RestaurantApis';
 import { CiCircleRemove } from 'react-icons/ci';
 import { FaSpinner } from 'react-icons/fa'
+import { RootState, useAppSelector } from '../../redux/app/store';
 
 
 const RestaurantDetails: React.FC = () => {
+  const restaurantId = useAppSelector((state: RootState) => state.restaurantAuth.restaurantId)
   const [restaurantDetails, setRestaurantDetails] = useState<RestaurantValues>({
     email: "",
     contact: "",
@@ -37,12 +39,6 @@ const RestaurantDetails: React.FC = () => {
   const [lat, setLat] = useState<number>(10.0);
   const [lng, setLng] = useState<number>(76.5);
   const [loading, setLoading] = useState<boolean>(false)
-
-
-  console.log("url logs1", import.meta.env.VITE_APP_BASE_URL)
-  console.log("url logs2", import.meta.env.VITE_APP_JWT_SECRET_KEY)
-  console.log("url logs3", import.meta.env.VITE_MAPBOX_API_KEY)
-  console.log("url logs4", import.meta.env.VITE_APP_STRIPE_PUBLIC_KEY)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,10 +125,28 @@ const RestaurantDetails: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fileInputFeaturedRef = useRef<HTMLInputElement>(null);
 
-  const handleRemoveFeaturedImage = () => {
-    formik.setFieldValue("featuredImage", "");
-    if (fileInputFeaturedRef.current) {
-      fileInputFeaturedRef.current.value = "";
+  const handleRemoveFeaturedImage = async () => {
+    try {
+      setLoading(true);
+      const response = await authAxios.post('/restaurant/restaurant-remove-featured-image', {
+        restaurantId: restaurantId,
+        featuredImage: formik.values.featuredImage
+      });
+
+      if (response.data.status) {
+        formik.setFieldValue("featuredImage", "");
+        if (fileInputFeaturedRef.current) {
+          fileInputFeaturedRef.current.value = "";
+        }
+        toast.success('Featured image removed successfully');
+      } else {
+        toast.error('Failed to remove featured image');
+      }
+    } catch (error) {
+      console.error("Error removing featured image:", error);
+      toast.error('An error occurred while removing the featured image');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,10 +157,31 @@ const RestaurantDetails: React.FC = () => {
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    const updatedImages = [...formik.values.secondaryImages];
-    updatedImages.splice(index, 1);
-    formik.setFieldValue("secondaryImages", updatedImages);
+  const handleRemoveImage = async (index: number) => {
+    try {
+      setLoading(true);
+      const imageToRemove = formik.values.secondaryImages[index];
+
+      // Make API call to remove the image
+      const response = await authAxios.post('/restaurant/restaurant-remove-secondary-image', {
+        restaurantId: restaurantId, // Assuming you have the restaurant ID in your state
+        secondaryImage: imageToRemove
+      });
+
+      if (response.data.status) {
+        const updatedImages = [...formik.values.secondaryImages];
+        updatedImages.splice(index, 1);
+        formik.setFieldValue("secondaryImages", updatedImages);
+        toast.success('Image removed successfully');
+      } else {
+        toast.error('Failed to remove image');
+      }
+    } catch (error) {
+      console.error("Error removing image:", error);
+      toast.error('An error occurred while removing the image');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSecondaryImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +218,7 @@ const RestaurantDetails: React.FC = () => {
                 </div>
 
 
-                <div className=''>
+                <div>
                   <label className="block text-lg" htmlFor="restaurantType">Restaurant Type</label>
                   <select
                     id="restaurantType"
@@ -308,13 +343,14 @@ const RestaurantDetails: React.FC = () => {
               {/* Updated Image Upload Section */}
               <div className="lg:col-span-2 space-y-5">
                 <div>
-                  <label className="block text-lg">Featured Image</label>
+                  <label className="block text-lg" >Featured Image</label>
                   <div className="flex items-center">
                     <input
                       type="file"
                       ref={fileInputFeaturedRef}
                       className="hidden"
                       onChange={handleImageChange}
+                      accept='image/*'
                     />
                     <button
                       type="button"
@@ -351,6 +387,9 @@ const RestaurantDetails: React.FC = () => {
                       )}
                     </div>
                   )}
+                  {formik.touched.featuredImage && formik.errors.featuredImage ? (
+                    <div className="text-red-500">{formik.errors.featuredImage}</div>
+                  ) : null}
                 </div>
                 <div>
                   <label className="block text-lg">Secondary Images</label>
@@ -361,6 +400,7 @@ const RestaurantDetails: React.FC = () => {
                       multiple
                       className="hidden"
                       onChange={handleSecondaryImageChange}
+                      accept='image/*'
                     />
                     <button
                       type="button"
@@ -390,6 +430,10 @@ const RestaurantDetails: React.FC = () => {
                       ))}
                     </div>
                   )}
+
+                  {formik.touched.featuredImage && formik.errors.secondaryImages ? (
+                    <div className="text-red-500">{formik.errors.secondaryImages}</div>
+                  ) : null}
                 </div>
               </div>
             </div>

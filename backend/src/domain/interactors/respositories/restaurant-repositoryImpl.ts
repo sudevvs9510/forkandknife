@@ -17,6 +17,7 @@ import PDFDocument from 'pdfkit-table';
 export class sellerRepository implements restaurantRepository {
 
 
+
    async create(restaurant: RestaurantType): Promise<{ restaurant: RestaurantType | null; message: string }> {
       console.log("inside create resto")
       try {
@@ -140,6 +141,44 @@ export class sellerRepository implements restaurantRepository {
       } catch (error) {
          console.log("Error occured in get restaurant: ", error)
          throw error
+      }
+   }
+
+   async removeFeaturedImage(restaurantId: string, featuredImage: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
+            restaurantId,
+            { $set: { featuredImage: "" } },
+            { new: true }
+         );
+
+         if (!updatedRestaurant) {
+            return { message: "Restaurant not found", status: false };
+         }
+
+         return { message: "Featured image removed", status: true };
+      } catch (error) {
+         console.log(error);
+         throw error;
+      }
+   }
+
+   async removeSecondaryImage(restaurantId: string, secondaryImage: string): Promise<{ message: string; status: boolean; }> {
+      try {
+         const updatedRestaurant = await restaurantModel.findByIdAndUpdate(
+            restaurantId,
+            { $pull: { secondaryImages: secondaryImage } },
+            { new: true }
+         );
+
+         if (!updatedRestaurant) {
+            return { message: "Restaurant not found", status: false };
+         }
+
+         return { message: "Secondary image removed", status: true };
+      } catch (error) {
+         console.log(error);
+         throw error;
       }
    }
 
@@ -326,8 +365,8 @@ export class sellerRepository implements restaurantRepository {
             return { message: "Restaurant not found, please try again later", status: false }
          }
 
-         if(slotStartTime >= slotEndTime){
-            return { message:"End time must be after start time", status:false}
+         if (slotStartTime >= slotEndTime) {
+            return { message: "End time must be after start time", status: false }
          }
 
          const newTimeSlot = await restaurantTimeSlotsModel.create({
@@ -613,7 +652,7 @@ export class sellerRepository implements restaurantRepository {
          });
       console.log(fullBookingDetails)
 
-      
+
 
 
       // Calculate the required data

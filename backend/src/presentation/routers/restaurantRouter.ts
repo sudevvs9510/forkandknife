@@ -23,6 +23,10 @@ restaurantRouter.put("/restaurant-updation",authenticateToken('restaurant'),rest
 
 restaurantRouter.get('/restaurant-details',authenticateToken('restaurant'),restaurantBlock , controller.restaurant_details.bind(controller))
 
+//remove image routes
+restaurantRouter.post("/restaurant-remove-featured-image",authenticateToken('restaurant'),restaurantBlock , controller.restaurantFeaturedImageRemove.bind(controller))
+restaurantRouter.post("/restaurant-remove-secondary-image",authenticateToken('restaurant'),restaurantBlock , controller.restaurantSecondaryImageRemove.bind(controller))
+
 
 restaurantRouter.get("/tables/:restaurantId",authenticateToken('restaurant'),restaurantBlock ,controller.getRestaurantTable.bind(controller))
 restaurantRouter.post("/add-table",authenticateToken('restaurant'), restaurantBlock ,controller.addRestaurantTable.bind(controller))

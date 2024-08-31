@@ -7,6 +7,10 @@ export interface restaurantRepository {
    findCredentials(data: object): Promise<{ restaurant: Partial<RestaurantType> | null, message: string; token: string | null, refreshtoken: string | null }>
    restaurantAllDetails(restaurant: RestaurantType): Promise<{ restaurant: Partial<RestaurantType>, message: string }>
    getRestaurant(restaurantId: string): Promise<{ restaurant: any, message: string }>
+
+   removeFeaturedImage(restaurantId: string, featuredImage:string): Promise<{ message: string, status: boolean }>
+   removeSecondaryImage(restaurantId: string, secondaryImage:string): Promise<{ message: string, status: boolean }>
+
    //Restaurant table view
    restaurantTableDatas(restaurantId: string): Promise<{ message: string, tableSlotDatas: object }>
 

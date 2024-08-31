@@ -6,6 +6,9 @@ export interface restaurantInteractor{
    restaurantDetailsUpdateInteractor(credentials: RestaurantType): Promise<{ restaurant: Partial<RestaurantType>, message: string}>
    restaurantGetProfileInteractor(_id: string): Promise<{restaurant: object}>
 
+   removeFeaturedImageInteractor(restaurantId: string, featuredImage:string): Promise <{ message: string, status: boolean}>
+   removeSecondaryImageInteractor(restaurantId: string, secondaryImage:string): Promise <{ message: string, status: boolean}>
+
    getRestaurantTableInteractor(restaurantId : string) : Promise<{ message: string; tableSlotDatas: object }>
    addTableInteractor(tableSlotDatas: tableSlotTypes, restaurantId: string): Promise<{message: string, status: boolean}>
    deleteTableInteractor(tableId: string, restaurantId: string): Promise<{ message: string, status: boolean}>

@@ -88,6 +88,7 @@ export const uploadCloudImage = async (file: File) => {
         withCredentials: false,
       }
     );
+    console.log(response)
 
     return response.data;
   } catch (error) {
