@@ -359,34 +359,6 @@ export class userController {
    }
 
 
-
-   //to update booking status and isAvailable after payment
-   // async updateSlotAndBookingStatus(req: Request, res: Response, next: NextFunction) {
-   //    console.log("update slot and booking status controller")
-   //    const { bookingId, tableSlotId } = req.body
-
-   //    console.log(bookingId, tableSlotId)
-
-   //    if (!bookingId || !tableSlotId) {
-   //       return res.status(400).json({ error: 'Booking ID and TableSlot ID are required' });
-   //    }
-
-   //    try {
-   //       await bookingModel.findOneAndUpdate(
-   //          { bookingId: bookingId },
-   //          {
-   //             paymentStatus: "PAID",
-   //             bookingStatus: "CONFIRMED"
-   //          }, { new: true });
-   //       await tableSlotsModel.findByIdAndUpdate(tableSlotId, { isAvailable: false });
-
-   //    } catch (error) {
-   //       res.status(500).json({ message: 'Failed to update booking and table slot', error });
-   //    }
-   // }
-
-
-
    async makePayment(req: Request, res: Response, next: NextFunction) {
       console.log("make payements")
 

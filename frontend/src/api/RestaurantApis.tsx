@@ -44,17 +44,6 @@ export const RestaurantRegister = async (datas: credentials) => {
   }
 }
 
-// export const RestaurantLoginApi = async (data: Partial<credentials>) =>{
-//    try {
-//       console.log(data)
-//       const {data: {message, user, token}} = await authAxios.post('/restaurant/login',data)
-//       console.log(data)
-//       return {data: { message, user, token }}
-//    } catch (error) {
-//       console.log("Error in login", error)
-//       throw error
-//    }
-// }
 
 
 export const RestaurantLoginApi = async (data: Partial<credentials>) => {
@@ -70,17 +59,6 @@ export const RestaurantLoginApi = async (data: Partial<credentials>) => {
   }
 };
 
-
-// export const RestaurantFullDetails = async (datas: credentials) =>{
-//    try{
-//       const { data: {message} } = await authAxios.put("/restaurant/restaurant-updation",{datas})
-//       console.log(datas)
-//       return {data:{message}}
-//    } catch(error){
-//       console.log(error)
-//       throw error
-//    }
-// }
 
 export const RestaurantFullDetails = async (datas: RestaurantValues) => {
   try {

@@ -68,30 +68,6 @@ export const initializeSocket = (server: HTTPServer) => {
      
     })
 
-    // socket.on("seen update",(senderId)=>{ 
-    //   io.to(senderId).emit("seen update")
-    // })
-
-    // socket.on("message seen", async (conversationId:string , senderId:string)=>{
-    //   try{
-    //     const message = await ChatMessageModel.find({conversationId})
-    //     for(const msg of message) {
-    //       if(msg.sender === senderId) {
-    //         msg.seen = true
-    //         await msg.save()
-    //       }
-    //     }
-    //     // if(message){
-    //     //   message.seen = true
-    //     //   await message.save()
-    //     // }
-    //     io.emit('seen update', conversationId)
-    //   } catch(error){
-    //     console.log(error)
-    //   }
-    // })
-
-
   })
 }
 

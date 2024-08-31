@@ -13,8 +13,7 @@ const ForgotPasswordMailPage = lazy(() => import("../Components/user/EmailForgot
 const ForgotNewPassword = lazy(() => import("../Components/user/NewPassword"));
 const TableBooking = lazy(()=> import('../pages/User/TableBooking'))
 const Chat = lazy(()=> import('../pages/User/Chat'))
-// const Chat = lazy(()=> import('../Components/user/Chat'))
-// const BookingHistory = lazy(()=> import("../Components/user/BookingHistory"))
+
 const BookingFullDetails = lazy(()=> import("../pages/User/BookingDetails"))
 
 

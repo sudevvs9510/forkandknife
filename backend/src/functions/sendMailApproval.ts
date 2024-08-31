@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer'
 
+const ORIGIN = process.env.ORIGIN
+
 const nodeMailerRestaurantApprovalMail = async (email: string): Promise<{success: boolean}> =>{
 
    const transporter = nodemailer.createTransport({
@@ -18,7 +20,7 @@ const nodeMailerRestaurantApprovalMail = async (email: string): Promise<{success
       to: `${email}`,
       subject: "Fork & Knife",
       html: `<p>Thank you for using our service. As requested , your restaurant is confirmed</p>
-      <h2 style="color : green"><strong><a href='https://forkandknife.vercel.app/restaurant/login'>Login to your account</a></strong></h2>
+      <h2 style="color : green"><strong><a href=${ORIGIN}'/restaurant/login'>Login to your account</a></strong></h2>
 
       <p>Thank you,</p>
       <p>Fork & Knife</p>`,

@@ -2,22 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import messageModel from '../../frameworks/database/models/messageModel';
 import conversationModel from "../../frameworks/database/models/conversationModel"
 
-// export async function getConversationMembers(req: Request, res: Response, next: NextFunction) {
-//    try {
-//       const { userId } = req.params
-//       console.log('Fetching conversations for userId:', userId);
-//       const conversation = await conversationModel.find({
-//          members: { $in: [userId] }
-//       })
-//       console.log('Conversations found:', conversation);
-
-//       return res.status(200).json(conversation)
-//    } catch (error) {
-//       console.log("Error fetching chat messages:", error)
-//       return res.status(500).json({ message: 'Error fetching chat messages', error })
-//    }
-// }
-
 
 export async function getConversationMembers(req: Request, res: Response, next: NextFunction) {
    try {

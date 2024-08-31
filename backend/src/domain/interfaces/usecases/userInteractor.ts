@@ -10,13 +10,9 @@ export interface UserInteractor{
    resendOtp(userId: string): Promise <{ message: string, status: boolean }>;
    resetPasswordInteractor(email: string): Promise<{message: string; success: boolean }>
    resetPasswordUpdateItneractor(id:string, password:string): Promise<{ message: string; status: boolean }>
-
    getApprovedRestaurantsInteractor() : Promise<{ approvedRestaurants:RestaurantType[]}>
-   // refreshAccessToken (refreshToken: string): Promise<string>;
-
 
    searchRestaurantInteractor(query: string, location?: { type: string, coordinates: number[] }): Promise<{ restaurants: RestaurantType[] }>;
-   // getRestaurantsInteractor(query?: string, location?: {type: string; coordinates: number[]}): Promise<{restaurants: RestaurantType[]}>
 
    getProfileInteractor(userId: string): Promise <{ userDetails: UserType | null, status: boolean}>
    updateUserDetailsInteractor(userId: string, datas: UserType): Promise<{ updatedUser: UserType | null; status: boolean}>

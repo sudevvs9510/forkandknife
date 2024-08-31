@@ -4,6 +4,7 @@ export function setCookieAuthToken(res: Response, token_name: string, token: str
    res.cookie(token_name, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: "none",
       maxAge: 86400000 // 24hr
       })
 }

@@ -128,30 +128,6 @@ export class UserInteractorImpl implements UserInteractor {
    }
 
 
-   // async refreshAccessToken(refreshToken: string): Promise<string> {
-   //    try{
-   //       const REFRESH_TOKEN_SECRET = process.env.JWT_RESFRESH_SECRET_KEY || "lkgakjdo09asfka";
-   //       const verified = jwtVerifyToken(refreshToken, REFRESH_TOKEN_SECRET)
-
-   //       if(!verified.decode || !verified.decode.userId){
-   //          throw new Error("Invalid refresh token")
-   //       }
-
-   //       const userId = verified.decode.userId 
-   //       const newAccessToken = generateAccessToken(userId, 'user')
-
-   //       return newAccessToken
-
-   //    }catch(error){
-   //       console.error('Error refreshing access token:', error);
-   //       throw new Error('Failed to refresh access token');
-   //    }
-   // }
-
-
-
-
-
 
    async searchRestaurantInteractor(query: string, location?: { type: string; coordinates: number[]; }): Promise<{ restaurants: RestaurantType[]; }> {
       try {
