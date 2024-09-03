@@ -8,6 +8,7 @@ import authAxios from '../../redux/api/authApi';
 import { FaCalendarAlt, FaClock, FaUserFriends } from 'react-icons/fa';
 import ReviewModal from './AddReview';
 import ConfirmCancellationModal from '../../layouts/CancellationModal';
+import toast from 'react-hot-toast';
 
 interface Booking {
   bookingId: string;
@@ -124,11 +125,12 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
     if (!selectedRestaurantId) return;
 
     try {
-      await authAxios.post(`/add-review/${selectedRestaurantId}`, {
+      const response = await authAxios.post(`/add-review/${selectedRestaurantId}`, {
         ...reviewData,
         userId,
       });
-      console.log('Review submitted successfully');
+      console.log(response.data)
+      toast.success(response.data.message);
     } catch (error) {
       console.error('Error submitting review:', error);
     } finally {
