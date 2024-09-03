@@ -364,10 +364,10 @@ export class userController {
 
       const { restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate, guests } = req.body
 
-      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate,guests)
+      console.log(restaurantDatas, userEmail, userUsername, restaurantId, tableId, userId, bookingTime, tableSlotId, bookingDate, guests)
       try {
          const totalAmount = restaurantDatas.tableRate * guests
-         console.log("totalAmount:",totalAmount, guests)
+         console.log("totalAmount:", totalAmount, guests)
          const bookingId = `FKRTB-${new mongoose.Types.ObjectId().toString()}`;
          const session = await createPayment({ userEmail, userUsername }, totalAmount, bookingId, tableSlotId);
          console.log(session)
@@ -548,7 +548,6 @@ export class userController {
    }
 
 
-
    async getReviews(req: Request, res: Response, next: NextFunction) {
       console.log("get reviews controller")
       const { restaurantId } = req.params
@@ -561,14 +560,19 @@ export class userController {
       }
    }
 
-
-
-   // async updateWalletAndCreateTransaction(req: Request, res: Response, next: NextFunction){
-   //    console.log("update wallet and create transaction controller");
-   //    const {userId} = req.params 
-   //    const { amount, }
-   // }
-
+   async getBookingReview(req: Request, res: Response, next: NextFunction) {
+      console.log("get specific review controller")
+      const { restaurantId } = req.params
+      const userId = req.userId
+      console.log(restaurantId, userId)
+      try {
+         const { message, reviewDatas } = await this.interactor.getBookingReviewInteractor(restaurantId, userId)
+         return res.status(200).json({ message, reviewDatas })
+      } catch (error) {
+         console.log(error)
+         return res.status(500).json({ message: "Error during fetching specific booking review" })
+      }
+   }
 
    async addMoneyToWallet(req: Request, res: Response, next: NextFunction) {
       console.log("add money to wallet controller");

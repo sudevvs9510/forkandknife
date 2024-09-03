@@ -20,9 +20,11 @@ export interface UserInteractor{
    getBookingHistoryInteractor(userId: string): Promise<{ message: string, bookingDatas: object}>
    getBookingDetailsInteractor(bookingId: string): Promise<{message: string, bookingData: object}>
 
-   addReviewsInteractor(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message: string, reviewData: object }>
+   addReviewsInteractor(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message: string, reviewData: object | null }>
    getReviewsInteractor(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
+   getBookingReviewInteractor(restaurantId: string, userId:string): Promise<{ message: string, reviewDatas: object }>
 
+   
    getWalletInteractor(userId : string): Promise<{ message: string, walletDatas: object | null }>
    cancelBookingInteractor(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string, status:boolean}>
 

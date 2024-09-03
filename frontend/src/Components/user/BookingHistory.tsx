@@ -286,9 +286,13 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
       {isReviewModalOpen && (
         <ReviewModal
           isOpen={isReviewModalOpen}
-          onClose={() => setReviewModalOpen(false)}
-          onSubmit={handleReviewSubmit}
-        />
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedRestaurantId(null);
+          }}
+          onSubmit={handleReviewSubmit} 
+          restaurantId={selectedRestaurantId}
+            />
       )}
       {isCancellationModalOpen && (
         <ConfirmCancellationModal
@@ -302,3 +306,7 @@ const BookingHistory: React.FC<BookingHistoryProps> = ({ userId }) => {
 };
 
 export default BookingHistory;
+
+
+
+

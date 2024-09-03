@@ -13,7 +13,9 @@ import { Error } from "mongoose";
 export class UserInteractorImpl implements UserInteractor {
 
    constructor(private readonly Repository: UserRepository, mailer: IMailer) { }
-   
+
+
+
    async signup(credentials: UserType): Promise<{ user: UserType | null, message: string }> {
       try {
          console.log("Signup ----");
@@ -50,7 +52,7 @@ export class UserInteractorImpl implements UserInteractor {
       try {
          console.log("verify otp")
          const { message, status } = await this.Repository.verifyOtp(otp, userId)
-         console.log("interactor verify otp:",message, status)
+         console.log("interactor verify otp:", message, status)
          return { message, status }
       }
       catch (err) {
@@ -183,7 +185,7 @@ export class UserInteractorImpl implements UserInteractor {
       }
    }
 
-   // In userInteractorImpl.ts
+
 
    async addReviewsInteractor(reviewDetails: {
       restaurantId: string,
@@ -191,7 +193,7 @@ export class UserInteractorImpl implements UserInteractor {
       username: string,
       description: string,
       rating: number
-   }): Promise<{ message: string; reviewData: object; }> {
+   }): Promise<{ message: string; reviewData: object | null; }> {
       try {
          const { reviewData, message } = await this.Repository.addReviews(reviewDetails);
          return { reviewData, message };
@@ -203,22 +205,35 @@ export class UserInteractorImpl implements UserInteractor {
 
 
    async getReviewsInteractor(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
-      try{
+      try {
          console.log(restaurantId)
          const { reviewDatas, message } = await this.Repository.getReviews(restaurantId)
-         return { reviewDatas , message}
-      } catch(error){
+         return { reviewDatas, message }
+      } catch (error) {
+         console.log(error)
+         throw error
+      }
+   }
+
+   async getBookingReviewInteractor(restaurantId: string, userId: string): Promise<{ message: string; reviewDatas: object; }> {
+      try {
+         console.log(restaurantId, userId)
+         const { message, reviewDatas } = await this.Repository.getBookingReview(restaurantId, userId)
+         return { reviewDatas, message }
+
+      } catch (error) {
          console.log(error)
          throw error
       }
    }
 
 
+
    async getWalletInteractor(userId: string): Promise<{ message: string; walletDatas: object | null; }> {
-      try{
-         const { message, walletDatas} = await this.Repository.getWalletDetails(userId)
-         return { message, walletDatas}
-      } catch(error){
+      try {
+         const { message, walletDatas } = await this.Repository.getWalletDetails(userId)
+         return { message, walletDatas }
+      } catch (error) {
          console.log(error)
          throw error
       }
@@ -226,20 +241,20 @@ export class UserInteractorImpl implements UserInteractor {
 
 
    async cancelBookingInteractor(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string; status: boolean; }> {
-      try{
-         const { status, message } = await this.Repository.cancelBooking(bookingId, userId,cancellationReason, tableId)
+      try {
+         const { status, message } = await this.Repository.cancelBooking(bookingId, userId, cancellationReason, tableId)
          return { status, message }
-      } catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }
    }
 
-   async downloadInvoiceinteractor(bookingId: string): Promise<{ message: string; status: boolean;invoicePdf:string}> {
-      try{
+   async downloadInvoiceinteractor(bookingId: string): Promise<{ message: string; status: boolean; invoicePdf: string }> {
+      try {
          const { message, status, invoicePdf } = await this.Repository.downloadInvoice(bookingId)
          return { message, status, invoicePdf }
-      } catch(error){
+      } catch (error) {
          console.log(error)
          throw error
       }

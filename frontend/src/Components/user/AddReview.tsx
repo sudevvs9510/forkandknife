@@ -1,12 +1,18 @@
-import React from 'react';
+
+
+
+import React, { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import authAxios from '../../redux/api/authApi';
+import { useParams } from 'react-router-dom';
 
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (reviewData: ReviewData) => void;
+  restaurantId: string | null;
 }
 
 interface ReviewData {
@@ -15,13 +21,46 @@ interface ReviewData {
   rating: number;
 }
 
-const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit, restaurantId }) => {
+
+  const { userId } = useParams()
+  console.log(userId, restaurantId)
+  const [initialValues, setInitialValues] = useState({
+    username: '',
+    description: '',
+    rating: 0,
+  });
+
+  useEffect(() => {
+    if (isOpen && restaurantId) {
+      fetchReviewData();
+    }
+  }, [isOpen, restaurantId]);
+
+  useEffect(() => {
+    formik.resetForm({
+      values: initialValues,
+    });
+  }, [initialValues]);
+
+  const fetchReviewData = async () => {
+    try {
+      const res = await authAxios.get(`/get-booking-review/${restaurantId}`);
+      if (res.data) {
+        setInitialValues({
+          username: res.data.reviewDatas.username || '',
+          description: res.data.reviewDatas.description || '',
+          rating: res.data.reviewDatas.rating || 0,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const formik = useFormik({
-    initialValues: {
-      username: '',
-      description: '',
-      rating: 0,
-    },
+    initialValues,
+    enableReinitialize: true,
     validationSchema: Yup.object({
       username: Yup.string()
         .required('Username is required')
@@ -30,7 +69,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) 
       rating: Yup.number().min(1, 'Rating must be at least 1 star').required('Rating is required'),
     }),
     onSubmit: (values) => {
-      onSubmit(values);
+      onSubmit({ ...values });
       onClose();
     },
   });
@@ -40,7 +79,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
       <div className="bg-white p-4 rounded-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Add Review</h2>
+        <h2 className="text-xl font-bold mb-4">{initialValues.username ? 'Edit Review' : 'Add Review'}</h2>
         <form onSubmit={formik.handleSubmit}>
           <input
             type="text"
@@ -50,7 +89,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) 
             value={formik.values.username}
             onChange={formik.handleChange}
           />
-           {formik.errors.username && formik.touched.username && (
+          {formik.errors.username && formik.touched.username && (
             <p className="text-red-500 text-sm mb-2">{formik.errors.username}</p>
           )}
           <textarea
@@ -82,7 +121,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) 
               Cancel
             </button>
             <button type="submit" className="bg-teal-600 text-white p-2 rounded">
-              Submit
+              {initialValues.username ? 'Update' : 'Submit'}
             </button>
           </div>
         </form>
@@ -92,4 +131,3 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, onSubmit }) 
 };
 
 export default ReviewModal;
-

@@ -60,6 +60,8 @@ userRouter.get('/booking-details/:bookingId', authenticateToken('user'), userBlo
 
 userRouter.post("/add-review/:restaurantId", authenticateToken('user'), userBlock, controller.addReviews.bind(controller))
 userRouter.get("/get-reviews/:restaurantId", authenticateToken('user'), userBlock, controller.getReviews.bind(controller))
+userRouter.get("/get-booking-review/:restaurantId", authenticateToken('user'), userBlock, controller.getBookingReview.bind(controller))
+
 
 userRouter.post("/add-money-to-wallet", userBlock, controller.addMoneyToWallet.bind(controller))
 userRouter.get("/wallet-details/:userId", userBlock, controller.getWalletDetails.bind(controller))

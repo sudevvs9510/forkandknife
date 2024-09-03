@@ -22,9 +22,11 @@ export interface UserRepository {
    getBookingHistory(userId: string): Promise<{ message: string; bookingDatas: object} >
    getBookingDetails(bookingId: string): Promise<{ message:string, bookingData: object}>
 
-   addReviews(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message:string, reviewData: object}>
+   addReviews(reviewDetails: {restaurantId: string,userId: string,username: string,description: string,rating: number}): Promise<{ message:string, reviewData: object | null}>
    getReviews(restaurantId: string): Promise<{ message: string, reviewDatas: object}>
+   getBookingReview(restaurantId: string, userId: string): Promise<{ message: string, reviewDatas: object}>
 
+   
    getWalletDetails(userId: string): Promise<{ message: string, walletDatas: object | null}>
 
    cancelBooking(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string, status: boolean}>

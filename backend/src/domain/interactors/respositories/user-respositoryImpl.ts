@@ -285,7 +285,7 @@ export class UserRepositoryImpl implements UserRepository {
             .populate('restaurantId', 'restaurantName featuredImage')
             .populate('tableId', 'tableNumber tableCapacity tableLocation')
             .sort({ createdAt: -1 });
-         console.log("bookingDatas:",bookingDatas)
+         console.log("bookingDatas:", bookingDatas)
          return { message: "", bookingDatas }
       } catch (error) {
          console.log(error)
@@ -314,186 +314,230 @@ export class UserRepositoryImpl implements UserRepository {
 
    async addReviews(
       reviewDetails: {
-         restaurantId: string, userId: string, username: string, description: string, rating: number
-      }): Promise<{ message: string; reviewData: object; }> {
-      try {
-
-         const reviewId = new mongoose.Types.ObjectId();
-
-         const reviewData = await reviewModel.create({ ...reviewDetails, reviewId });
-
-         // Return a success message and the created review data
-         return { message: "Review added successfully", reviewData };
-      } catch (error) {
-         console.log(error);
-         throw error;
+        restaurantId: string,
+        userId: string,
+        username: string,
+        description: string,
+        rating: number
       }
-   }
-
-   async getReviews(restaurantId: string): Promise<{ message: string; reviewDatas: object; }> {
+    ): Promise<{ message: string; reviewData: object | null; }> {
       try {
-         const reviewDatas = await reviewModel.find({ restaurantId })
-            .sort({ rating: -1 });
-         if (!reviewDatas) {
-            return { message: 'No reviews found', reviewDatas: [] };
-         }
+        let reviewData = await reviewModel.findOne({ 
+          restaurantId: reviewDetails.restaurantId, 
+          userId: reviewDetails.userId 
+        });
+    
+        if (reviewData) {
+          // If a review exists, update it with the new details
+          reviewData = await reviewModel.findOneAndUpdate(
+            { 
+              restaurantId: reviewDetails.restaurantId, 
+              userId: reviewDetails.userId 
+            },
+            {
+              $set: {
+                username: reviewDetails.username,
+                description: reviewDetails.description,
+                rating: reviewDetails.rating,
+              }
+            },
+            { new: true }
+          );
+    
+          return { message: "Review updated successfully", reviewData };
+        } else {
+          // If no review exists, create a new one
+          const reviewId = new mongoose.Types.ObjectId();
+          reviewData = await reviewModel.create({ ...reviewDetails, reviewId });
+    
+          return { message: "Review added successfully", reviewData };
+        }
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    }
+    
+
+   async getReviews(restaurantId: string): Promise < { message: string; reviewDatas: object; } > {
+         try {
+            const reviewDatas = await reviewModel.find({ restaurantId })
+               .sort({ rating: -1 });
+            if(!reviewDatas) {
+               return { message: 'No reviews found', reviewDatas: [] };
+            }
          console.log(reviewDatas)
          return { message: "Reviews found", reviewDatas };
-      } catch (error) {
-         console.log(error)
-         throw error
+         } catch(error) {
+            console.log(error)
+            throw error
+         }
       }
-   }
 
-
-   async getWalletDetails(userId: string): Promise<{ message: string; walletDatas: object | null; }> {
-      console.log(userId)
+   async getBookingReview(restaurantId: string, userId: string): Promise < { message: string; reviewDatas: object; } > {
+         console.log("getBookingReview:", restaurantId, userId)
       try {
-         const walletDatas = await walletModel.findOne({ userId })
+            const reviewDatas = await reviewModel.findOne({ restaurantId, userId })
+         if(!reviewDatas) {
+               return { message: 'No reviews found', reviewDatas: [] };
+            }
+         console.log(reviewDatas)
+         return { message: "Review found", reviewDatas }
+         } catch(error) {
+            console.log(error)
+            throw error
+         }
+      }
+
+
+   async getWalletDetails(userId: string): Promise < { message: string; walletDatas: object | null; } > {
+         console.log(userId)
+      try {
+            const walletDatas = await walletModel.findOne({ userId })
          console.log(walletDatas)
          return { message: "Wallet datas fetched successfully", walletDatas }
-      } catch (error) {
-         console.log(error)
-         throw error
-      }
-   }
-
-
-   async cancelBooking(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise<{ message: string; status: boolean; }> {
-      console.log(bookingId)
-      try {
-         const bookingData = await bookingModel.findOneAndUpdate(
-            { bookingId },
-            { bookingStatus: "CANCELLED", cancellationReason, paymentStatus: "REFUNDED" },
-            { new: true }
-         )
-         if (!bookingData) {
-            return { message: "Booking not found or not authorized", status: false };
+         } catch(error) {
+            console.log(error)
+            throw error
          }
+      }
+
+
+   async cancelBooking(bookingId: string, userId: string, cancellationReason: string, tableId: string): Promise < { message: string; status: boolean; } > {
+         console.log(bookingId)
+      try {
+            const bookingData = await bookingModel.findOneAndUpdate(
+               { bookingId },
+               { bookingStatus: "CANCELLED", cancellationReason, paymentStatus: "REFUNDED" },
+               { new: true }
+            )
+         if(!bookingData) {
+               return { message: "Booking not found or not authorized", status: false };
+            }
          console.log(bookingData)
          const totalAmount = bookingData.totalAmount;
 
-         if(tableId){
-            console.log("cancel tableId if")
-            const tableAvailability = await tableSlotsModel.findOneAndUpdate({tableId},{$set:{isAvailable: true}},{ new: true})
-            console.log(tableAvailability)
-         }
-         if(!tableId){
-            return { message: "Table not found", status: false };
-         }
-         
+            if(tableId) {
+               console.log("cancel tableId if")
+               const tableAvailability = await tableSlotsModel.findOneAndUpdate({ tableId }, { $set: { isAvailable: true } }, { new: true })
+               console.log(tableAvailability)
+            }
+         if(!tableId) {
+               return { message: "Table not found", status: false };
+            }
+
 
          const wallet = await walletModel.findOneAndUpdate(
-            { userId },
-            {
-               $inc: { balance: totalAmount },
-               $push: {
-                  transactions: {
-                     amount: totalAmount,
-                     type: "credit",
-                     createdAt: new Date(),
-                     updatedAt: new Date()
+               { userId },
+               {
+                  $inc: { balance: totalAmount },
+                  $push: {
+                     transactions: {
+                        amount: totalAmount,
+                        type: "credit",
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                     }
                   }
-               }
-            },
-            { new: true }
-         )
-         if (!wallet) {
-            return { message: "Wallet not found", status: false };
-         }
+               },
+               { new: true }
+            )
+         if(!wallet) {
+               return { message: "Wallet not found", status: false };
+            }
 
          return { message: "Booking cancelled and amount credited to wallet", status: true };
-      } catch (error) {
-         console.log(error)
-         throw error
-      }
-   }
-
-
-
-
-   async downloadInvoice(bookingId: string): Promise<{ message: string; status: boolean; invoicePdf: string }> {
-      try {
-         const invoiceBookingDetails = await this.getInvoiceBookingDetails(bookingId);
-
-         if (!invoiceBookingDetails) {
-            throw new Error("Booking not found");
+         } catch(error) {
+            console.log(error)
+            throw error
          }
+      }
+
+
+
+
+   async downloadInvoice(bookingId: string): Promise < { message: string; status: boolean; invoicePdf: string } > {
+         try {
+            const invoiceBookingDetails = await this.getInvoiceBookingDetails(bookingId);
+
+            if(!invoiceBookingDetails) {
+               throw new Error("Booking not found");
+            }
 
          const invoiceData: InvoiceData = {
-            documentTitle: "INVOICE",
-            currency: "INR",
-            sender: {
-               company: invoiceBookingDetails.restaurantName,
-               address: invoiceBookingDetails.restaurantPlace,
-               contact: invoiceBookingDetails.restaurantContact
-            },
-            // client: {
-            //    company: invoiceBookingDetails.customerName,
-            //    email: invoiceBookingDetails.customerEmail
-            // },
-            // invoiceNumber: invoiceBookingDetails.invoiceNumber,
-            // invoiceDate: new Date().toISOString().split('T')[0],
-            client: {
-               company: invoiceBookingDetails.customerName || "N/A",
-               email: invoiceBookingDetails.customerEmail || "N/A"
-            },
-            invoiceNumber: invoiceBookingDetails.invoiceNumber || "000000",
-            invoiceDate: new Date().toISOString().split('T')[0] || "N/A",
-            products: invoiceBookingDetails.items,
-            bottomNotice: "Thank you for dining with us!",
-         };
+               documentTitle: "INVOICE",
+               currency: "INR",
+               sender: {
+                  company: invoiceBookingDetails.restaurantName,
+                  address: invoiceBookingDetails.restaurantPlace,
+                  contact: invoiceBookingDetails.restaurantContact
+               },
+               // client: {
+               //    company: invoiceBookingDetails.customerName,
+               //    email: invoiceBookingDetails.customerEmail
+               // },
+               // invoiceNumber: invoiceBookingDetails.invoiceNumber,
+               // invoiceDate: new Date().toISOString().split('T')[0],
+               client: {
+                  company: invoiceBookingDetails.customerName || "N/A",
+                  email: invoiceBookingDetails.customerEmail || "N/A"
+               },
+               invoiceNumber: invoiceBookingDetails.invoiceNumber || "000000",
+               invoiceDate: new Date().toISOString().split('T')[0] || "N/A",
+               products: invoiceBookingDetails.items,
+               bottomNotice: "Thank you for dining with us!",
+            };
 
 
 
-         var data = {
-            "customize": {},
-            // "images": {
-            //    "logo": "https://public.easyinvoice.cloud/img/logo_en_original.png",
-            //    "background": "https://public.easyinvoice.cloud/img/watermark-draft.jpg"
-            // },
-            "sender": {
-               "company": invoiceBookingDetails.restaurantName + "",
-               "address": invoiceBookingDetails.restaurantPlace,
-               "country": "",
-               "zip": invoiceBookingDetails.restaurantContact +  "",
-               "city": ""
-            },
-            "client": {
-               "company": invoiceBookingDetails.customerName + "",
-               "address": invoiceBookingDetails.customerEmail + "",
-               "phone": "",
-               // "country": invoiceBookingDetails.customerPhone+"" || "9207944068",
-               "zip": invoiceBookingDetails.customerPhone || "6282995964",
-               "city": ""
-            }, 
-            "information": {
-               "number": invoiceBookingDetails.bookingId.split("FKRTB-")[1]+"",
-               "date": new Date().toISOString().split('T')[0] || "N/A",
-               "due-date": "PAID"
-            },
-            "products": invoiceBookingDetails.items,
-            "bottom-notice": "Thank you for dining with us!",
-            "settings": {
-               "currency": "INR",
-            },
-            "translate": {},
-         };
+            var data = {
+               "customize": {},
+               // "images": {
+               //    "logo": "https://public.easyinvoice.cloud/img/logo_en_original.png",
+               //    "background": "https://public.easyinvoice.cloud/img/watermark-draft.jpg"
+               // },
+               "sender": {
+                  "company": invoiceBookingDetails.restaurantName + "",
+                  "address": invoiceBookingDetails.restaurantPlace,
+                  "country": "",
+                  "zip": invoiceBookingDetails.restaurantContact + "",
+                  "city": ""
+               },
+               "client": {
+                  "company": invoiceBookingDetails.customerName + "",
+                  "address": invoiceBookingDetails.customerEmail + "",
+                  "phone": "",
+                  // "country": invoiceBookingDetails.customerPhone+"" || "9207944068",
+                  "zip": invoiceBookingDetails.customerPhone || "6282995964",
+                  "city": ""
+               },
+               "information": {
+                  "number": invoiceBookingDetails.bookingId.split("FKRTB-")[1] + "",
+                  "date": new Date().toISOString().split('T')[0] || "N/A",
+                  "due-date": "PAID"
+               },
+               "products": invoiceBookingDetails.items,
+               "bottom-notice": "Thank you for dining with us!",
+               "settings": {
+                  "currency": "INR",
+               },
+               "translate": {},
+            };
 
-         console.log("invoiceData:", data)
+            console.log("invoiceData:", data)
 
          // Generate the invoice
          const result = await easyinvoice.createInvoice(data as any);
 
-         const invoicePdf = result.pdf; // The base64 encoded PDF string
+            const invoicePdf = result.pdf; // The base64 encoded PDF string
 
-         // Return the PDF as a base64 string
-         return { message: "successfully created the invoice", status: true, invoicePdf };
-      } catch (error) {
-         console.log(error);
-         throw error;
+            // Return the PDF as a base64 string
+            return { message: "successfully created the invoice", status: true, invoicePdf };
+         } catch(error) {
+            console.log(error);
+            throw error;
+         }
       }
-   }
 
 
 
