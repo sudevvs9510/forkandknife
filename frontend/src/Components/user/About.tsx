@@ -1,6 +1,6 @@
 import React from "react";
 import img from "../../assets/images/about.jpg";
-import Button from "../../layouts/Buttons";
+// import Button from "../../layouts/Buttons";
 
 const About: React.FC = () => {
   return (
