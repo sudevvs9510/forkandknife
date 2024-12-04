@@ -14,27 +14,30 @@ const GoogleLoginAuth: React.FC = () => {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
+        // Fetch user info from Google
         const res = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${response.access_token}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch user data from Google');
-        }
+        if (!res.ok) throw new Error('Failed to fetch user data from Google');
+
         const userData = await res.json();
 
-        // Dispatch googleLoginAction
-        dispatch(googleLoginAction({
+        // Dispatch Google Login Action
+        const result = await dispatch(googleLoginAction({
           email: userData.email,
           given_name: userData.given_name,
-          sub: userData.sub
-        })).then((result) => {
-          if (googleLoginAction.fulfilled.match(result)) {
-            navigate('/'); // Navigate to home after successful login
-          }
-        });
+          sub: userData.sub,
+        }));
 
+        // Navigate if login is successful
+        if (googleLoginAction.fulfilled.match(result)) {
+          navigate('/');
+        }
       } catch (error) {
         console.error('Error during Google login:', error);
       }
-    }
+    },
+    onError: (error) => {
+      console.error('Google login failed:', error);
+    },
   });
 
   return (

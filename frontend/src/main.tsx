@@ -43,8 +43,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <PersistGate loading={null} persistor={persistor}>
       <SocketProvider>
 
-        <GoogleOAuthProvider clientId='286482854197-7sil2tnla5ridrc9idi81vvk0htpchqo.apps.googleusercontent.com'>
-
+        <GoogleOAuthProvider clientId='344300273639-vj76svmkb9p1a9qkbtba48heb88h871i.apps.googleusercontent.com'>
           <ErrorBoundary>
             <App />
           </ErrorBoundary>
