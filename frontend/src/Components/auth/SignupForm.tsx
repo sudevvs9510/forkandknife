@@ -9,6 +9,7 @@ import { signup } from '../../redux/reducers/userSlices/UserAuthSlice';
 import { validateSignup } from '../../helpers/validation';
 import { setStorageItem } from '../../util/localStorage';
 import background from '../../assets/images/pexels-photo-776538.webp';
+import logoWhite from "../../assets/images/logoWhite.png"
 // import authAxios from '../../redux/api/authApi';
 
 const SignupForm: React.FC = () => {
@@ -63,13 +64,15 @@ const SignupForm: React.FC = () => {
     <div className="h-screen bg-gray-100 overflow-hidden text-gray-900 flex justify-center">
       <div className="w-full bg-white shadow sm:rounded-lg flex h-full justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
-          <div>
-            <h2 className="flex flex-col items-center text-green-600 font-bold text-2xl">Fork & Knife</h2>
+        <div className='flex flex-col items-center justify-center'>
+            {/* <h2 className="flex flex-col items-center text-green-600 font-bold text-2xl">Fork & Knife</h2> */}
+            <img src={logoWhite} className='h-[110px] ' alt="logo" />
           </div>
           <div className="mt-12 flex flex-col items-center">
+          <h3 className="text-2xl mb-6 font-bold text-[#00655B] ">User Signup</h3>
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs">
-                <h3 className="text-2xl mb-6 font-bold text-[#00655B]">User Signup</h3>
+                
                 <form id="signupForm" onSubmit={formik.handleSubmit}>
                   <input
                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-400 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"

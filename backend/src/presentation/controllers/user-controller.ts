@@ -16,7 +16,6 @@ import { handleWalletTopUpSuccess } from "../../functions/Wallet/walletPaymentDa
 import WalletModel from "../../frameworks/database/models/walletModel"
 import walletModel from '../../frameworks/database/models/walletModel';
 
-import atob from 'atob'
 
 export class userController {
 
